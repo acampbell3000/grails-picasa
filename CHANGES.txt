@@ -1,0 +1,7 @@
+VERSION: 0.0.2
+
+Release notes 0.0.2
+- Introduction of further documentation (README / CHANGES)
+
+Initial release: 0.0.1
+
