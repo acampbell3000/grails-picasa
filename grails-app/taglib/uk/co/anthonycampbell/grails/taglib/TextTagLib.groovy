@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU;
  * <li>remoteText</li>
  * <li>remoteArea</li>
  * <li>remoteSelect</li>
+ * <li>remotePaginate</li>
  * <li>displayFieldError</li>
  * </ul>
  */

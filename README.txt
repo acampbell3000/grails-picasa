@@ -16,9 +16,9 @@ limitations under the License.
 Grails Contact Form
 --------------------------------------
 
-A simple plug-in which provides an Ajax driven contact form with real
-time validation and captcha support. Ajax forms provided by
-the "remote-forms" skin available through the skin-loader plug-in.
+A simple plug-in which provides a photo gallery driven from a Google Picasa
+Web Album account. Ajax forms provided by the "remote-forms" skin available
+through the skin-loader plug-in.
 
 If you find any issues, please submit a bug on JIRA:
 
@@ -37,55 +37,39 @@ Installation:
 ------------------------
 To install the plug-in from the repository enter the following command:
 
-	grails install-plugin contact-form
+	grails install-plugin picasa
 
 ------------------------
 Configuration:
 ------------------------
-Once install your new contact form will be available at the following
+Once install your new picasa gallery will be available at the following
 URL:
 
-    http://{HOSTNAME}:{PORT}/{APPLICATION-NAME}/contactForm
+    http://{HOSTNAME}:{PORT}/{APPLICATION-NAME}/picasa
 
 If you would prefer to change the URL to the contact form, please take
 advantage of the grails-app/conf/UrlMappings.groovy file.
-For example, to change the mapping from "contactForm" to "contactUs"
+For example, to change the mapping from "picasa" to "gallery"
 insert the following line into your URL mappings file:
 
-    "/contactUs" {
-        controller = "contactForm"
+    "/gallery" {
+        controller = "picasa"
     }
 
-The next step is to provide mail plug-in configuration your SMTP server
-details. The configuration is available in the
-grails-app/conf/Config.groovy file. The existing example configuration
-is a template for use with a GMAIL account. Please update as required.
-
-Note: This is set up to use SSL, if your SMTP server does not make use
-of SSL then you should remove the "props" SSL attributes.
-
-Finally, you need to update the captcha definition found again in
-the grails-app/conf/Config.groovy file. The existing configuration
-contains comments which highlight the following properties:
-
-- Allowed characters
-- Font size
-- Font type
-- Background size
-- Background colour
-- Maximum text length
-- Minimum text length
-- Text colour
+The next step is to provide the neccessary configuration your SMTP server
+details. The configuration is available in the grails-app/conf/Config.groovy
+file. The existing example represents a standard configuration. Please update
+as required.
 
 ------------------------
 Further documentation:
 ------------------------
-The contact form plug-in is dependent on both the Mail and JCaptcha
-plug-ins. For additional configuration and feature information please
-refer to the following documentation:
+The picasa plug-in is driven through the Google Picasa Web Album API.
+For additional configuration and feature information please refer to
+the following documentation:
 
-    http://www.grails.org/plugin/mail
-    http://www.grails.org/plugin/jcaptcha
+    http://picasaweb.google.co.uk
+    http://code.google.com/apis/picasaweb/overview.html
 
 For further information regarding URL mapping please refer to the
 following documentation:
