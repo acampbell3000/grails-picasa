@@ -7,19 +7,19 @@
 						<table>
 							<thead>
 								<tr>
-                                    <th><g:message code="photo.photoId.label" default="Photo Id" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.photoId.label" default="Photo Id" /></th>
 
-                                    <g:sortableColumn property="title" title="${message(code: 'photo.title.label', default: 'Title')}" />
+                                    <g:sortableColumn property="title" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.title.label', default: 'Title')}" />
 
-                                    <g:sortableColumn property="description" title="${message(code: 'photo.description.label', default: 'Description')}" />
+                                    <g:sortableColumn property="description" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.description.label', default: 'Description')}" />
 
-                                    <th><g:message code="album.image.label" default="Image" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.image.label" default="Image" /></th>
 
-                                    <g:sortableColumn property="cameraModel" title="${message(code: 'photo.cameraModel.label', default: 'Camera Model')}" />
+                                    <g:sortableColumn property="cameraModel" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.cameraModel.label', default: 'Camera Model')}" />
 
-                                    <th><g:message code="photo.geoLocation.label" default="Geo Location" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.geoLocation.label" default="Geo Location" /></th>
 
-                                    <g:sortableColumn property="dateCreated" title="${message(code: 'photo.dateCareated.label', default: 'Date Created')}" />
+                                    <g:sortableColumn property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.dateCreated.label', default: 'Date Created')}" />
 								</tr>
 							</thead>
 							<tbody>

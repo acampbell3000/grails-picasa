@@ -8,63 +8,63 @@
 							<tbody>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.photoId.label" default="Photo Id" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.photoId.label" default="Photo Id" /></td>
 
 									<td valign="top" class="value">${fieldValue(bean: photoInstance, field: "photoId")}</td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.title.label" default="Title" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.title.label" default="Title" /></td>
 
 									<td valign="top" class="value">${fieldValue(bean: photoInstance, field: "title")}</td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.description.label" default="Description" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.description.label" default="Description" /></td>
 
 									<td valign="top" class="value">${fieldValue(bean: photoInstance, field: "description")}</td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.cameraModel.label" default="Camera Model" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.cameraModel.label" default="Camera Model" /></td>
 
 									<td valign="top" class="value">${fieldValue(bean: photoInstance, field: "cameraModel")}</td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.geoLocation.label" default="Geo Location" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.geoLocation.label" default="Geo Location" /></td>
 
 									<td valign="top" class="value">${photoInstance?.geoLocation?.latitude}${(photoInstance?.geoLocation?.longitude) ? ', ' + photoInstance.geoLocation.longitude + '' : ''}</td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.width.label" default="Width" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.width.label" default="Width" /></td>
 
 									<td valign="top" class="value">${fieldValue(bean: photoInstance, field: "width")}</td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.height.label" default="Height" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.height.label" default="Height" /></td>
 
 									<td valign="top" class="value">${fieldValue(bean: photoInstance, field: "height")}</td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.isPublic.label" default="Is Public" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.isPublic.label" default="Is Public" /></td>
 
 									<td valign="top" class="value"><g:formatBoolean boolean="${photoInstance?.isPublic}" /></td>
 
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.tags.label" default="Tags" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.tags.label" default="Tags" /></td>
 
 									<td valign="top" style="text-align: left;" class="value">
 										<ul>
@@ -77,21 +77,21 @@
 								</tr>
 
 								<tr class="prop">
-									<td valign="top" class="name"><g:message code="photo.dateCreated.label" default="Date Created" /></td>
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.dateCreated.label" default="Date Created" /></td>
 
 									<td valign="top" class="value"><g:formatDate date="${photoInstance?.dateCreated}" /></td>
 
 								</tr>
 
 								<tr class="prop">
-                                    <td valign="top" class="name"><g:message code="photo.previousPhotoId.label" default="Previous Photo" /></td>
+                                    <td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.previousPhotoId.label" default="Previous Photo" /></td>
 
 									<td valign="top" class="value"><g:photoLink action="ajaxShow" update="showPhoto" albumId="${photoInstance.albumId}" photoId="${photoInstance.previousPhotoId}"><g:message code="photo.previousPhotoId.label" default="Previous Photo" /></g:photoLink></td>
 
 								</tr>
 
 								<tr class="prop">
-                                    <td valign="top" class="name"><g:message code="photo.nextPhotoId.label" default="Next Photo" /></td>
+                                    <td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.nextPhotoId.label" default="Next Photo" /></td>
 
 									<td valign="top" class="value"><g:photoLink action="ajaxShow" update="showPhoto" albumId="${photoInstance.albumId}" photoId="${photoInstance.nextPhotoId}"><g:message code="photo.nextPhotoId.label" default="Next Photo" /></g:photoLink></td>
 								</tr>

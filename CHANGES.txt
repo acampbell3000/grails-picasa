@@ -2,6 +2,8 @@ VERSION: 0.0.2
 
 Release notes 0.0.2
 - Introduction of further documentation (README / CHANGES)
+- Internationalised the Photo and Album views
+- Small tweak to the Picasa Service and Album / Photo controllers
 
 Initial release: 0.0.1
 

@@ -45,5 +45,7 @@ class Photo {
         image(url: true, blank:false)
         width(blank:false)
         height(blank:false)
+        previousPhotoId(nullable:true)
+        nextPhotoId(nullable:true)
     }
 }
