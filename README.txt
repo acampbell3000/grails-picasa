@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 --------------------------------------
-Grails Contact Form
+Grails Picasa Plug-in
 --------------------------------------
 
 A simple plug-in which provides a photo gallery driven through a Google Picasa
