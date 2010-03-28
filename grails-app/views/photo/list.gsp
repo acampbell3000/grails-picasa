@@ -12,7 +12,6 @@
 						<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label" default="Home" /></a></li>
 						<li><g:link controller="album" class="list" action="list"><g:message code="album.list.label" default="Album List" /></g:link></li>
 					</ul>
-
-                    <g:render template="list" model="['photoInstanceList': photoInstanceList, 'photoInstanceTotal': photoInstanceTotal, 'albumId': albumId]" />
-    </body>
+                
+                    <g:render template="/photo/list" model="['photoInstanceList': photoInstanceList, 'photoInstanceTotal': photoInstanceTotal, 'albumId': albumId]" />    </body>
 </html>

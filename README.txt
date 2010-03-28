@@ -16,7 +16,7 @@ limitations under the License.
 Grails Contact Form
 --------------------------------------
 
-A simple plug-in which provides a photo gallery driven from a Google Picasa
+A simple plug-in which provides a photo gallery driven through a Google Picasa
 Web Album account. Ajax forms provided by the "remote-forms" skin available
 through the skin-loader plug-in.
 
@@ -56,10 +56,10 @@ insert the following line into your URL mappings file:
         controller = "picasa"
     }
 
-The next step is to provide the neccessary configuration your SMTP server
-details. The configuration is available in the grails-app/conf/Config.groovy
-file. The existing example represents a standard configuration. Please update
-as required.
+The next step is to provide the neccessary configuration and your Google
+Picasa Web Album account details. The configuration is available in the
+grails-app/conf/Config.groovy file. The existing example represents a
+standard configuration. Please update as required.
 
 ------------------------
 Further documentation:

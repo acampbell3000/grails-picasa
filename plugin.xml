@@ -1,4 +1,4 @@
-<plugin name='picasa' version='0.0.1' grailsVersion='1.2.1 &gt; *'>
+<plugin name='picasa' version='0.0.2' grailsVersion='1.2.1 &gt; *'>
   <author>Anthony Campbell</author>
   <authorEmail>acampbell3000 [[at] googlemail [dot]] com</authorEmail>
   <title>Grails Picasa Plug-in</title>
@@ -7,9 +7,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
 </description>
   <documentation>http://grails.org/plugin/picasa</documentation>
   <resources>
-    <resource>BuildConfig</resource>
     <resource>Config</resource>
-    <resource>DataSource</resource>
     <resource>UrlMappings</resource>
     <resource>uk.co.anthonycampbell.grails.plugins.picasa.AlbumController</resource>
     <resource>uk.co.anthonycampbell.grails.plugins.picasa.PhotoController</resource>

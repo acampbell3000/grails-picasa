@@ -56,12 +56,12 @@ class PicasaService implements InitializingBean {
         // Validate properties
         if (!isConfigValid(this.picasaUsername)) {
             logger.error("Unable to connect to Google Picasa Web Albums - invalid username. Please " +
-                "ensure you have declared the property picasa.domainname in your application's config.")
+                "ensure you have declared the property picasa.username in your application's config.")
             configValid = false
         }
         if (!isConfigValid(this.picasaPassword)) {
             logger.error("Unable to connect to Google Picasa Web Albums - invalid password. Please " +
-                "ensure you have declared the property picasa.domainname in your application's config.")
+                "ensure you have declared the property picasa.password in your application's config.")
             configValid = false
         }
         if (!isConfigValid(this.picasaApplicationName)) {
@@ -230,16 +230,16 @@ class PicasaService implements InitializingBean {
      */
     def List<Photo> listPhotosForAlbum(String albumId) throws PicasaServiceException {
         if(serviceInitialised) {
-            try {
-                // Validate ID
-                if (!albumId || StringUtils.isEmpty(albumId)) {
-                    def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
-                        "provided ID was invalid. (albumId=" + albumId + ")"
+            // Validate ID
+            if (albumId == null || StringUtils.isEmpty(albumId)) {
+                def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                    "provided ID was invalid. (albumId=" + albumId + ")"
 
-                    log.error(errorMessage, ex)
-                    throw new PicasaServiceException(errorMessage, ex)
-                }
-                
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            try {
                 // Initialise result
                 List<Photo> photoListing = new ArrayList<Photo>()
 
@@ -295,16 +295,17 @@ class PicasaService implements InitializingBean {
      */
     def Photo getPhoto(String albumId, String photoId) throws PicasaServiceException {
         if(serviceInitialised) {
+            // Validate IDs
+            if (albumId == null || StringUtils.isEmpty(albumId) ||
+                    photoId == null || StringUtils.isEmpty(photoId)) {
+                def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. The " +
+                    "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId + ")"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
             try {
-                // Validate IDs
-                if (!albumId || StringUtils.isEmpty(albumId) || !photoId || StringUtils.isEmpty(photoId)) {
-                    def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. The " +
-                        "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId + ")"
-
-                    log.error(errorMessage, ex)
-                    throw new PicasaServiceException(errorMessage, ex)
-                }
-
                 // Initialise result
                 Photo photo = null
 
@@ -325,7 +326,6 @@ class PicasaService implements InitializingBean {
                 if (!domain.hasErrors() && domain.isPublic) {
                     photo = domain
                 }
-
 
                 // Check we have a photo to work with
                 if (photo) {
