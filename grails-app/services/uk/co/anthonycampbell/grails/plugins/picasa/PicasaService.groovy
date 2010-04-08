@@ -50,59 +50,25 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = grailsApplication.config.picasa.imgmax
         this.picasaThumbsize = grailsApplication.config.picasa.thumbsize
 
-        // Lets be optimistic
-        def configValid = true
+        // Validate properties and attempt to initialise the service
+        validateAndInitialiseService()
+    }
 
-        // Validate properties
-        if (!isConfigValid(this.picasaUsername)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid username. Please " +
-                "ensure you have declared the property picasa.username in your application's config.")
-            configValid = false
-        }
-        if (!isConfigValid(this.picasaPassword)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid password. Please " +
-                "ensure you have declared the property picasa.password in your application's config.")
-            configValid = false
-        }
-        if (!isConfigValid(this.picasaApplicationName)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid application name. This " +
-                "plug-in's application.properties file may have been tampered with. Please re-install " +
-                "the Grails Picasa plug-in.")
-            configValid = false
-        }
-        if (!isConfigValid(this.picasaImgmax)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid max image size. Please " +
-                "ensure you have declared the property picasa.imgmax in your application's config.")
-            configValid = false
-        }
-        if (!isConfigValid(this.picasaThumbsize)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid thumbnail size. Please " +
-                "ensure you have declared the property picasa.thumbsize in your application's config.")
-            configValid = false
-        }
+    /*
+     * Attempt to re-connect to the Picasa web service using the new provided
+     * configuration details.
+     *
+     * @return whether a new connection was successfully made.
+     */
+    boolean connect(String picasaUsername, String picasaPassword,
+            String picasaApplicationName, String picasaImgmax, String picasaThumbsize) {
+        this.picasaUsername = picasaUsername
+        this.picasaPassword = picasaPassword
+        this.picasaApplicationName = picasaApplicationName
+        this.picasaImgmax = picasaImgmax
+        this.picasaThumbsize = picasaThumbsize
 
-        // Attempt connection if configuration is valid
-        if (configValid) {
-            logger.info("Picasa configuration has been found.")
-
-            try {
-                logger.info("Attempting connection...")
-
-                // Initialise Picasa Web Service
-                picasaWebService = new PicasawebService(this.picasaApplicationName)
-                picasaWebService.setUserCredentials(this.picasaUsername, this.picasaPassword);
-
-                logger.info("Successfully connected to the Google Picasa web service.")
-                
-            } catch (Exception ex) {
-                logger.error("Unable to connect to Google Picasa Web Albums. Please ensure the " +
-                    "provided Google account details are correct and try again.", ex)
-                configValid = false
-            }
-        }
-
-        // Only initialise the service if the configuration is valid
-        this.serviceInitialised = configValid
+        return validateAndInitialiseService()
     }
 
     /**
@@ -392,6 +358,72 @@ class PicasaService implements InitializingBean {
         }
     }
     
+    /**
+     * Validate the service properties and attempt to initialise.
+     *
+     * @return whether the service has been successfully initialised.
+     */
+    private boolean validateAndInitialiseService() {
+        // Lets be optimistic
+        def configValid = true
+
+        logger.error("Begin PicasaService configuration validation.")
+
+        // Validate properties
+        if (!isConfigValid(this.picasaUsername)) {
+            logger.error("Unable to connect to Google Picasa Web Albums - invalid username. Please " +
+                "ensure you have declared the property picasa.username in your application's config.")
+            configValid = false
+        }
+        if (!isConfigValid(this.picasaPassword)) {
+            logger.error("Unable to connect to Google Picasa Web Albums - invalid password. Please " +
+                "ensure you have declared the property picasa.password in your application's config.")
+            configValid = false
+        }
+        if (!isConfigValid(this.picasaApplicationName)) {
+            logger.error("Unable to connect to Google Picasa Web Albums - invalid application name. This " +
+                "plug-in's application.properties file may have been tampered with. Please re-install " +
+                "the Grails Picasa plug-in.")
+            configValid = false
+        }
+        if (!isConfigValid(this.picasaImgmax)) {
+            logger.error("Unable to connect to Google Picasa Web Albums - invalid max image size. Please " +
+                "ensure you have declared the property picasa.imgmax in your application's config.")
+            configValid = false
+        }
+        if (!isConfigValid(this.picasaThumbsize)) {
+            logger.error("Unable to connect to Google Picasa Web Albums - invalid thumbnail size. Please " +
+                "ensure you have declared the property picasa.thumbsize in your application's config.")
+            configValid = false
+        }
+
+        // Attempt connection if configuration is valid
+        if (configValid) {
+            logger.info("Picasa configuration has been found.")
+
+            try {
+                logger.info("Attempting connection...")
+
+                // Initialise Picasa Web Service
+                picasaWebService = new PicasawebService(this.picasaApplicationName)
+                picasaWebService.setUserCredentials(this.picasaUsername, this.picasaPassword);
+
+                logger.info("Successfully connected to the Google Picasa web service.")
+
+            } catch (Exception ex) {
+                logger.error("Unable to connect to Google Picasa Web Albums. Please ensure the " +
+                    "provided Google account details are correct and try again.", ex)
+                configValid = false
+            }
+        }
+
+        // Only initialise the service if the configuration is valid
+        this.serviceInitialised = configValid
+
+        // Return initialisation result
+        return serviceInitialised
+    }
+
     /**
      * Check whether the provided config reference is valid and set.
      *
