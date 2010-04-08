@@ -1,6 +1,7 @@
 VERSION: 0.0.3
 
 Release notes 0.0.3
+- README update.
 
 Release notes 0.0.2
 - Introduction of further documentation (README / CHANGES)
