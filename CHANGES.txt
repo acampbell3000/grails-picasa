@@ -3,6 +3,7 @@ VERSION: 0.0.3
 Release notes 0.0.3
 - README update.
 - Introduction of new connect() method allowing the Picasa web service connection to be reset during runtime.
+- Introduction of new reset() method allowing the Picasa web service to revert back to the default Config.groovy connection details during runtime.
 
 Release notes 0.0.2
 - Introduction of further documentation (README / CHANGES)
