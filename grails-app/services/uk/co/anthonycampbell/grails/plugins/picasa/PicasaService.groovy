@@ -41,17 +41,7 @@ class PicasaService implements InitializingBean {
      */
     @Override
     void afterPropertiesSet() {
-        // Get configuration from Config.groovy
-        this.picasaUsername = grailsApplication.config.picasa.username
-        this.picasaPassword = grailsApplication.config.picasa.password
-        this.picasaApplicationName = this.getClass().getPackage().getName() +
-            "-" + grailsApplication.metadata['app.name'] +
-            "-" + grailsApplication.metadata['app.version']
-        this.picasaImgmax = grailsApplication.config.picasa.imgmax
-        this.picasaThumbsize = grailsApplication.config.picasa.thumbsize
-
-        // Validate properties and attempt to initialise the service
-        validateAndInitialiseService()
+        reset()
     }
 
     /*
@@ -68,6 +58,26 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = picasaImgmax
         this.picasaThumbsize = picasaThumbsize
 
+        return validateAndInitialiseService()
+    }
+
+    /*
+     * Attempt to re-connect to the Picasa web service using the provided
+     * connection details available in the grails-app/conf/Config.groovy file.
+     *
+     * @return whether a new connection was successfully made.
+     */
+    boolean reset() {
+        // Get configuration from Config.groovy
+        this.picasaUsername = grailsApplication.config.picasa.username
+        this.picasaPassword = grailsApplication.config.picasa.password
+        this.picasaApplicationName = this.getClass().getPackage().getName() +
+            "-" + grailsApplication.metadata['app.name'] +
+            "-" + grailsApplication.metadata['app.version']
+        this.picasaImgmax = grailsApplication.config.picasa.imgmax
+        this.picasaThumbsize = grailsApplication.config.picasa.thumbsize
+
+        // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
     }
 
@@ -367,7 +377,7 @@ class PicasaService implements InitializingBean {
         // Lets be optimistic
         def configValid = true
 
-        logger.error("Begin PicasaService configuration validation.")
+        logger.info("Begin PicasaService configuration validation.")
 
         // Validate properties
         if (!isConfigValid(this.picasaUsername)) {
