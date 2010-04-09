@@ -1,7 +1,8 @@
 VERSION: 0.0.4
 
 Release notes 0.0.4
-
+- README update.
+- Insert next/previous ID check into the photo show views.
 
 Release notes 0.0.3
 - README update.

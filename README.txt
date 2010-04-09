@@ -42,24 +42,64 @@ To install the plug-in from the repository enter the following command:
 ------------------------
 Configuration:
 ------------------------
-Once install your new picasa gallery will be available at the following
+Once installed your new picasa gallery will be available at the following
 URL:
 
     http://{HOSTNAME}:{PORT}/{APPLICATION-NAME}/picasa
 
-If you would prefer to change the URL to the contact form, please take
-advantage of the grails-app/conf/UrlMappings.groovy file.
-For example, to change the mapping from "picasa" to "gallery"
-insert the following line into your URL mappings file:
+The Picasa photo gallery implements a RESTful style URL which is not
+configured by default in the downloaded binary. Therefore, you must update
+your grails-app/conf/UrlMappings.groovy to include the following mapping
+block:
 
-    "/gallery" {
-        controller = "picasa"
+    "/photo/list/$albumId" {
+        controller = "photo"
+        action = "list"
     }
 
-The next step is to provide the neccessary configuration and your Google
-Picasa Web Album account details. The configuration is available in the
-grails-app/conf/Config.groovy file. The existing example represents a
-standard configuration. Please update as required.
+    "/photo/ajaxList/$albumId" {
+        controller = "photo"
+        action = "ajaxList"
+    }
+
+    "/photo/show/$albumId/$photoId" {
+        controller = "photo"
+        action = "show"
+    }
+
+    "/photo/ajaxShow/$albumId/$photoId" {
+        controller = "photo"
+        action = "ajaxShow"
+    }
+
+The next step is to provide the Picasa plug-in your Google Picasa web
+album account details. These details should be inserted into the
+grails-app/conf/Config.groovy file. The following shows an example
+Picasa configuration block:
+
+    picasa {
+        // Required
+        username = "joe.bloggs@gmail.com"
+        password = "password"
+        imgmax = 800
+        thumbsize = 72
+
+        // Optional
+        max = 10
+        maxsteps = 5
+    }
+
+Configuration properties:
+
+    * username - Your Google Picasa web album username.
+    * password - Your Google Picasa web album password.
+    * imgmax - The maximum width of each photo viewed through the photo controller.
+    * thumbsize - The maximum width of each album's and photo's thumbnail.
+    * max - The maximum number of listing displayed per page.
+    * maxsteps - The maximum number of steps displayed in the pagination block.
+
+Note: The properties imgmax and thumbsize are subject to a valid set of values
+detailed by the API's reference guide.
 
 ------------------------
 Further documentation:
@@ -70,6 +110,7 @@ the following documentation:
 
     http://picasaweb.google.co.uk
     http://code.google.com/apis/picasaweb/overview.html
+    http://code.google.com/apis/picasaweb/docs/2.0/reference.html#Parameters
 
 For further information regarding URL mapping please refer to the
 following documentation:

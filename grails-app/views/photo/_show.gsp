@@ -83,18 +83,22 @@
 
 								</tr>
 
+                                <g:if test="${photoInstance.previousPhotoId}">
 								<tr class="prop">
                                     <td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.previousPhotoId.label" default="Previous Photo" /></td>
 
 									<td valign="top" class="value"><g:photoLink action="ajaxShow" update="showPhoto" albumId="${photoInstance.albumId}" photoId="${photoInstance.previousPhotoId}"><g:message code="photo.previousPhotoId.label" default="Previous Photo" /></g:photoLink></td>
 
 								</tr>
+                                </g:if>
 
+                                <g:if test="${photoInstance.nextPhotoId}">
 								<tr class="prop">
                                     <td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.nextPhotoId.label" default="Next Photo" /></td>
 
 									<td valign="top" class="value"><g:photoLink action="ajaxShow" update="showPhoto" albumId="${photoInstance.albumId}" photoId="${photoInstance.nextPhotoId}"><g:message code="photo.nextPhotoId.label" default="Next Photo" /></g:photoLink></td>
 								</tr>
+                                </g:if>
 
 							</tbody>
 						</table>
