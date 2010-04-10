@@ -1,7 +1,10 @@
-VERSION: 0.1.0
+VERSION: 0.1.1
 
 Known issues:
 - Sort links need updating to support ajax requests fully.
+
+Release notes 0.1.1
+
 
 Release notes 0.1.0
 - README update.
