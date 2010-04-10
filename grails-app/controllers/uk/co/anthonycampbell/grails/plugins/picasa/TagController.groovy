@@ -14,25 +14,28 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU;
 class TagController {
     
     // Declare dependencies
-    def messageSource
-    
-    // Delete, save and update actions only accept POST requests
-	static allowedMethods = [delete:'POST', save:'POST', ajaxSave:'POST', update:'POST', ajaxUpdate:'POST']
+    def grailsApplication
+    def picasaService
 
     /**
-     * Re-direct index requests to list view
+     * Re-direct index requests to list view.
      */
-        def index = {
+    def index = {
         redirect(action: "list", params: params)
 	}
 
     /**
-     * Prepare and render the tag list view
+     * Prepare and render the photo list view.
      */
     def list = {
-        flash.message = ""
-        params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        [tagInstanceList: Tag.list(params), tagInstanceTotal: Tag.count()]
+        return doList(false)
+    }
+
+    /**
+     * Prepare and render the photo list view.
+     */
+    def ajaxList = {
+        return doList(true)
     }
 
     /**
@@ -49,193 +52,81 @@ class TagController {
             [tagInstance: tagInstance]
         }
     }
-    
+
     /**
-     * Initialise form and render view
+     * Request list of photos through the Picasa web service.
+     * Sort and prepare response to be displayed in the view.
+     *
+     * @param isAjax whether the request is from an Ajax call.
+     * @return list of photos to display.
      */
-    def create = {
-        def tagInstance = new Tag()
-        tagInstance.properties = params
+    private doList(boolean isAjax) {
+        // Initialise lists
+        List<Photo> photoList = new ArrayList<Photo>()
+        List<Photo> displayList = new ArrayList<Photo>()
+
+        // Prepare display values
+        int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue()
+        def listView = "list"
+        if(isAjax) listView = "_list"
         flash.message = ""
-        return [tagInstance: tagInstance]
-    }
 
-    /**
-     * Invoke non-ajax save method
-     */
-    def save = {
-        doSave(false)
-    }
+        log.debug("Attempting to list photos for the selected tag through the Picasa web service " +
+                "(tagKeyword=" + params.id + ")")
 
-    /**
-     * Invoke ajax save method
-     */
-    def ajaxSave = {
-        doSave(true)
-    }
+        // Get photo list from picasa service
+        try {
+            photoList.addAll(picasaService.listPhotosForTag(params.id))
 
-    /**
-     * Get selected instance and render edit view
-     */
-    def edit = {
-        def tagInstance = Tag.get(params.id)
+            log.debug("Success...")
 
-        // Check whether tag exists
-        if (!tagInstance) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'tag.label', default: 'Tag'), params.id])}"
-            redirect(action: "list")
-        } else {
-            flash.message = ""
-            return [tagInstance: tagInstance]
+        } catch (PicasaServiceException pse) {
+            flash.message =
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available')}"
         }
-    }
 
-    /**
-     * Invoke non-ajax update method
-     */
-    def update = {
-        doUpdate(false)
-    }
-
-    /**
-     * Invoke ajax update method
-     */
-    def ajaxUpdate = {
-        doUpdate(true)
-    }
-
-    /**
-     * Get selected instance and attempt to perform a hard delete
-     */
-    def delete = {
-        def tagInstance = Tag.get(params.id)
-
-        // Check whether tag exists
-        if (tagInstance) {
-            try {
-				// Attempt delete
-                tagInstance.delete(flush: true)
-                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'tag.label', default: 'Tag'), params.id])}"
-                redirect(action: "list")
-
-            } catch (org.springframework.dao.DataIntegrityViolationException e) {
-                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'tag.label', default: 'Tag'), params.id])}"
-                redirect(action: "show", id: params.id)
-            }
-        }
-        else {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'tag.label', default: 'Tag'), params.id])}"
-            redirect(action: "list")
-        }
-    }
-
-    /*
-     * Validate an individual field
-     */
-    def validate = {
-        // Initialise domain instance and error message
-        def tagInstance = new Tag(params)
-        def errorMessage = ""
-        def field = ""
-
-        // Get selected field
-        for (param in params) {
-            if (param.key != null && !param.key.equals("action")
-                    && !param.key.equals("controller")) {
-                field = param.key
-                break
+        // If required, sort list
+        if (params.sort) {
+            switch (params.sort) {
+                case "name":
+                    Collections.sort(photoList, new PhotoNameComparator())
+                    break
+                case "description":
+                    Collections.sort(photoList, new PhotoDescriptionComparator())
+                    break
+                case "cameraModel":
+                    Collections.sort(photoList, new PhotoCameraModelComparator())
+                    break
+                case "dateCreated":
+                    Collections.sort(photoList, new PhotoDateComparator())
+                    break
             }
         }
 
-		log.debug("Validating field: " + field)
-
-        // Check whether provided field has errors
-        if (!tagInstance.validate() && tagInstance.errors.hasFieldErrors(field)) {
-			// Get error message value
-            errorMessage = messageSource.getMessage(
-                contactFormInstance.errors.getFieldError(field),
-                RCU.getLocale(request)
-            )
-
-			log.debug("Error message: " + errorMessage)
+        // If required, reverse list
+        if (params.order == "asc") {
+            Collections.reverse(photoList)
         }
 
-        // Render error message
-        render(errorMessage)
-    }
+        log.debug("Convert response into display list")
 
-    /**
-     * Attempt to update the provided tag instance.
-     * In addition, render the correct view depending on whether the
-     * call is Ajax or not.
-     *
-     * @param isAjax whether the request is from an Ajax call.
-     */
-    private doUpdate(boolean isAjax) {
-        def tagInstance = Tag.get(params.id)
-        def editView = "edit"
-        def showView = "show"
-        if(isAjax) {
-            editView = "ajaxEdit"
-            showView = "ajaxShow"
-        }
-
-		log.debug("Attempting to update an instance of Tag (isAjax = " + isAjax + ")")
-
-        // Check whether tag exists
-        if (tagInstance) {
-			// Check version has not changed
-            if (params.version) {
-                def version = params.version.toLong()
-                if (tagInstance.version > version) {
-                    tagInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
-						[message(code: 'tag.label', default: 'Tag')] as Object[],
-						"Another user has updated this Tag while you were editing")
-                    render(view: editView, model: [tagInstance: tagInstance])
-                    return
-                }
+        // Convert to array to allow easy display preparation
+        Photo[] photoArray = photoList.toArray()
+        if (photoArray) {
+            // Prepare display list
+            photoArray = Arrays.copyOfRange(photoArray, offset,
+                ((offset + max) > photoArray.length ? photoArray.length : (offset + max)))
+            if (photoArray) {
+                // Update display list
+                displayList.addAll(Arrays.asList(photoArray))
             }
-
-			// Get updated properties
-            tagInstance.properties = params
-
-			// Perform update
-            if (!tagInstance.hasErrors() && tagInstance.save(flush: true)) {
-                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'tag.label', default: 'Tag'), tagInstance.id])}"
-				render(view: showView, model: [tagInstance: tagInstance])
-            } else {
-                render(view: editView, model: [tagInstance: tagInstance])
-            }
-        } else {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'tag.label', default: 'Tag'), params.id])}"
-            redirect(action: "list")
-        }
-    }
-    
-    /**
-     * Attempt to save the provided tag instance.
-     * In addition, render the correct view depending on whether the
-     * call is Ajax or not.
-     *
-     * @param isAjax whether the request is from an Ajax call.
-     */
-    private doSave(boolean isAjax) {
-        def tagInstance = new Tag(params)
-        def showView = "show"
-        def createView = "create"
-        if(isAjax) {
-            showView = "ajaxShow"
-            createView = "ajaxCreate"
         }
 
-		log.debug("Attempting to save an instance of Tag (isAjax = " + isAjax + ")")
+        log.debug("Display list with " + listView + " view")
 
-        if (tagInstance.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'tag.label', default: 'Tag'), tagInstance.id])}"
-            render(view: showView, model: [tagInstance: tagInstance])
-        }
-        else {
-            render(view: createView, model: [tagInstance: tagInstance])
-        }
+        render(view: listView, model: [photoInstanceList: displayList,
+                photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),
+                tagKeyword: params.id])
     }
 }

@@ -284,6 +284,72 @@ class PicasaService implements InitializingBean {
     }
 
     /**
+     * List the available photos for the provided Google Picasa web album tag.
+     *
+     * @return list of photos for the provided Google Picasa web service album tag.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available photos.
+     */
+    def List<Photo> listPhotosForTag(String tagKeyword) throws PicasaServiceException {
+        if(serviceInitialised) {
+            // Validate ID
+            if (tagKeyword == null || StringUtils.isEmpty(tagKeyword)) {
+                def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                    "provided tag keyword was invalid. (tagKeyword=" + tagKeyword + ")"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            try {
+                // Initialise result
+                List<Photo> photoListing = new ArrayList<Photo>()
+                
+                // Declare feed
+                URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                    this.picasaUsername)
+
+                log.debug("FeedUrl: " + feedUrl)
+
+                Query tagQuery = new Query(feedUrl)
+                tagQuery.setStringCustomParameter("kind", "photo")
+                tagQuery.setStringCustomParameter("tag", tagKeyword)
+
+                // Get album feed
+                AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
+
+                for (PhotoEntry entry : tagSearchResultsFeed.getPhotoEntries()) {
+                    // Transfer entry into domain class
+                    Photo photo = convertToPhotoDomain(entry)
+
+                    // If we have a valid public entry add to listing
+                    if (!photo.hasErrors() && photo.isPublic) {
+                        photoListing.add(photo)
+                    }
+                }
+
+                // Return result
+                return photoListing
+
+            } catch (Exception ex) {
+                def errorMessage = "Unable to list your Google Picasa Web Album Photos. A problem occurred " +
+                    "when making the request through the Google Data API. (username=" +
+                    this.picasaUsername + ", tagKeyword=" + tagKeyword + ")"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
+                "declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
      * List the available tags for the provided Google Picasa web album.
      *
      * @return list of tags for the provided Google Picasa web service album.
