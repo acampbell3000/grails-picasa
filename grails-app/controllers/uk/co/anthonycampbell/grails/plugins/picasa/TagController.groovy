@@ -39,18 +39,79 @@ class TagController {
     }
 
     /**
-     * Get selected instance and render show view
+     * Get photos for the selected tag through the Picasa service and
+     * render the view.
      */
     def show = {
-        def tagInstance = Tag.get(params.id)
+        return doShow(false)
+    }
 
-        // Check whether tag exists
-        if (!tagInstance) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'tag.label', default: 'Tag'), params.id])}"
-            redirect(action: "list")
-		} else {
-            [tagInstance: tagInstance]
+    /**
+     * Get photos for the selected tag through the Picasa service and
+     * render the ajax view.
+     */
+    def ajaxShow = {
+        return doShow(true)
+    }
+
+    /**
+     * Request list of tags through the Picasa web service.
+     * Sort and prepare response to be displayed in the view.
+     *
+     * @param isAjax whether the request is from an Ajax call.
+     * @return list of photos to display.
+     */
+    private doList(boolean isAjax) {
+        // Initialise lists
+        List<Tag> tagList = new ArrayList<Tag>()
+        List<Tag> displayList = new ArrayList<Tag>()
+
+        // Prepare display values
+        int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.tagKeywordMax) ? grailsApplication.config.picasa.tagKeywordMax : 10))).intValue()
+        def listView = "list"
+        if(isAjax) listView = "_list"
+        flash.message = ""
+
+        log.debug("Attempting to list tags through the Picasa web service")
+
+        // Get photo list from picasa service
+        try {
+            tagList.addAll(picasaService.listAllTags())
+
+            log.debug("Success...")
+
+        } catch (PicasaServiceException pse) {
+            flash.message =
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Tag.list.not.available')}"
         }
+
+        // Sort tags
+        Collections.sort(tagList, new TagKeywordComparator())
+
+        // If required, reverse list
+        if (params.order == "asc") {
+            Collections.reverse(tagList)
+        }
+
+        log.debug("Convert response into display list")
+
+        // Convert to array to allow easy display preparation
+        Tag[] tagArray = tagList.toArray()
+        if (tagArray) {
+            // Prepare display list
+            tagArray = Arrays.copyOfRange(tagArray, offset,
+                ((offset + max) > tagArray.length ? tagArray.length : (offset + max)))
+            if (tagArray) {
+                // Update display list
+                displayList.addAll(Arrays.asList(tagArray))
+            }
+        }
+
+        log.debug("Display list with " + listView + " view")
+
+        render(view: listView, model: [tagInstanceList: displayList,
+                tagInstanceTotal: (tagList?.size() ? tagList.size() : 0)])
     }
 
     /**
@@ -60,7 +121,7 @@ class TagController {
      * @param isAjax whether the request is from an Ajax call.
      * @return list of photos to display.
      */
-    private doList(boolean isAjax) {
+    private doShow(boolean isAjax) {
         // Initialise lists
         List<Photo> photoList = new ArrayList<Photo>()
         List<Photo> displayList = new ArrayList<Photo>()
@@ -68,8 +129,8 @@ class TagController {
         // Prepare display values
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
         int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue()
-        def listView = "list"
-        if(isAjax) listView = "_list"
+        def listView = "show"
+        if(isAjax) listView = "_show"
         flash.message = ""
 
         log.debug("Attempting to list photos for the selected tag through the Picasa web service " +
