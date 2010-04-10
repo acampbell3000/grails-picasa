@@ -4,7 +4,7 @@ Known issues:
 - Sort links need updating to support ajax requests fully.
 
 Release notes 0.1.1
-
+- Small fix to remove tag list div when there are no tags to display.
 
 Release notes 0.1.0
 - README update.
