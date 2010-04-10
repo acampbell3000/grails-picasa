@@ -3,6 +3,9 @@ VERSION: 0.0.4
 Release notes 0.0.4
 - README update.
 - Insert next/previous ID check into the photo show views.
+- Introduction of tags into domain objects from photo result sets.
+- Introduction of tag listing into list views.
+- PicasaService updates to support tag queries.
 
 Release notes 0.0.3
 - README update.

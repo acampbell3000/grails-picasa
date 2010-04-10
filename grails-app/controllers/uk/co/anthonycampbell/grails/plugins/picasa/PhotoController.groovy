@@ -17,6 +17,9 @@ class PhotoController {
     def grailsApplication
     def picasaService
 
+    // Declare cache (used to reduce Google API calls)
+    private static Map<String, List> tagCache = new HashMap<String, List>()
+
     /**
      * Re-direct index requests to list view.
      */
@@ -65,6 +68,7 @@ class PhotoController {
         // Initialise lists
         List<Photo> photoList = new ArrayList<Photo>()
         List<Photo> displayList = new ArrayList<Photo>()
+        List<Tag> tagList = new ArrayList<Tag>()
 
         // Prepare display values
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
@@ -73,14 +77,23 @@ class PhotoController {
         if(isAjax) listView = "_list"
         flash.message = ""
 
-        log.debug("Attempting to list photos through the Picasa web service " +
+        log.debug("Attempting to list photos and tags through the Picasa web service " +
                 "(albumId=" + params.albumId + ")")
 
         // Get photo list from picasa service
         try {
             photoList.addAll(picasaService.listPhotosForAlbum(params.albumId))
 
+            // Check whether tag list already exists in cache
+            if (!tagCache.containsKey(params.albumId)) {
+                tagList.addAll(picasaService.listTagsForAlbum(params.albumId))
+
+                // Update cache
+                tagCache.put(params.albumId, tagList)
+            }
+
             log.debug("Success...")
+            
         } catch (PicasaServiceException pse) {
             flash.message =
                 "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available')}"
@@ -109,6 +122,9 @@ class PhotoController {
             Collections.reverse(photoList)
         }
 
+        // Always sort Tags alphabetically
+        Collections.sort(tagList, new TagKeywordComparator())
+
         log.debug("Convert response into display list")
 
         // Convert to array to allow easy display preparation
@@ -127,7 +143,7 @@ class PhotoController {
 
         render(view: listView, model: [photoInstanceList: displayList,
                 photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),
-                albumId: params.albumId])
+                albumId: params.albumId, tagInstanceList: tagCache.get(params.albumId)])
     }
 
     /**

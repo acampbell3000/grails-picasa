@@ -38,7 +38,7 @@
 								<tr class="prop">
 									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.geoLocation.label" default="Geo Location" /></td>
 									
-									<td valign="top" class="value">${albumInstance?.geoLocation?.latitude}, ${albumInstance?.geoLocation?.longitude}</td>
+									<td valign="top" class="value">${albumInstance?.geoLocation?.latitude}${(albumInstance?.geoLocation?.longitude) ? ', ' + albumInstance.geoLocation.longitude + '' : ''}</td>
 									
 								</tr>
 							
@@ -61,6 +61,19 @@
 									
 									<td valign="top" class="value"><g:formatDate date="${albumInstance?.dateCreated}" /></td>
 									
+								</tr>
+
+								<tr class="prop">
+									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.tags.label" default="Tags" /></td>
+
+									<td valign="top" style="text-align: left;" class="value">
+										<ul>
+										<g:each in="${albumInstance.tags}" var="t">
+											<li><g:link controller="tag" action="show" id="${t.keyword}">${t?.keyword}</g:link></li>
+										</g:each>
+										</ul>
+									</td>
+
 								</tr>
 							
 							</tbody>

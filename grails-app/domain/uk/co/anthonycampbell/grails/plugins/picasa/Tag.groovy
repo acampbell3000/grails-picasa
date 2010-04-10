@@ -11,12 +11,10 @@ package uk.co.anthonycampbell.grails.plugins.picasa
 class Tag {
 
     // Declare tag properties
-    String tagId = ""
     String keyword = ""
 
     // Declare tag constraints
     static constraints = {
-        tagId(blank:false)
         keyword(blank:false, size:2..250)
     }
 }

@@ -1,15 +1,17 @@
 package uk.co.anthonycampbell.grails.plugins.picasa
 
-import java.net.URL;
+import java.net.URL
 
-import com.google.gdata.client.photos.*;
-import com.google.gdata.data.photos.*;
-import com.google.gdata.util.AuthenticationException;
-import com.google.gdata.util.RedirectRequiredException;
-import com.google.gdata.util.ServiceException;
+import com.google.gdata.client.Query
+import com.google.gdata.client.photos.*
+import com.google.gdata.data.media.mediarss.MediaKeywords
+import com.google.gdata.data.photos.*
+import com.google.gdata.util.AuthenticationException
+import com.google.gdata.util.RedirectRequiredException
+import com.google.gdata.util.ServiceException
 
 import org.apache.commons.lang.StringUtils
-import org.apache.log4j.Logger;
+import org.apache.log4j.Logger
 import org.springframework.beans.factory.InitializingBean
 
 /**
@@ -166,7 +168,28 @@ class PicasaService implements InitializingBean {
                 log.debug("FeedUrl: " + feedUrl)
 
                 // Get album feed
-                AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class);
+                AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
+
+                // Declare tag feed
+                URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                    this.picasaUsername + "/albumid/" + albumId + "?kind=tag")
+
+                log.debug("TagUrl: " + tagUrl)
+
+                // Get all tags for this album
+                AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+
+                // Get any existing tags
+                MediaKeywords albumTags = albumFeed?.getMediaKeywords()
+                if (albumTags == null) {
+                    albumTags = new MediaKeywords()
+                }
+
+                // Update album feed with results
+                for (TagEntry tag : tagResultsFeed.getTagEntries()) {
+                    albumTags.addKeyword(tag?.getTitle()?.getPlainText())
+                }
+                albumFeed?.setKeywords(albumTags)
 
                 // Transfer feed into domain class
                 Album domain = convertToAlbumDomain(albumFeed)
@@ -261,6 +284,123 @@ class PicasaService implements InitializingBean {
     }
 
     /**
+     * List the available tags for the provided Google Picasa web album.
+     *
+     * @return list of tags for the provided Google Picasa web service album.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available tags.
+     */
+    def List<Tag> listTagsForAlbum(String albumId) throws PicasaServiceException {
+        if(serviceInitialised) {
+            // Validate ID
+            if (albumId == null || StringUtils.isEmpty(albumId)) {
+                def errorMessage = "Unable to retrieve your Google Picasa Web Album Tags. The " +
+                    "provided ID was invalid. (albumId=" + albumId + ")"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            try {
+                // Initialise result
+                List<Tag> tagListing = new ArrayList<Tag>()
+
+                // Declare tag feed
+                URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                    this.picasaUsername + "/albumid/" + albumId + "?kind=tag")
+
+                log.debug("TagUrl: " + tagUrl)
+
+                // Get all tags for this album
+                AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+
+                // Update list with results
+                for (TagEntry entry : tagResultsFeed?.getTagEntries()) {
+                    // Transfer entry into domain class
+                    Tag tag = convertToTagDomain(entry)
+
+                    // If we have a valid entry add to listing
+                    if (!tag.hasErrors()) {
+                        tagListing.add(tag)
+                    }
+                }
+
+                // Return result
+                return tagListing
+
+            } catch (Exception ex) {
+                def errorMessage = "Unable to list your Google Picasa Web Album Tags. A problem occurred " +
+                    "when making the request through the Google Data API. (username=" +
+                    this.picasaUsername + ", albumId=" + albumId + ")"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
+                "declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the available tags used by the Google Picasa web album user.
+     *
+     * @return list of tags for the provided Google Picasa web service user.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available tags.
+     */
+    def List<Tag> listAllTags() throws PicasaServiceException {
+        if(serviceInitialised) {
+            try {
+                // Initialise result
+                List<Tag> tagListing = new ArrayList<Tag>()
+
+                // Declare tag feed
+                URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                    this.picasaUsername + "?kind=tag")
+
+                log.debug("TagUrl: " + tagUrl)
+
+                // Get all tags for this album
+                AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+
+                // Update list with results
+                for (TagEntry entry : tagResultsFeed?.getTagEntries()) {
+                    // Transfer entry into domain class
+                    Tag tag = convertToTagDomain(entry)
+
+                    // If we have a valid entry add to listing
+                    if (!tag.hasErrors()) {
+                        tagListing.add(tag)
+                    }
+                }
+
+                // Return result
+                return tagListing
+
+            } catch (Exception ex) {
+                def errorMessage = "Unable to list your Google Picasa Web Album Tags. A problem occurred " +
+                    "when making the request through the Google Data API. (username=" +
+                    this.picasaUsername + ")"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
+                "declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
      * Get the Photo for the provided IDs through the Google Picasa web service.
      *
      * @param albumId the provided album ID.
@@ -293,7 +433,7 @@ class PicasaService implements InitializingBean {
                 log.debug("FeedUrl: " + feedUrl)
 
                 // Get album feed
-                PhotoFeed photoFeed = picasaWebService.getFeed(feedUrl, PhotoFeed.class) 
+                PhotoFeed photoFeed = picasaWebService.getFeed(feedUrl, PhotoFeed.class)
 
                 // Transfer feed into domain class
                 Photo domain = convertToPhotoDomain(photoFeed)
@@ -485,6 +625,20 @@ class PicasaService implements InitializingBean {
             album.height = thumbnails?.get(thumbnails?.size()-1)?.getHeight()
         }
 
+        // Check whether photo has any tags
+        def keywords = item?.getMediaKeywords()?.getKeywords()
+        if (keywords?.size() > 0) {
+            // Add all tags
+            for (String keyword : keywords) {
+                Tag tag = new Tag()
+                tag.keyword = keyword
+
+                if (!tag.hasErrors()) {
+                    album.addToTags(tag)
+                }
+            }
+        }
+
         // Transfer remaining properties over to domain class
         album.name = item?.getTitle()?.getPlainText()
         album.description = item?.getDescription()?.getPlainText()
@@ -533,6 +687,20 @@ class PicasaService implements InitializingBean {
             photo.height = content?.get(content?.size()-1)?.getHeight()
         }
 
+        // Check whether photo has any tags
+        def keywords = item?.getMediaKeywords()?.getKeywords()
+        if (keywords?.size() > 0) {
+            // Add all tags
+            for (String keyword : keywords) {
+                Tag tag = new Tag()
+                tag.keyword = keyword
+
+                if (!tag.hasErrors()) {
+                    photo.addToTags(tag)
+                }
+            }
+        }
+
         // Transfer remaining properties over to domain class
         photo.albumId = item?.getAlbumId()
         photo.title = item?.getTitle()?.getPlainText()
@@ -543,5 +711,22 @@ class PicasaService implements InitializingBean {
 
         // Return updated photo
         return photo
+    }
+
+    /**
+     * Convert the provided TagEntry object into the Tag domain class.
+     *
+     * @param item the TagEntry to convert.
+     * @result the Tag domain class.
+     */
+    private Tag convertToTagDomain(TagEntry entry) {
+        // Initialise result
+        Tag tag = new Tag()
+
+        // Process keyword
+        tag.keyword = entry?.getTitle()?.getPlainText()
+
+        // Return updated tag
+        return tag
     }
 }

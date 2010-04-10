@@ -55,7 +55,7 @@ class AlbumController {
     }
 
     /**
-     * Request list of albums through the Picasa web service.
+     * Request list of albums and tags through the Picasa web service.
      * Sort and prepare response to be displayed in the view.
      *
      * @param isAjax whether the request is from an Ajax call.
@@ -65,6 +65,7 @@ class AlbumController {
         // Initialise lists
         List<Album> albumList = new ArrayList<Album>()
         List<Album> displayList = new ArrayList<Album>()
+        List<Tag> tagList = new ArrayList<Tag>()
 
         // Prepare display values
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
@@ -73,11 +74,12 @@ class AlbumController {
         if(isAjax) listView = "_list"
         flash.message = ""
 
-        log.debug("Attempting to list albums through the Picasa web service")
+        log.debug("Attempting to list albums and tags through the Picasa web service")
 
         // Get album list from picasa service
         try {
             albumList.addAll(picasaService.listAlbums())
+            tagList.addAll(picasaService.listAllTags())
 
             log.debug("Success...")
         } catch (PicasaServiceException pse) {
@@ -108,6 +110,9 @@ class AlbumController {
             Collections.reverse(albumList)
         }
 
+        // Always sort Tags alphabetically
+        Collections.sort(tagList, new TagKeywordComparator())
+
         log.debug("Convert response into display list")
 
         // Convert to array to allow easy display preparation
@@ -125,7 +130,8 @@ class AlbumController {
         log.debug("Display list with " + listView + " view")
 
         render(view: listView, model: [albumInstanceList: displayList,
-                albumInstanceTotal: (albumList?.size() ? albumList.size() : 0)])
+                albumInstanceTotal: (albumList?.size() ? albumList.size() : 0),
+                tagInstanceList: tagList])
     }
 
     /**

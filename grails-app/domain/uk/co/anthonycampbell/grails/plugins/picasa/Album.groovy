@@ -23,6 +23,9 @@ class Album {
     Date dateCreated = new Date()
     boolean isPublic = false
 
+    // Declare relationships
+    static hasMany = [ tags : Tag ]
+
     // Declare constraints
     static constraints = {
         albumId(blank:false)
