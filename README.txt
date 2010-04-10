@@ -83,10 +83,12 @@ Picasa configuration block:
         password = "password"
         imgmax = 800
         thumbsize = 72
+        maxresults = 500
 
         // Optional
         max = 10
         maxsteps = 5
+        maxkeywords = 100
     }
 
 Configuration properties:
@@ -95,8 +97,10 @@ Configuration properties:
     * password - Your Google Picasa web album password.
     * imgmax - The maximum width of each photo viewed through the photo controller.
     * thumbsize - The maximum width of each album's and photo's thumbnail.
+    * maxresults - The maximum number of results to be returned when performing queries. This is used when making requests through the tag controller.
     * max - The maximum number of listing displayed per page.
     * maxsteps - The maximum number of steps displayed in the pagination block.
+    * maxkeywords - The maximum number of keywords displayed in the tag listing result set.
 
 Note: The properties imgmax and thumbsize are subject to a valid set of values
 detailed by the API's reference guide.

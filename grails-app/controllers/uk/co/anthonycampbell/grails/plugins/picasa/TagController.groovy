@@ -68,7 +68,7 @@ class TagController {
 
         // Prepare display values
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
-        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.tagKeywordMax) ? grailsApplication.config.picasa.tagKeywordMax : 10))).intValue()
+        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxkeywords) ? grailsApplication.config.picasa.maxkeywords : 10))).intValue()
         def listView = "list"
         if(isAjax) listView = "_list"
         flash.message = ""
@@ -163,6 +163,8 @@ class TagController {
                     Collections.sort(photoList, new PhotoDateComparator())
                     break
             }
+        } else {
+            Collections.sort(photoList, new PhotoDateComparator())
         }
 
         // If required, reverse list
@@ -184,7 +186,7 @@ class TagController {
             }
         }
 
-        log.debug("Display list with " + listView + " view")
+        log.debug("Display list with " + listView + " view and keyword " + params.id)
 
         render(view: listView, model: [photoInstanceList: displayList,
                 photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),

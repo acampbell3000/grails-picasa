@@ -34,6 +34,7 @@ class PicasaService implements InitializingBean {
     def picasaApplicationName
     def picasaImgmax
     def picasaThumbsize
+    def picasaMaxResults
 
     // Declare logger to be used "after" properties set
     def logger = Logger.getLogger(this.getClass());
@@ -53,12 +54,14 @@ class PicasaService implements InitializingBean {
      * @return whether a new connection was successfully made.
      */
     boolean connect(String picasaUsername, String picasaPassword,
-            String picasaApplicationName, String picasaImgmax, String picasaThumbsize) {
+            String picasaApplicationName, String picasaImgmax, String picasaThumbsize,
+            String picasaMaxResults) {
         this.picasaUsername = picasaUsername
         this.picasaPassword = picasaPassword
         this.picasaApplicationName = picasaApplicationName
         this.picasaImgmax = picasaImgmax
         this.picasaThumbsize = picasaThumbsize
+        this.picasaMaxResults = picasaMaxResults
 
         return validateAndInitialiseService()
     }
@@ -78,6 +81,7 @@ class PicasaService implements InitializingBean {
             "-" + grailsApplication.metadata['app.version']
         this.picasaImgmax = grailsApplication.config.picasa.imgmax
         this.picasaThumbsize = grailsApplication.config.picasa.thumbsize
+        this.picasaMaxResults = grailsApplication.config.picasa.maxresults
 
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
@@ -314,7 +318,10 @@ class PicasaService implements InitializingBean {
                 Query tagQuery = new Query(feedUrl)
                 tagQuery.setStringCustomParameter("kind", "photo")
                 tagQuery.setStringCustomParameter("tag", tagKeyword)
-
+                tagQuery.setStringCustomParameter("thumbsize", "" + this.picasaThumbsize)
+                tagQuery.setStringCustomParameter("imgmax", "" + this.picasaImgmax)
+                tagQuery.setStringCustomParameter("max-results", "" + this.picasaMaxResults)
+                
                 // Get album feed
                 AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
 

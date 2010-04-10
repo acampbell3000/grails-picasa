@@ -1,38 +1,49 @@
 
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Tag" %>
-                    <div id="showTag">
+<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
+                    <div id="listPhoto">
 					<g:if test="${flash.message}">
-    					<div id="flashMessage">${flash.message}</div>
+						<div id="flashMessage">${flash.message}</div>
 					</g:if>
 						<table>
+							<thead>
+								<tr>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.photoId.label" default="Photo Id" /></th>
+
+                                    <g:sortableColumn property="title" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.title.label', default: 'Title')}" />
+
+                                    <g:sortableColumn property="description" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.description.label', default: 'Description')}" />
+
+                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.image.label" default="Image" /></th>
+
+                                    <g:sortableColumn property="cameraModel" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.cameraModel.label', default: 'Camera Model')}" />
+
+                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.geoLocation.label" default="Geo Location" /></th>
+
+                                    <g:sortableColumn property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.dateCreated.label', default: 'Date Created')}" />
+								</tr>
+							</thead>
 							<tbody>
-							
-								<tr class="prop">
-									<td valign="top" class="name"><g:message code="tag.id.label" default="Id" /></td>
-									
-									<td valign="top" class="value">${fieldValue(bean: tagInstance, field: "id")}</td>
-									
+
+							<g:each in="${photoInstanceList}" status="i" var="photoInstance">
+								<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                                    <td><a href="${createLink(controller: "photo", action: "show", id: photoInstance.albumId)}/${photoInstance.photoId}">${fieldValue(bean: photoInstance, field: "photoId")}</a></td>
+
+                                    <td>${fieldValue(bean: photoInstance, field: "title")}</td>
+
+                                    <td>${fieldValue(bean: photoInstance, field: "description")}</td>
+
+                                    <td><a href="${createLink(controller: "photo", action: "show", id: photoInstance.albumId)}/${photoInstance.photoId}"><img src="${fieldValue(bean: photoInstance, field: "thumbnailImage")}" width="${fieldValue(bean: photoInstance, field: "thumbnailWidth")}" height="${fieldValue(bean: photoInstance, field: "thumbnailHeight")}" alt="${fieldValue(bean: photoInstance, field: "title")}" title="${fieldValue(bean: photoInstance, field: "title")}"></a></td>
+
+                                    <td>${fieldValue(bean: photoInstance, field: "cameraModel")}</td>
+
+                                    <td>${photoInstance?.geoLocation?.latitude}${(photoInstance?.geoLocation?.longitude) ? ', ' + photoInstance.geoLocation.longitude + '' : ''}</td>
+
+                                    <td>${(photoInstance.dateCreated)?.format("yyyy-MM-dd")}</td>
 								</tr>
-							
-								<tr class="prop">
-									<td valign="top" class="name"><g:message code="tag.tagId.label" default="Tag Id" /></td>
-									
-									<td valign="top" class="value">${fieldValue(bean: tagInstance, field: "tagId")}</td>
-									
-								</tr>
-							
-								<tr class="prop">
-									<td valign="top" class="name"><g:message code="tag.keyword.label" default="Keyword" /></td>
-									
-									<td valign="top" class="value">${fieldValue(bean: tagInstance, field: "keyword")}</td>
-									
-								</tr>
-							
+							</g:each>
 							</tbody>
 						</table>
-						<g:form>
-							<p><g:actionSubmit class="button" action="edit" value="${message(code: 'default.button.edit.label', default: 'Edit')}" />
-							   <g:actionSubmit class="button" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
-							   <g:hiddenField name="id" value="${tagInstance?.id}" /></p>
-						</g:form>
-					 </div>
+						<div id="pagination">
+							<g:remotePaginate action="ajaxShow" update="listPhoto" id="${tagKeyword}" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxsteps) ? grailsApplication.config.picasa.maxsteps : 10}" total="${photoInstanceTotal}" />
+						</div>
+					</div>

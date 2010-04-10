@@ -1,5 +1,5 @@
 
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Album" %>
+<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
                     <div id="listPhoto">
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>

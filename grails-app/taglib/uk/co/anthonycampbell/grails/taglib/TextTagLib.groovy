@@ -431,9 +431,9 @@ class TextTagLib {
 	 */
     def remotePaginate = { attrs ->
 		def writer = out
-
+        
         // Check whether the album ID has been set
-        if (attrs.albumId != "") {
+        if (attrs.albumId != null && attrs.albumId != "") {
             attrs.id = attrs.albumId
             attrs.remove('albumId')
         }

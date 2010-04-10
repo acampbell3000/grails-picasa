@@ -3,7 +3,6 @@
 <html>
     <head>
         <meta name="layout" content="remote-forms" />
-        <g:set var="entityName" value="${message(code: 'album.label', default: 'Album')}" />
         <title><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.legend" default="Photo Albums" /></title>
     </head>
     <body>
@@ -16,7 +15,9 @@
                     <g:render template="list" model="['albumInstanceList': albumInstanceList, 'albumInstanceTotal': albumInstanceTotal]" />
 
                     <div id="listTag">
+                    <g:if test="${tagInstanceList != null && tagInstanceList.size > 0}">
                         <g:each in="${tagInstanceList}" status="tagIndex" var="tagInstance">${(tagIndex > 0) ? ", " : ""}<g:link controller="tag" action="show" id="${tagInstance?.keyword}">${tagInstance?.keyword}</g:link></g:each>
+                    </g:if>
                     </div>
     </body>
 </html>
