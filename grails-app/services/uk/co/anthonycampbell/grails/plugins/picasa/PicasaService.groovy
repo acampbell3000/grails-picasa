@@ -619,6 +619,12 @@ class PicasaService implements InitializingBean {
                 "ensure you have declared the property picasa.thumbsize in your application's config.")
             configValid = false
         }
+        if (!isConfigValid(this.picasaMaxResults)) {
+            logger.error("Unable to connect to Google Picasa Web Albums - invalid max search results " +
+                "value. Please ensure you have declared the property picasa.maxresults in your " +
+                "application's config.")
+            configValid = false
+        }
 
         // Attempt connection if configuration is valid
         if (configValid) {
