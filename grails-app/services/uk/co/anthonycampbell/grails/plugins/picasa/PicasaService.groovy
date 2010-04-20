@@ -484,7 +484,7 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available tags.
      */
-    def List<Tag> listCommentsForPhoto(String photoId) throws PicasaServiceException {
+    def List<Comment> listCommentsForPhoto(String photoId) throws PicasaServiceException {
         if(serviceInitialised) {
             // Validate ID
             if (photoId == null || StringUtils.isEmpty(photoId)) {
@@ -509,12 +509,12 @@ class PicasaService implements InitializingBean {
                 PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class);
 
                 // Update list with results
-                for (TagEntry entry : tagResultsFeed?.getTagEntries()) {
+                for (CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
                     // Transfer entry into domain class
-                    Tag tag = convertToTagDomain(entry)
+                    Comment comment = convertToCommentDomain(entry)
 
                     // If we have a valid entry add to listing
-                    if (!tag.hasErrors()) {
+                    if (!comment.hasErrors()) {
                         commentListing.add(tag)
                     }
                 }
@@ -523,7 +523,7 @@ class PicasaService implements InitializingBean {
                 return commentListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Tags. A problem occurred " +
+                def errorMessage = "Unable to list your Google Picasa Web Album Comments. A problem occurred " +
                     "when making the request through the Google Data API. (username=" +
                     this.picasaUsername + ", albumId=" + albumId + ")"
 
@@ -531,7 +531,7 @@ class PicasaService implements InitializingBean {
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
+            def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of the plug-in " +
                 "configuration is missing. Please refer to the documentation and ensure you have " +
                 "declared all of the required configuration."
 
@@ -594,6 +594,8 @@ class PicasaService implements InitializingBean {
                             photo.addToComments(comment)
                         }
                     }
+
+                    def cz = photos.comments
 
                     // Second call to find out navigation based on position in album
                     feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
