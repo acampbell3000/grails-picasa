@@ -16,6 +16,7 @@ class Comment {
     String photoId = ""
     String message = ""
     Date dateCreated = new Date()
+    Person author = null
 
     // Declare constraints
     static constraints = {
@@ -23,5 +24,6 @@ class Comment {
         albumId(blank:false)
         photoId(blank:false)
         message(blank:false, size:2..1000)
+        author(nullable:false)
     }
 }

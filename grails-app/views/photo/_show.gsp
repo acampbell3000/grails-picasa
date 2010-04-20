@@ -106,4 +106,20 @@
                         <div id="photo">
                             <p><img src="${fieldValue(bean: photoInstance, field: "image")}" width="${fieldValue(bean: photoInstance, field: "width")}" height="${fieldValue(bean: photoInstance, field: "height")}" alt="${fieldValue(bean: photoInstance, field: "title")}" title="${fieldValue(bean: photoInstance, field: "title")}" /></p>
                         </div>
+
+                        <g:if test="${photoInstance.comments != null && photoInstance.comments.size() > 0}">
+                        <div id="comments">
+                            <ul>
+                            <g:each in="${photoInstance.comments}" var="c">
+                                <g:if test="${c.author?.email == null || c.author?.email == ''}">
+                                    <li>${c.author?.name}
+                                </g:if>
+                                <g:else>
+                                    <li><a href="mailto:${c.author?.email}">${c.author?.name}</a>
+                                </g:else>
+                                <g:if test="${c.dateCreated != null}"> (<g:formatDate date="${c.dateCreated}" format="MMM, dd yyyy hh:mm aa" />)</g:if><br /><em>${c.message}</em></li>
+                            </g:each>
+                            </ul>
+                        </div>
+                        </g:if>
 					 </div>

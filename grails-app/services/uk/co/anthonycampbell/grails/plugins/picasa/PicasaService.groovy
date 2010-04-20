@@ -227,6 +227,7 @@ class PicasaService implements InitializingBean {
     /**
      * List the available photos for the provided Google Picasa web album.
      *
+     * @param albumId the provided album ID.
      * @return list of photos for the provided Google Picasa web service album.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available photos.
@@ -288,8 +289,9 @@ class PicasaService implements InitializingBean {
     }
 
     /**
-     * List the available photos for the provided Google Picasa web album tag.
+     * List the available photos for the provided Google Picasa web album tag keyword.
      *
+     * @param tagKeyword the provided tag keyword.
      * @return list of photos for the provided Google Picasa web service album tag.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available photos.
@@ -359,6 +361,7 @@ class PicasaService implements InitializingBean {
     /**
      * List the available tags for the provided Google Picasa web album.
      *
+     * @param albumId the provided album ID.
      * @return list of tags for the provided Google Picasa web service album.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available tags.
@@ -474,6 +477,70 @@ class PicasaService implements InitializingBean {
     }
 
     /**
+     * List the available comments for the provided Google Picasa web album photo.
+     *
+     * @param photoId the provided photo ID.
+     * @return list of comments for the provided Google Picasa web album photo.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available tags.
+     */
+    def List<Tag> listCommentsForPhoto(String photoId) throws PicasaServiceException {
+        if(serviceInitialised) {
+            // Validate ID
+            if (photoId == null || StringUtils.isEmpty(photoId)) {
+                def errorMessage = "Unable to retrieve your Google Picasa Web Album Comments. The " +
+                    "provided ID was invalid. (photoId=" + photoId + ")"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            try {
+                // Initialise result
+                List<Comment> commentListing = new ArrayList<Comment>()
+
+                // Declare tag feed
+                URL commentUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                    this.picasaUsername + "/albumid/" + albumId + "/photoid/" + photoId + "?kind=comment")
+
+                log.debug("CommentUrl: " + commentUrl)
+
+                // Get all comments for this photo
+                PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class);
+
+                // Update list with results
+                for (TagEntry entry : tagResultsFeed?.getTagEntries()) {
+                    // Transfer entry into domain class
+                    Tag tag = convertToTagDomain(entry)
+
+                    // If we have a valid entry add to listing
+                    if (!tag.hasErrors()) {
+                        commentListing.add(tag)
+                    }
+                }
+
+                // Return result
+                return commentListing
+
+            } catch (Exception ex) {
+                def errorMessage = "Unable to list your Google Picasa Web Album Tags. A problem occurred " +
+                    "when making the request through the Google Data API. (username=" +
+                    this.picasaUsername + ", albumId=" + albumId + ")"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
+                "declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
      * Get the Photo for the provided IDs through the Google Picasa web service.
      *
      * @param albumId the provided album ID.
@@ -517,7 +584,17 @@ class PicasaService implements InitializingBean {
                 }
 
                 // Check we have a photo to work with
-                if (photo) {
+                if (photo != null) {
+                    // First get list of any comments
+                    for (CommentEntry commentEntry : photoFeed.getCommentEntries()) {
+                        // Transfer comment into domain class
+                        Comment comment = convertToCommentDomain(commentEntry)
+
+                        if (!comment.hasErrors()) {
+                            photo.addToComments(comment)
+                        }
+                    }
+
                     // Second call to find out navigation based on position in album
                     feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                         this.picasaUsername + "/albumid/" + albumId + "?thumbsize=" +
@@ -656,7 +733,7 @@ class PicasaService implements InitializingBean {
     /**
      * Check whether the provided config reference is valid and set.
      *
-     * @param the configuration value to validate.
+     * @param setting the configuration value to validate.
      * @return whether the current configuration value is valid and set.
      */
     private boolean isConfigValid(def setting) {
@@ -795,7 +872,7 @@ class PicasaService implements InitializingBean {
     /**
      * Convert the provided TagEntry object into the Tag domain class.
      *
-     * @param item the TagEntry to convert.
+     * @param entry the TagEntry to convert.
      * @result the Tag domain class.
      */
     private Tag convertToTagDomain(TagEntry entry) {
@@ -807,5 +884,56 @@ class PicasaService implements InitializingBean {
 
         // Return updated tag
         return tag
+    }
+
+    /**
+     * Convert the provided CommentEntry object into the Comment domain class.
+     *
+     * @param entry the CommentEntry to convert.
+     * @result the Comment domain class.
+     */
+    private Comment convertToCommentDomain(CommentEntry entry) {
+        // Initialise result
+        Comment comment = new Comment()
+
+        // Process properties
+        comment.commentId = entry?.getId()
+        comment.albumId = entry?.getAlbumId()
+        comment.photoId = entry?.getPhotoId()
+        comment.message = entry?.getPlainTextContent()
+
+        // Convert DateTime to java.util.Date
+        Date date = new Date()
+        date.setTime(entry?.getUpdated()?.getValue())
+        comment.dateCreated = date
+
+        // Add author
+        Person person = convertToPersonDomain(entry?.getAuthors()?.get(0))
+        if (!person.hasErrors()) {
+            comment.author = person
+        }
+
+        // Return updated comment
+        return comment
+    }
+
+    /**
+     * Convert the provided com.google.gdata.data.Person object into the
+     * Person domain class.
+     *
+     * @param entry the com.google.gdata.data.Person to convert.
+     * @result the Person domain class.
+     */
+    private Person convertToPersonDomain(com.google.gdata.data.Person entry) {
+        // Initalise result
+        Person person = new Person()
+
+        // Process properties
+        person.name = entry?.getName()
+        person.email = entry?.getEmail()
+        person.uri = entry?.getUri()
+
+        // Return updated person
+        return person
     }
 }

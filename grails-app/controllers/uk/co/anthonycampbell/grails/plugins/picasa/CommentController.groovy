@@ -22,17 +22,82 @@ class CommentController {
     /**
      * Re-direct index requests to list view
      */
-        def index = {
+    def index = {
         redirect(action: "list", params: params)
 	}
 
     /**
-     * Prepare and render the comment list view
+     * Prepare and render the photo list view.
      */
     def list = {
+        return doList(false)
+    }
+
+    /**
+     * Prepare and render the photo list view.
+     */
+    def ajaxList = {
+        return doList(true)
+    }
+
+    /**
+     * Request list of tags through the Picasa web service.
+     * Sort and prepare response to be displayed in the view.
+     *
+     * @param isAjax whether the request is from an Ajax call.
+     * @return list of photos to display.
+     */
+    private doList(boolean isAjax) {
+        // Initialise lists
+        List<Tag> tagList = new ArrayList<Tag>()
+        List<Tag> displayList = new ArrayList<Tag>()
+
+        // Prepare display values
+        int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxkeywords) ? grailsApplication.config.picasa.maxkeywordsCon : 10))).intValue()
+        def listView = "list"
+        if(isAjax) listView = "_list"
         flash.message = ""
-        params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        [commentInstanceList: Comment.list(params), commentInstanceTotal: Comment.count()]
+
+        log.debug("Attempting to list tags through the Picasa web service")
+
+        // Get photo list from picasa service
+        try {
+            tagList.addAll(picasaService.listAllTags())
+
+            log.debug("Success...")
+
+        } catch (PicasaServiceException pse) {
+            flash.message =
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Tag.list.not.available')}"
+        }
+
+        // Sort tags
+        Collections.sort(tagList, new TagKeywordComparator())
+
+        // If required, reverse list
+        if (params.order == "asc") {
+            Collections.reverse(tagList)
+        }
+
+        log.debug("Convert response into display list")
+
+        // Convert to array to allow easy display preparation
+        Tag[] tagArray = tagList.toArray()
+        if (tagArray) {
+            // Prepare display list
+            tagArray = Arrays.copyOfRange(tagArray, offset,
+                ((offset + max) > tagArray.length ? tagArray.length : (offset + max)))
+            if (tagArray) {
+                // Update display list
+                displayList.addAll(Arrays.asList(tagArray))
+            }
+        }
+
+        log.debug("Display list with " + listView + " view")
+
+        render(view: listView, model: [tagInstanceList: displayList,
+                tagInstanceTotal: (tagList?.size() ? tagList.size() : 0)])
     }
 
     /**

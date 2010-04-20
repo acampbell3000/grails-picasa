@@ -176,3 +176,19 @@ th.desc a {
     padding: 10px;
     margin-top: 1.5em;
 }
+
+#comments {
+    border: 1px solid #CCCCCC;
+    font-size: 0.8em;
+    padding: 0px 10px 10px 10px;
+    margin-top: 1.5em;
+}
+
+#comments li {
+    list-style: none;
+    padding-top: 10px;
+}
+
+#comments em {
+    font-style: normal;
+}
