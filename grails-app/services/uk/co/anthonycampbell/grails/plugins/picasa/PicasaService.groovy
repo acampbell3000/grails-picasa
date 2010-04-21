@@ -595,8 +595,6 @@ class PicasaService implements InitializingBean {
                         }
                     }
 
-                    def cz = photos.comments
-
                     // Second call to find out navigation based on position in album
                     feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                         this.picasaUsername + "/albumid/" + albumId + "?thumbsize=" +

@@ -20,6 +20,7 @@ class Album {
     String width = ""
     String height = ""
     int photoCount = 0
+    List tags
     Date dateCreated = new Date()
     boolean isPublic = false
 

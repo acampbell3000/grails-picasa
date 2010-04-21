@@ -1,13 +1,19 @@
-VERSION: 0.1.1
+VERSION: 0.2.0
 
 Known issues:
 - Sort links need updating to support ajax requests fully.
 - Possible need to enable/disable Tag cache.
 
-Release notes 0.1.1
+Release notes 0.2.0
 - Small fix to remove tag list div when there are no tags to display.
 - Removal of dependency on Spring Security.
 - Introduction of the Comment domain class.
+- Introduction of the Person domain class.
+- Inserted comments into the show photo views.
+- Added person to comments.
+- Small comment / person bug fixes to the PicasaService.
+- Grails upgrade to 1.2.2.
+- Changes tags and comment properties to lists to allow predictable ordering.
 
 Release notes 0.1.0
 - README update.

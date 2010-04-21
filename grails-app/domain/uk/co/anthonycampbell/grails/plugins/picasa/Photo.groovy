@@ -25,6 +25,8 @@ class Photo {
     String height = ""
     String previousPhotoId = ""
     String nextPhotoId = ""
+    List tags
+    List comments
     Date dateCreated = new Date()
     boolean isPublic = false
 
