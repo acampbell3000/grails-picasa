@@ -3,6 +3,7 @@ VERSION: 0.2.0
 Known issues:
 - Sort links need updating to support ajax requests fully.
 - Possible need to enable/disable Tag cache.
+- Poor code coverage of the PicasaService.
 
 Release notes 0.2.0
 - Small fix to remove tag list div when there are no tags to display.
