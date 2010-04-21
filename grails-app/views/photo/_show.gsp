@@ -69,7 +69,8 @@
 									<td valign="top" class="value"><g:formatDate date="${photoInstance?.dateCreated}" /></td>
 
 								</tr>
-
+                                
+                                <g:if test="${photoInstance.tags != null && photoInstance.tags.size() > 0}">
 								<tr class="prop">
 									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.tags.label" default="Tags" /></td>
 
@@ -82,6 +83,7 @@
 									</td>
 
 								</tr>
+                                </g:if>
 
                                 <g:if test="${photoInstance.previousPhotoId}">
 								<tr class="prop">
@@ -109,17 +111,19 @@
 
                         <g:if test="${photoInstance.comments != null && photoInstance.comments.size() > 0}">
                         <div id="comments">
-                            <ul>
-                            <g:each in="${photoInstance.comments}" var="c">
-                                <g:if test="${c.author?.email == null || c.author?.email == ''}">
-                                    <li>${c.author?.name}
+                            <table>
+                            <g:each in="${photoInstance.comments}" status="i" var="commentInstance">
+                                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                                <g:if test="${commentInstance.author?.email == null || commentInstance.author?.email == ''}">
+                                    <td><strong>${commentInstance.author?.name}</strong>
                                 </g:if>
                                 <g:else>
-                                    <li><a href="mailto:${c.author?.email}">${c.author?.name}</a>
+                                    <td><a href="mailto:${commentInstance.author?.email}">${commentInstance.author?.name}</a>
                                 </g:else>
-                                <g:if test="${c.dateCreated != null}"> (<g:formatDate date="${c.dateCreated}" format="MMM, dd yyyy hh:mm aa" />)</g:if><br /><em>${c.message}</em></li>
+                                <g:if test="${commentInstance.dateCreated != null}"> (<g:formatDate date="${commentInstance.dateCreated}" format="MMM, dd yyyy hh:mm aa" />)</g:if><br /><em>${commentInstance.message}</em></td>
+                                </tr>
                             </g:each>
-                            </ul>
+                            </table>
                         </div>
                         </g:if>
 					 </div>

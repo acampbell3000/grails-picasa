@@ -63,6 +63,7 @@
 									
 								</tr>
 
+                                <g:if test="${photoInstance.tags != null && photoInstance.tags.size() > 0}">
 								<tr class="prop">
 									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.tags.label" default="Tags" /></td>
 
@@ -75,7 +76,7 @@
 									</td>
 
 								</tr>
-							
+                                </g:if>
 							</tbody>
 						</table>
 					 </div>
