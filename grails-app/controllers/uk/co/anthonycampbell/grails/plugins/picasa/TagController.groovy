@@ -21,7 +21,7 @@ class TagController {
      * Re-direct index requests to list view.
      */
     def index = {
-        redirect(action: "list", params: params)
+        redirect(controller: "album", action: "index", params: params)
 	}
 
     /**
