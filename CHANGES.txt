@@ -9,6 +9,7 @@ Release notes 0.3.0
 - Introduction of the "showPrivateAlbums" and "showPrivatePhotos" config options.
 - Update PicasaService to include the ability to configure whether to include private photos and albums.
 - README updates.
+- Fixed small bug in the album show view.
 
 Release notes 0.2.0
 - Small fix to remove tag list div when there are no tags to display.
