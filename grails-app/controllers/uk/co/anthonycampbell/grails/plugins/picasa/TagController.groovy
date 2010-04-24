@@ -127,6 +127,7 @@ class TagController {
         List<Photo> displayList = new ArrayList<Photo>()
 
         // Prepare display values
+        def showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
         int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue()
         def listView = "show"
@@ -138,7 +139,7 @@ class TagController {
 
         // Get photo list from picasa service
         try {
-            photoList.addAll(picasaService.listPhotosForTag(params.id))
+            photoList.addAll(picasaService.listPhotosForTag(params.id, showPrivate))
 
             log.debug("Success...")
 

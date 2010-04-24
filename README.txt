@@ -89,6 +89,8 @@ Picasa configuration block:
         max = 10
         maxsteps = 5
         maxkeywords = 100
+        showPrivateAlbums = false
+        showPrivatePhotos = false
     }
 
 Configuration properties:
@@ -101,6 +103,8 @@ Configuration properties:
     * max - The maximum number of listing displayed per page.
     * maxsteps - The maximum number of steps displayed in the pagination block.
     * maxkeywords - The maximum number of keywords displayed in the tag listing result set.
+    * showPrivateAlbums - Whether to include private albums in all album requests.
+    * showPrivatePhotos - Whether to include private photos in all photo requests.
 
 Note: The properties imgmax and thumbsize are subject to a valid set of values
 detailed by the API's reference guide.

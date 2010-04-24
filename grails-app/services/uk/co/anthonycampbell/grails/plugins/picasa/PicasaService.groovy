@@ -90,11 +90,12 @@ class PicasaService implements InitializingBean {
     /**
      * List the available albums for the configured Google Picasa account.
      *
+     * @param showAll whether to include hidden / private albums in the list.
      * @return list of albums from the Google Picasa web service.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available albums.
      */
-    def List<Album> listAlbums() throws PicasaServiceException {
+    def List<Album> listAlbums(boolean showAll = false) throws PicasaServiceException {
         if(serviceInitialised) {
             try {
                 // Initialise result
@@ -115,8 +116,10 @@ class PicasaService implements InitializingBean {
                     Album album = convertToAlbumDomain(entry)
 
                     // If we have a valid public entry add to listing
-                    if (!album.hasErrors() && album.isPublic) {
-                        albumListing.add(album)
+                    if (!album.hasErrors()) {
+                        if (showAll || album.isPublic) {
+                            albumListing.add(album)
+                        }
                     }
                 }
 
@@ -126,7 +129,7 @@ class PicasaService implements InitializingBean {
             } catch (Exception ex) {
                 def errorMessage = "Unable to list your Google Picasa Web Albums. A problem occurred " +
                     "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ")"
+                    this.picasaUsername + ", showAll=" + showAll + ")"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
@@ -145,17 +148,18 @@ class PicasaService implements InitializingBean {
      * Get the Album for the provided ID through the Google Picasa web service.
      *
      * @param albumId the provided album ID.
+     * @param showAll whether to include hidden / private albums.
      * @return the retrieved album from the Google Picasa web service.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the selected album album.
      */
-    def Album getAlbum(String albumId) throws PicasaServiceException {
+    def Album getAlbum(String albumId, boolean showAll = false) throws PicasaServiceException {
         if(serviceInitialised) {
             try {
                 // Validate ID
                 if (!albumId || StringUtils.isEmpty(albumId)) {
                     def errorMessage = "Unable to retrieve your Google Picasa Web Album. The provided " +
-                        "ID was invalid. (albumId=" + albumId + ")"
+                        "ID was invalid. (albumId=" + albumId + ", showAll=" + showAll + ")"
 
                     log.error(errorMessage, ex)
                     throw new PicasaServiceException(errorMessage, ex)
@@ -199,8 +203,10 @@ class PicasaService implements InitializingBean {
                 Album domain = convertToAlbumDomain(albumFeed)
 
                 // If we have a valid public entry add to listing
-                if (!domain.hasErrors() && domain.isPublic) {
-                    album = domain
+                if (!domain.hasErrors()) {
+                    if (showAll || domain.isPublic) {
+                        album = domain
+                    }
                 }
 
                 // Return result
@@ -209,7 +215,7 @@ class PicasaService implements InitializingBean {
             } catch (Exception ex) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album. A problem occurred " +
                     "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ")"
+                    this.picasaUsername + ", albumId=" + albumId + ", showAll=" + showAll + ")"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
@@ -228,16 +234,19 @@ class PicasaService implements InitializingBean {
      * List the available photos for the provided Google Picasa web album.
      *
      * @param albumId the provided album ID.
+     * @param showAll whether to include hidden / private photos in the list.
      * @return list of photos for the provided Google Picasa web service album.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available photos.
      */
-    def List<Photo> listPhotosForAlbum(String albumId) throws PicasaServiceException {
+    def List<Photo> listPhotosForAlbum(String albumId, boolean showAll = false)
+        throws PicasaServiceException {
+        
         if(serviceInitialised) {
             // Validate ID
             if (albumId == null || StringUtils.isEmpty(albumId)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
-                    "provided ID was invalid. (albumId=" + albumId + ")"
+                    "provided ID was invalid. (albumId=" + albumId + ", showAll=" + showAll + ")"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -262,8 +271,10 @@ class PicasaService implements InitializingBean {
                     Photo photo = convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
-                    if (!photo.hasErrors() && photo.isPublic) {
-                        photoListing.add(photo)
+                    if (!photo.hasErrors()) {
+                        if (showAll || photo.isPublic) {
+                            photoListing.add(photo)
+                        }
                     }
                 }
 
@@ -273,7 +284,7 @@ class PicasaService implements InitializingBean {
             } catch (Exception ex) {
                 def errorMessage = "Unable to list your Google Picasa Web Album Photos. A problem occurred " +
                     "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ")"
+                    this.picasaUsername + ", albumId=" + albumId + ", showAll=" + showAll + ")"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
@@ -292,16 +303,20 @@ class PicasaService implements InitializingBean {
      * List the available photos for the provided Google Picasa web album tag keyword.
      *
      * @param tagKeyword the provided tag keyword.
+     * @param showAll whether to include hidden / private photos in the list.
      * @return list of photos for the provided Google Picasa web service album tag.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available photos.
      */
-    def List<Photo> listPhotosForTag(String tagKeyword) throws PicasaServiceException {
+    def List<Photo> listPhotosForTag(String tagKeyword, boolean showAll = false)
+        throws PicasaServiceException {
+
         if(serviceInitialised) {
             // Validate ID
             if (tagKeyword == null || StringUtils.isEmpty(tagKeyword)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
-                    "provided tag keyword was invalid. (tagKeyword=" + tagKeyword + ")"
+                    "provided tag keyword was invalid. (tagKeyword=" + tagKeyword +
+                    ", showAll=" + showAll + ")"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -332,8 +347,10 @@ class PicasaService implements InitializingBean {
                     Photo photo = convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
-                    if (!photo.hasErrors() && photo.isPublic) {
-                        photoListing.add(photo)
+                    if (!photo.hasErrors()) {
+                        if (showAll || photo.isPublic) {
+                            photoListing.add(photo)
+                        }
                     }
                 }
 
@@ -343,7 +360,7 @@ class PicasaService implements InitializingBean {
             } catch (Exception ex) {
                 def errorMessage = "Unable to list your Google Picasa Web Album Photos. A problem occurred " +
                     "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", tagKeyword=" + tagKeyword + ")"
+                    this.picasaUsername + ", tagKeyword=" + tagKeyword + ", showAll=" + showAll + ")"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
@@ -479,17 +496,19 @@ class PicasaService implements InitializingBean {
     /**
      * List the available comments for the provided Google Picasa web album photo.
      *
+     * @param albumId the provided album ID.
      * @param photoId the provided photo ID.
      * @return list of comments for the provided Google Picasa web album photo.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available tags.
      */
-    def List<Comment> listCommentsForPhoto(String photoId) throws PicasaServiceException {
+    def List<Comment> listCommentsForPhoto(String albumId, String photoId) throws PicasaServiceException {
         if(serviceInitialised) {
-            // Validate ID
-            if (photoId == null || StringUtils.isEmpty(photoId)) {
+            // Validate IDs
+            if (albumId == null || StringUtils.isEmpty(albumId) ||
+                    photoId == null || StringUtils.isEmpty(photoId)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Comments. The " +
-                    "provided ID was invalid. (photoId=" + photoId + ")"
+                    "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId + ")"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -525,7 +544,7 @@ class PicasaService implements InitializingBean {
             } catch (Exception ex) {
                 def errorMessage = "Unable to list your Google Picasa Web Album Comments. A problem occurred " +
                     "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ")"
+                    this.picasaUsername + ", albumId=" + albumId + ", photoId=" + photoId + ")"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
@@ -545,17 +564,21 @@ class PicasaService implements InitializingBean {
      *
      * @param albumId the provided album ID.
      * @param photoId the provided photo ID.
+     * @param showAll whether to include hidden / private photo.
      * @return the retrieved photo from the Google Picasa web service.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the selected photo.
      */
-    def Photo getPhoto(String albumId, String photoId) throws PicasaServiceException {
+    def Photo getPhoto(String albumId, String photoId, boolean showAll = false)
+        throws PicasaServiceException {
+
         if(serviceInitialised) {
             // Validate IDs
             if (albumId == null || StringUtils.isEmpty(albumId) ||
                     photoId == null || StringUtils.isEmpty(photoId)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. The " +
-                    "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId + ")"
+                    "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId +
+                    ", showAll=" + showAll + ")"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -579,8 +602,10 @@ class PicasaService implements InitializingBean {
                 Photo domain = convertToPhotoDomain(photoFeed)
 
                 // If we have a valid public entry add to listing
-                if (!domain.hasErrors() && domain.isPublic) {
-                    photo = domain
+                if (!domain.hasErrors()) {
+                    if (showAll || domain.isPublic) {
+                        photo = domain
+                    }
                 }
 
                 // Check we have a photo to work with
@@ -643,7 +668,8 @@ class PicasaService implements InitializingBean {
             } catch (Exception ex) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. A problem occurred " +
                     "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ", photoId=" + photoId + ")"
+                    this.picasaUsername + ", albumId=" + albumId + ", photoId=" + photoId +
+                    ", showAll=" + showAll + ")"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)

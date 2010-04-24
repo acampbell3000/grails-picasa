@@ -71,6 +71,7 @@ class PhotoController {
         List<Tag> tagList = new ArrayList<Tag>()
 
         // Prepare display values
+        def showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
         int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue()
         def listView = "list"
@@ -82,7 +83,7 @@ class PhotoController {
 
         // Get photo list from picasa service
         try {
-            photoList.addAll(picasaService.listPhotosForAlbum(params.albumId))
+            photoList.addAll(picasaService.listPhotosForAlbum(params.albumId, showPrivate))
 
             // Check whether tag list already exists in cache
             if (!tagCache.containsKey(params.albumId)) {
@@ -158,6 +159,7 @@ class PhotoController {
         Photo photoInstance = new Photo()
 
         // Prepare display values
+        def showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
         def showView = "show"
         if(isAjax) showView = "_show"
         flash.message = ""
@@ -167,7 +169,7 @@ class PhotoController {
 
         // Get photo from picasa service
         try {
-            photoInstance = picasaService.getPhoto(params.albumId, params.photoId)
+            photoInstance = picasaService.getPhoto(params.albumId, params.photoId, showPrivate)
 
             log.debug("Success...")
         } catch (PicasaServiceException pse) {

@@ -68,17 +68,19 @@ class AlbumController {
         List<Tag> tagList = new ArrayList<Tag>()
 
         // Prepare display values
+        def showPrivate = (grailsApplication.config.picasa.showPrivateAlbums != null) ? grailsApplication.config.picasa.showPrivateAlbums : false
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
         int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue()
         def listView = "list"
         if(isAjax) listView = "_list"
         flash.message = ""
 
-        log.debug("Attempting to list albums and tags through the Picasa web service")
+        log.debug("Attempting to list albums (showPrivateAlbums=" + showPrivate +
+            ") and tags through the Picasa web service")
 
         // Get album list from picasa service
         try {
-            albumList.addAll(picasaService.listAlbums())
+            albumList.addAll(picasaService.listAlbums(showPrivate))
             tagList.addAll(picasaService.listAllTags())
 
             log.debug("Success...")
@@ -146,15 +148,17 @@ class AlbumController {
         Album albumInstance = new Album()
 
         // Prepare display values
+        def showPrivate = (grailsApplication.config.picasa.showPrivateAlbums != null) ? grailsApplication.config.picasa.showPrivateAlbums : false
         def showView = "show"
         if(isAjax) showView = "_show"
         flash.message = ""
 
-        log.debug("Attempting to get album ID " + params.id + " through the Google Picasa web service")
+        log.debug("Attempting to get album ID " + params.id +
+            " (showPrivateAlbums=" + showPrivate + ") through the Google Picasa web service")
 
         // Get album from picasa service
         try {
-            albumInstance = picasaService.getAlbum(params.id)
+            albumInstance = picasaService.getAlbum(params.id, showPrivate)
 
             log.debug("Success...")
         } catch (PicasaServiceException pse) {
