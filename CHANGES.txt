@@ -4,6 +4,9 @@ Known issues:
 - Sort links need updating to support ajax requests fully.
 - Possible need to enable/disable Tag cache.
 - Poor code coverage of the PicasaService.
+- Need to add pagination to comment listing.
+- Add to provide (OAuth) ability to add comments.
+- Provide RSS feed for albums, photos and maybe comments and tags?
 
 Release notes 0.3.1
 - Update all controller index methods to point to the album controller's index.
