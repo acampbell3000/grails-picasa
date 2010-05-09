@@ -5,8 +5,9 @@ Known issues:
 - Poor code coverage of the PicasaService.
 - Add to provide (OAuth) ability to add comments.
 - Provide RSS feed for albums, and maybe comments and tags?
-- Optimisation excercise
-- Param valiadation exercise
+- Optimisation excercise.
+- Param valiadation exercise.
+- PicasaService is a Singleton so could could problems for concurrent requests for different users.
 
 Release notes 0.4.0
 - Update all controller index methods to point to the album controller's index.
