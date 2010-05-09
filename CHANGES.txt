@@ -3,7 +3,6 @@ VERSION: 0.4.0
 Known issues:
 - Sort links need updating to support ajax requests fully.
 - Poor code coverage of the PicasaService.
-- Need to add pagination to comment listing.
 - Add to provide (OAuth) ability to add comments.
 - Provide RSS feed for albums, photos and maybe comments and tags?
 - Optimisation excercise
