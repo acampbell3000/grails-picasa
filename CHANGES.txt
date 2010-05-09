@@ -17,6 +17,7 @@ Release notes 0.4.0
 - Introduction of new comment pagination configuration.
 - Small PicasaService bug fixes and improvements.
 - README updates.
+- Message property updates.
 
 Release notes 0.3.0
 - Introduction of the "showPrivateAlbums" and "showPrivatePhotos" config options.
