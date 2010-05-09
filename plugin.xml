@@ -1,4 +1,4 @@
-<plugin name='picasa' version='0.3.0' grailsVersion='1.2.1 &gt; *'>
+<plugin name='picasa' version='0.4.0' grailsVersion='1.2.1 &gt; *'>
   <author>Anthony Campbell</author>
   <authorEmail>acampbell3000 [[at] googlemail [dot]] com</authorEmail>
   <title>Grails Picasa Plug-in</title>
@@ -7,6 +7,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
 </description>
   <documentation>http://grails.org/plugin/picasa</documentation>
   <resources>
+    <resource>BuildConfig</resource>
     <resource>Config</resource>
     <resource>UrlMappings</resource>
     <resource>uk.co.anthonycampbell.grails.plugins.picasa.AlbumController</resource>
@@ -26,7 +27,9 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
   <dependencies>
     <resolvers>
       <resolver type='grailsPlugins' name='grailsPlugins' />
+      <resolver type='mavenCentral' />
     </resolvers>
+    <dependency group='org.mockito' name='mockito-all' version='1.8.4' conf='test' transitive='true' />
   </dependencies>
   <behavior />
 </plugin>
