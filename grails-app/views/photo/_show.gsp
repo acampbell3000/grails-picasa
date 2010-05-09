@@ -70,7 +70,7 @@
 
 								</tr>
                                 
-                                <g:if test="${photoInstance.tags != null && photoInstance.tags.size() > 0}">
+                                <g:if test="${photoInstance.tags != null && photoInstance.tags?.size() > 0}">
 								<tr class="prop">
 									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.tags.label" default="Tags" /></td>
 
@@ -109,21 +109,5 @@
                             <p><img src="${fieldValue(bean: photoInstance, field: "image")}" width="${fieldValue(bean: photoInstance, field: "width")}" height="${fieldValue(bean: photoInstance, field: "height")}" alt="${fieldValue(bean: photoInstance, field: "title")}" title="${fieldValue(bean: photoInstance, field: "title")}" /></p>
                         </div>
 
-                        <g:if test="${photoInstance.comments != null && photoInstance.comments.size() > 0}">
-                        <div id="comments">
-                            <table>
-                            <g:each in="${photoInstance.comments}" status="i" var="commentInstance">
-                                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                                <g:if test="${commentInstance.author?.email == null || commentInstance.author?.email == ''}">
-                                    <td><strong>${commentInstance.author?.name}</strong>
-                                </g:if>
-                                <g:else>
-                                    <td><a href="mailto:${commentInstance.author?.email}">${commentInstance.author?.name}</a>
-                                </g:else>
-                                <g:if test="${commentInstance.dateCreated != null}"> (<g:formatDate date="${commentInstance.dateCreated}" format="MMM, dd yyyy hh:mm aa" />)</g:if><br /><em>${commentInstance.message}</em></td>
-                                </tr>
-                            </g:each>
-                            </table>
-                        </div>
-                        </g:if>
+                        <g:render template="comments" model="['photoInstance': photoInstance]" />
 					 </div>

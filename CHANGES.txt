@@ -1,15 +1,22 @@
-VERSION: 0.3.1
+VERSION: 0.4.0
 
 Known issues:
 - Sort links need updating to support ajax requests fully.
-- Possible need to enable/disable Tag cache.
 - Poor code coverage of the PicasaService.
 - Need to add pagination to comment listing.
 - Add to provide (OAuth) ability to add comments.
 - Provide RSS feed for albums, photos and maybe comments and tags?
+- Optimisation excercise
+- Param valiadation exercise
 
-Release notes 0.3.1
+Release notes 0.4.0
 - Update all controller index methods to point to the album controller's index.
+- Introduction of new configuration property to allow control of the tag cache.
+- Introduction of PicasaService unit tests.
+- Pagination of the photo comments.
+- Introduction of new comment pagination configuration.
+- Small PicasaService bug fixes and improvements.
+- README updates.
 
 Release notes 0.3.0
 - Introduction of the "showPrivateAlbums" and "showPrivatePhotos" config options.

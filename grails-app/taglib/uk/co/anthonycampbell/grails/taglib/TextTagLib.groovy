@@ -430,10 +430,17 @@ class TextTagLib {
 	 * Outputs an ajax based paginate tag.
 	 */
     def remotePaginate = { attrs ->
-		def writer = out
+		final def writer = out
+        final def slashPlaceholder = "_PHOTOSLASH_"
         
-        // Check whether the album ID has been set
-        if (attrs.albumId != null && attrs.albumId != "") {
+        // Check whether the album or photo ID has been set
+        if (attrs.albumId != null && attrs.albumId != "" &&
+                attrs.photoId != null && attrs.photoId != "") {
+            attrs.id = attrs.albumId + slashPlaceholder + attrs.photoId
+            attrs.remove('albumId')
+            attrs.remove('photoId')
+
+        } else if (attrs.albumId != null && attrs.albumId != "") {
             attrs.id = attrs.albumId
             attrs.remove('albumId')
         }
@@ -441,15 +448,15 @@ class TextTagLib {
         if(attrs.total == null)
             throwTagError("Tag [remotePaginate] is missing required attribute [total]")
 
-        def messageSource = grailsAttributes.messageSource
-        def locale = RCU.getLocale(request)
+        final def messageSource = grailsAttributes.messageSource
+        final def locale = RCU.getLocale(request)
 
-        def total = attrs.int('total') ?: 0
-        def action = (attrs.action ? attrs.action : (params.action ? params.action : "list"))
-        def offset = params.int('offset') ?: 0
-        def max = params.int('max')
-        def maxsteps = (attrs.int('maxsteps') ?: 10)
-        def update = (attrs.update ? attrs.update : "")
+        final int total = attrs.int('total') ?: 0
+        final String action = (attrs.action ? attrs.action : (params.action ? params.action : "list"))
+        int offset = params.int('offset') ?: 0
+        int max = params.int('max')
+        final int maxsteps = (attrs.int('maxsteps') ?: 10)
+        final String update = (attrs.update ? attrs.update : "")
 
         if (!offset) offset = (attrs.int('offset') ?: 0)
         if (!max) max = (attrs.int('max') ?: 10)
@@ -471,21 +478,22 @@ class TextTagLib {
         linkTagAttrs.params = linkParams
 
         // Determine paging variables
-        def steps = maxsteps > 0
-        int currentstep = (offset / max) + 1
-        int firststep = 1
-        int laststep = Math.round(Math.ceil(total / max))
+        final boolean steps = maxsteps > 0
+        final int currentstep = (offset / max) + 1
+        final int firststep = 1
+        final int laststep = Math.round(Math.ceil(total / max))
 
         // Display previous link when not on firststep
         if (currentstep > firststep) {
             linkTagAttrs.class = 'prevLink'
             linkParams.offset = offset - max
 
-            writer << remoteLink(linkTagAttrs.clone()) {
+            def link = remoteLink(linkTagAttrs.clone()) {
                 (attrs.prev ? attrs.prev : messageSource.getMessage('paginate.prev', null,
                         messageSource.getMessage('default.paginate.prev', null, 'Previous', locale), locale))
             }
-            
+            writer << link.replace(slashPlaceholder, "/")
+
             writer << ' '
         }
 
@@ -494,8 +502,8 @@ class TextTagLib {
             linkTagAttrs.class = 'step'
 
             // Determine begin and endstep paging variables
-            int beginstep = currentstep - Math.round(maxsteps / 2) + (maxsteps % 2)
-            int endstep = currentstep + Math.round(maxsteps / 2) - 1
+            final int beginstep = currentstep - Math.round(maxsteps / 2) + (maxsteps % 2)
+            final int endstep = currentstep + Math.round(maxsteps / 2) - 1
 
             if (beginstep < firststep) {
                 beginstep = firststep
@@ -515,9 +523,10 @@ class TextTagLib {
             if (beginstep > firststep) {
                 linkParams.offset = 0
 
-                writer << remoteLink(linkTagAttrs.clone()) {
+                def link = remoteLink(linkTagAttrs.clone()) {
                     firststep.toString()
                 }
+                writer << link.replace(slashPlaceholder, "/")
 
                 writer << ' <span class="step">..</span> '
             }
@@ -528,9 +537,10 @@ class TextTagLib {
                    writer << "<span class=\"currentStep\">${i}</span> "
                } else {
                    linkParams.offset = (i - 1) * max
-                   writer << remoteLink(linkTagAttrs.clone()) {
+                   def link = remoteLink(linkTagAttrs.clone()) {
                        i.toString()
                    }
+                   writer << link.replace(slashPlaceholder, "/")
 
                    writer << ' '
                }
@@ -540,9 +550,11 @@ class TextTagLib {
             if(endstep < laststep) {
                 writer << '<span class="step">..</span> '
                 linkParams.offset = (laststep -1) * max
-                writer << remoteLink(linkTagAttrs.clone()) {
+
+                def link = remoteLink(linkTagAttrs.clone()) {
                     laststep.toString()
                 }
+                writer << link.replace(slashPlaceholder, "/")
 
                 writer << ' '
             }
@@ -552,10 +564,12 @@ class TextTagLib {
         if(currentstep < laststep) {
             linkTagAttrs.class = 'nextLink'
             linkParams.offset = offset + max
-            writer << remoteLink(linkTagAttrs.clone()) {
+
+            def link = remoteLink(linkTagAttrs.clone()) {
                 (attrs.next ? attrs.next : messageSource.getMessage('paginate.next', null,
                         messageSource.getMessage('default.paginate.next', null, 'Next', locale), locale))
             }
+            writer << link.replace(slashPlaceholder, "/")
 
             writer << ' '
         }

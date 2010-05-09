@@ -25,6 +25,9 @@ class PicasaService implements InitializingBean {
     // Declare service properties
     boolean transactional = true
     boolean serviceInitialised = false
+    
+    // Declare cache (used to reduce Google API calls)
+    private static Map<String, List> tagCache = new HashMap<String, List>()
 
     // Declare dependencies
     PicasawebService picasaWebService
@@ -81,7 +84,7 @@ class PicasaService implements InitializingBean {
             "-" + grailsApplication.metadata['app.version']
         this.picasaImgmax = grailsApplication.config.picasa.imgmax
         this.picasaThumbsize = grailsApplication.config.picasa.thumbsize
-        this.picasaMaxResults = grailsApplication.config.picasa.maxresults
+        this.picasaMaxResults = grailsApplication.config.picasa.maxResults
 
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
@@ -95,25 +98,25 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available albums.
      */
-    def List<Album> listAlbums(boolean showAll = false) throws PicasaServiceException {
+    def List<Album> listAlbums(final boolean showAll = false) throws PicasaServiceException {
         if(serviceInitialised) {
             try {
                 // Initialise result
-                List<Album> albumListing = new ArrayList<Album>()
+                final List<Album> albumListing = new ArrayList<Album>()
 
                 // Declare feed
-                URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername + "?kind=album&thumbsize=" + this.picasaThumbsize +
                     "&imgmax=" + this.picasaImgmax)
 
                 log.debug("FeedUrl: " + feedUrl)
 
                 // Get user feed
-                UserFeed userFeed = picasaWebService.getFeed(feedUrl, UserFeed.class)
+                final UserFeed userFeed = picasaWebService.getFeed(feedUrl, UserFeed.class)
 
                 for (AlbumEntry entry : userFeed.getAlbumEntries()) {
                     // Transfer entry into domain class
-                    Album album = convertToAlbumDomain(entry)
+                    final Album album = convertToAlbumDomain(entry)
 
                     // If we have a valid public entry add to listing
                     if (!album.hasErrors()) {
@@ -153,11 +156,11 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the selected album album.
      */
-    def Album getAlbum(String albumId, boolean showAll = false) throws PicasaServiceException {
+    def Album getAlbum(final String albumId, final boolean showAll = false) throws PicasaServiceException {
         if(serviceInitialised) {
             try {
                 // Validate ID
-                if (!albumId || StringUtils.isEmpty(albumId)) {
+                if (StringUtils.isEmpty(albumId)) {
                     def errorMessage = "Unable to retrieve your Google Picasa Web Album. The provided " +
                         "ID was invalid. (albumId=" + albumId + ", showAll=" + showAll + ")"
 
@@ -169,23 +172,23 @@ class PicasaService implements InitializingBean {
                 Album album = null
 
                 // Declare feed
-                URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername + "/albumid/" + albumId + "?thumbsize=" +
                     this.picasaThumbsize + "&imgmax=" + this.picasaImgmax)
 
                 log.debug("FeedUrl: " + feedUrl)
 
                 // Get album feed
-                AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
+                final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
                 // Declare tag feed
-                URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername + "/albumid/" + albumId + "?kind=tag")
 
                 log.debug("TagUrl: " + tagUrl)
 
                 // Get all tags for this album
-                AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+                final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
 
                 // Get any existing tags
                 MediaKeywords albumTags = albumFeed?.getMediaKeywords()
@@ -200,7 +203,7 @@ class PicasaService implements InitializingBean {
                 albumFeed?.setKeywords(albumTags)
 
                 // Transfer feed into domain class
-                Album domain = convertToAlbumDomain(albumFeed)
+                final Album domain = convertToAlbumDomain(albumFeed)
 
                 // If we have a valid public entry add to listing
                 if (!domain.hasErrors()) {
@@ -239,12 +242,12 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available photos.
      */
-    def List<Photo> listPhotosForAlbum(String albumId, boolean showAll = false)
+    def List<Photo> listPhotosForAlbum(final String albumId, final boolean showAll = false)
         throws PicasaServiceException {
         
         if(serviceInitialised) {
             // Validate ID
-            if (albumId == null || StringUtils.isEmpty(albumId)) {
+            if (StringUtils.isEmpty(albumId)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
                     "provided ID was invalid. (albumId=" + albumId + ", showAll=" + showAll + ")"
 
@@ -254,21 +257,21 @@ class PicasaService implements InitializingBean {
 
             try {
                 // Initialise result
-                List<Photo> photoListing = new ArrayList<Photo>()
+                final List<Photo> photoListing = new ArrayList<Photo>()
 
                 // Declare feed
-                URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername + "/albumid/" + albumId + "?thumbsize=" +
                     this.picasaThumbsize + "&imgmax=" + this.picasaImgmax)
 
                 log.debug("FeedUrl: " + feedUrl)
 
                 // Get album feed
-                AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
+                final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
                 for (PhotoEntry entry : albumFeed.getPhotoEntries()) {
                     // Transfer entry into domain class
-                    Photo photo = convertToPhotoDomain(entry)
+                    final Photo photo = convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
                     if (!photo.hasErrors()) {
@@ -308,12 +311,12 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available photos.
      */
-    def List<Photo> listPhotosForTag(String tagKeyword, boolean showAll = false)
+    def List<Photo> listPhotosForTag(final String tagKeyword, final boolean showAll = false)
         throws PicasaServiceException {
 
         if(serviceInitialised) {
             // Validate ID
-            if (tagKeyword == null || StringUtils.isEmpty(tagKeyword)) {
+            if (StringUtils.isEmpty(tagKeyword)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
                     "provided tag keyword was invalid. (tagKeyword=" + tagKeyword +
                     ", showAll=" + showAll + ")"
@@ -324,15 +327,15 @@ class PicasaService implements InitializingBean {
 
             try {
                 // Initialise result
-                List<Photo> photoListing = new ArrayList<Photo>()
+                final List<Photo> photoListing = new ArrayList<Photo>()
                 
                 // Declare feed
-                URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername)
 
                 log.debug("FeedUrl: " + feedUrl)
 
-                Query tagQuery = new Query(feedUrl)
+                final Query tagQuery = new Query(feedUrl)
                 tagQuery.setStringCustomParameter("kind", "photo")
                 tagQuery.setStringCustomParameter("tag", tagKeyword)
                 tagQuery.setStringCustomParameter("thumbsize", "" + this.picasaThumbsize)
@@ -340,11 +343,11 @@ class PicasaService implements InitializingBean {
                 tagQuery.setStringCustomParameter("max-results", "" + this.picasaMaxResults)
                 
                 // Get album feed
-                AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
+                final AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
 
                 for (PhotoEntry entry : tagSearchResultsFeed.getPhotoEntries()) {
                     // Transfer entry into domain class
-                    Photo photo = convertToPhotoDomain(entry)
+                    final Photo photo = convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
                     if (!photo.hasErrors()) {
@@ -383,10 +386,10 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available tags.
      */
-    def List<Tag> listTagsForAlbum(String albumId) throws PicasaServiceException {
+    def List<Tag> listTagsForAlbum(final String albumId) throws PicasaServiceException {
         if(serviceInitialised) {
             // Validate ID
-            if (albumId == null || StringUtils.isEmpty(albumId)) {
+            if (StringUtils.isEmpty(albumId)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Tags. The " +
                     "provided ID was invalid. (albumId=" + albumId + ")"
 
@@ -394,29 +397,42 @@ class PicasaService implements InitializingBean {
                 throw new PicasaServiceException(errorMessage)
             }
 
+            // Check whether cache should be in use
+            final boolean useTagCache = (grailsApplication.config.picasa.useTagCache != null) ? grailsApplication.config.picasa.useTagCache : false
+
+            // Check whether cache contains required tag listing
+            if (useTagCache && tagCache.containsKey(albumId)) {
+                log.debug("Tag cache enabled...")
+
+                return tagCache.get(albumId)
+            }
+
             try {
                 // Initialise result
-                List<Tag> tagListing = new ArrayList<Tag>()
+                final List<Tag> tagListing = new ArrayList<Tag>()
 
                 // Declare tag feed
-                URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername + "/albumid/" + albumId + "?kind=tag")
 
                 log.debug("TagUrl: " + tagUrl)
 
                 // Get all tags for this album
-                AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+                final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
 
                 // Update list with results
                 for (TagEntry entry : tagResultsFeed?.getTagEntries()) {
                     // Transfer entry into domain class
-                    Tag tag = convertToTagDomain(entry)
+                    final Tag tag = convertToTagDomain(entry)
 
                     // If we have a valid entry add to listing
                     if (!tag.hasErrors()) {
                         tagListing.add(tag)
                     }
                 }
+                
+                // Update cache
+                tagCache.put(albumId, tagListing)
 
                 // Return result
                 return tagListing
@@ -450,21 +466,21 @@ class PicasaService implements InitializingBean {
         if(serviceInitialised) {
             try {
                 // Initialise result
-                List<Tag> tagListing = new ArrayList<Tag>()
+                final List<Tag> tagListing = new ArrayList<Tag>()
 
                 // Declare tag feed
-                URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername + "?kind=tag")
 
                 log.debug("TagUrl: " + tagUrl)
 
                 // Get all tags for this album
-                AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+                final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
 
                 // Update list with results
                 for (TagEntry entry : tagResultsFeed?.getTagEntries()) {
                     // Transfer entry into domain class
-                    Tag tag = convertToTagDomain(entry)
+                    final Tag tag = convertToTagDomain(entry)
 
                     // If we have a valid entry add to listing
                     if (!tag.hasErrors()) {
@@ -502,11 +518,12 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the list of available tags.
      */
-    def List<Comment> listCommentsForPhoto(String albumId, String photoId) throws PicasaServiceException {
+    def List<Comment> listCommentsForPhoto(final String albumId, final String photoId)
+        throws PicasaServiceException {
+
         if(serviceInitialised) {
             // Validate IDs
-            if (albumId == null || StringUtils.isEmpty(albumId) ||
-                    photoId == null || StringUtils.isEmpty(photoId)) {
+            if (StringUtils.isEmpty(albumId) || StringUtils.isEmpty(photoId)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Comments. The " +
                     "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId + ")"
 
@@ -516,25 +533,25 @@ class PicasaService implements InitializingBean {
 
             try {
                 // Initialise result
-                List<Comment> commentListing = new ArrayList<Comment>()
+                final List<Comment> commentListing = new ArrayList<Comment>()
 
                 // Declare tag feed
-                URL commentUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
+                final URL commentUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
                     this.picasaUsername + "/albumid/" + albumId + "/photoid/" + photoId + "?kind=comment")
 
                 log.debug("CommentUrl: " + commentUrl)
 
                 // Get all comments for this photo
-                PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class);
+                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class);
 
                 // Update list with results
                 for (CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
                     // Transfer entry into domain class
-                    Comment comment = convertToCommentDomain(entry)
+                    final Comment comment = convertToCommentDomain(entry)
 
                     // If we have a valid entry add to listing
                     if (!comment.hasErrors()) {
-                        commentListing.add(tag)
+                        commentListing.add(comment)
                     }
                 }
 
@@ -569,13 +586,12 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the selected photo.
      */
-    def Photo getPhoto(String albumId, String photoId, boolean showAll = false)
+    def Photo getPhoto(final String albumId, final String photoId, boolean showAll = false)
         throws PicasaServiceException {
 
         if(serviceInitialised) {
             // Validate IDs
-            if (albumId == null || StringUtils.isEmpty(albumId) ||
-                    photoId == null || StringUtils.isEmpty(photoId)) {
+            if (StringUtils.isEmpty(albumId) || StringUtils.isEmpty(photoId)) {
                 def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. The " +
                     "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId +
                     ", showAll=" + showAll + ")"
@@ -596,10 +612,10 @@ class PicasaService implements InitializingBean {
                 log.debug("FeedUrl: " + feedUrl)
 
                 // Get album feed
-                PhotoFeed photoFeed = picasaWebService.getFeed(feedUrl, PhotoFeed.class)
+                final PhotoFeed photoFeed = picasaWebService.getFeed(feedUrl, PhotoFeed.class)
 
                 // Transfer feed into domain class
-                Photo domain = convertToPhotoDomain(photoFeed)
+                final Photo domain = convertToPhotoDomain(photoFeed)
 
                 // If we have a valid public entry add to listing
                 if (!domain.hasErrors()) {
@@ -613,7 +629,7 @@ class PicasaService implements InitializingBean {
                     // First get list of any comments
                     for (CommentEntry commentEntry : photoFeed.getCommentEntries()) {
                         // Transfer comment into domain class
-                        Comment comment = convertToCommentDomain(commentEntry)
+                        final Comment comment = convertToCommentDomain(commentEntry)
 
                         if (!comment.hasErrors()) {
                             photo.addToComments(comment)
@@ -628,7 +644,7 @@ class PicasaService implements InitializingBean {
                     log.debug("FeedUrl: " + feedUrl)
 
                     // Get album feed
-                    AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
+                    final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
                     // Initialise search variables
                     boolean found = false
@@ -691,7 +707,7 @@ class PicasaService implements InitializingBean {
      */
     private boolean validateAndInitialiseService() {
         // Lets be optimistic
-        def configValid = true
+        boolean configValid = true
 
         logger.info("Begin PicasaService configuration validation.")
 
@@ -724,7 +740,7 @@ class PicasaService implements InitializingBean {
         }
         if (!isConfigValid(this.picasaMaxResults)) {
             logger.error("Unable to connect to Google Picasa Web Albums - invalid max search results " +
-                "value. Please ensure you have declared the property picasa.maxresults in your " +
+                "value. Please ensure you have declared the property picasa.maxResults in your " +
                 "application's config.")
             configValid = false
         }
@@ -762,9 +778,9 @@ class PicasaService implements InitializingBean {
      * @param setting the configuration value to validate.
      * @return whether the current configuration value is valid and set.
      */
-    private boolean isConfigValid(def setting) {
+    private boolean isConfigValid(final def setting) {
         // Initialise result
-        def result = false
+        boolean result = false
 
         // Validate
         if (setting != null && !(setting instanceof ConfigObject)) {
@@ -785,9 +801,9 @@ class PicasaService implements InitializingBean {
      * @param item the AlbumFeed or AlbumEntry to convert.
      * @result the Album domain class.
      */
-    private Album convertToAlbumDomain(def item) {
+    private Album convertToAlbumDomain(final def item) {
         // Initialise result
-        Album album = new Album()
+        final Album album = new Album()
 
         // Process ID
         String id = item?.getId()
@@ -812,7 +828,7 @@ class PicasaService implements InitializingBean {
         if (keywords?.size() > 0) {
             // Add all tags
             for (String keyword : keywords) {
-                Tag tag = new Tag()
+                final Tag tag = new Tag()
                 tag.keyword = keyword
 
                 if (!tag.hasErrors()) {
@@ -839,22 +855,22 @@ class PicasaService implements InitializingBean {
      * @param item the PhotoFeed or PhotoEntry to convert.
      * @result the Photo domain class.
      */
-    private Photo convertToPhotoDomain(def item) {
+    private Photo convertToPhotoDomain(final def item) {
         // Initialise result
-        Photo photo = new Photo()
+        final Photo photo = new Photo()
 
         // Process ID
-        String id = item?.getId()
+        final String id = item?.getId()
         photo.photoId = id?.substring(id?.lastIndexOf('/') + 1, id?.length())
 
         // Attempt to persist geo location data
-        def geoPoint = new GeoPoint()
+        final def geoPoint = new GeoPoint()
         geoPoint.latitude = item?.getGeoLocation()?.getLatitude()
         geoPoint.longitude = item?.getGeoLocation()?.getLongitude()
         photo.geoLocation = (!geoPoint.hasErrors()) ? geoPoint : null
 
         // Check whether photo has thumbails
-        def thumbnails = item?.getMediaThumbnails()
+        final def thumbnails = item?.getMediaThumbnails()
         if (thumbnails?.size() > 0) {
             photo.thumbnailImage = thumbnails?.get(thumbnails?.size()-1)?.getUrl()
             photo.thumbnailWidth = thumbnails?.get(thumbnails?.size()-1)?.getWidth()
@@ -862,7 +878,7 @@ class PicasaService implements InitializingBean {
         }
 
         // Check whether photo has content
-        def content = item?.getMediaContents()
+        final def content = item?.getMediaContents()
         if (content?.size() > 0) {
             photo.image = content?.get(content?.size()-1)?.getUrl()
             photo.width = content?.get(content?.size()-1)?.getWidth()
@@ -870,11 +886,11 @@ class PicasaService implements InitializingBean {
         }
 
         // Check whether photo has any tags
-        def keywords = item?.getMediaKeywords()?.getKeywords()
+        final def keywords = item?.getMediaKeywords()?.getKeywords()
         if (keywords?.size() > 0) {
             // Add all tags
             for (String keyword : keywords) {
-                Tag tag = new Tag()
+                final Tag tag = new Tag()
                 tag.keyword = keyword
 
                 if (!tag.hasErrors()) {
@@ -901,9 +917,9 @@ class PicasaService implements InitializingBean {
      * @param entry the TagEntry to convert.
      * @result the Tag domain class.
      */
-    private Tag convertToTagDomain(TagEntry entry) {
+    private Tag convertToTagDomain(final TagEntry entry) {
         // Initialise result
-        Tag tag = new Tag()
+        final Tag tag = new Tag()
 
         // Process keyword
         tag.keyword = entry?.getTitle()?.getPlainText()
@@ -918,9 +934,9 @@ class PicasaService implements InitializingBean {
      * @param entry the CommentEntry to convert.
      * @result the Comment domain class.
      */
-    private Comment convertToCommentDomain(CommentEntry entry) {
+    private Comment convertToCommentDomain(final CommentEntry entry) {
         // Initialise result
-        Comment comment = new Comment()
+        final Comment comment = new Comment()
 
         // Process properties
         comment.commentId = entry?.getId()
@@ -929,12 +945,12 @@ class PicasaService implements InitializingBean {
         comment.message = entry?.getPlainTextContent()
 
         // Convert DateTime to java.util.Date
-        Date date = new Date()
+        final Date date = new Date()
         date.setTime(entry?.getUpdated()?.getValue())
         comment.dateCreated = date
 
         // Add author
-        Person person = convertToPersonDomain(entry?.getAuthors()?.get(0))
+        final Person person = convertToPersonDomain(entry?.getAuthors()?.get(0))
         if (!person.hasErrors()) {
             comment.author = person
         }
@@ -950,9 +966,9 @@ class PicasaService implements InitializingBean {
      * @param entry the com.google.gdata.data.Person to convert.
      * @result the Person domain class.
      */
-    private Person convertToPersonDomain(com.google.gdata.data.Person entry) {
+    private Person convertToPersonDomain(final com.google.gdata.data.Person entry) {
         // Initalise result
-        Person person = new Person()
+        final Person person = new Person()
 
         // Process properties
         person.name = entry?.getName()

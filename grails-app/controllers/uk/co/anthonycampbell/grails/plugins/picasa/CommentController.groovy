@@ -54,7 +54,7 @@ class CommentController {
 
         // Prepare display values
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
-        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxkeywords) ? grailsApplication.config.picasa.maxkeywordsCon : 10))).intValue()
+        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywordsCon : 10))).intValue()
         def listView = "list"
         if(isAjax) listView = "_list"
         flash.message = ""

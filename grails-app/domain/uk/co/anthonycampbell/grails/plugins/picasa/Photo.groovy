@@ -35,19 +35,19 @@ class Photo {
 
     // Declare photo constraints
     static constraints = {
-        photoId(blank:false)
-        albumId(blank:false)
-        title(nullable:true)
-        description(nullable:true)
-        cameraModel(nullable:true)
-        geoLocation(nullable:true)
-        thumbnailImage(url: true, blank:false)
-        thumbnailWidth(blank:false)
-        thumbnailHeight(blank:false)
-        image(url: true, blank:false)
-        width(blank:false)
-        height(blank:false)
-        previousPhotoId(nullable:true)
-        nextPhotoId(nullable:true)
+        photoId(blank: false)
+        albumId(blank: false)
+        title(nullable: true)
+        description(nullable: true)
+        cameraModel(nullable: true)
+        geoLocation(nullable: true)
+        thumbnailImage(url: true, blank: false)
+        thumbnailWidth(blank: false)
+        thumbnailHeight(blank: false)
+        image(url: true, blank: false)
+        width(blank: false)
+        height(blank: false)
+        previousPhotoId(nullable: true)
+        nextPhotoId(nullable: true)
     }
 }

@@ -83,14 +83,17 @@ Picasa configuration block:
         password = "password"
         imgmax = 800
         thumbsize = 72
-        maxresults = 500
+        maxResults = 500
 
         // Optional
         max = 10
-        maxsteps = 5
-        maxkeywords = 100
+        maxSteps = 5
+        maxKeywords = 100
+        maxComments = 10
+        maxCommentSteps = 5
         showPrivateAlbums = false
         showPrivatePhotos = false
+        useTagCache = false
     }
 
 Configuration properties:
@@ -99,12 +102,15 @@ Configuration properties:
     * password - Your Google Picasa web album password.
     * imgmax - The maximum width of each photo viewed through the photo controller.
     * thumbsize - The maximum width of each album's and photo's thumbnail.
-    * maxresults - The maximum number of results to be returned when performing queries. This is used when making requests through the tag controller.
+    * maxResults - The maximum number of results to be returned when performing queries. This is used when making requests through the tag controller.
     * max - The maximum number of listing displayed per page.
-    * maxsteps - The maximum number of steps displayed in the pagination block.
-    * maxkeywords - The maximum number of keywords displayed in the tag listing result set.
+    * maxSteps - The maximum number of steps displayed in the pagination block.
+    * maxKeywords - The maximum number of keywords displayed in the tag listing result set.
+    * maxComments - The maximum number of comments displayed in the show photo view.
+    * maxCommentSteps - The maximum number of steps displayed in the comment pagination block.
     * showPrivateAlbums - Whether to include private albums in all album requests.
     * showPrivatePhotos - Whether to include private photos in all photo requests.
+    * useTagCache - Stores locally the tags associated with each album. Reduces Google web service calls when viewing an album's photo listing.
 
 Note: The properties imgmax and thumbsize are subject to a valid set of values
 detailed by the API's reference guide.

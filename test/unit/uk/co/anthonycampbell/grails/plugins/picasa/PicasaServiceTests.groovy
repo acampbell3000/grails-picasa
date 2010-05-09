@@ -1,32 +1,35 @@
 package uk.co.anthonycampbell.grails.plugins.picasa
 
-import java.io.File;
-import java.net.URL;
+import java.io.File
+import java.net.URL
 
-import com.google.gdata.client.*;
-import com.google.gdata.client.photos.*;
-import com.google.gdata.data.*;
-import com.google.gdata.data.media.*;
-import com.google.gdata.data.photos.*;
+import com.google.gdata.client.*
+import com.google.gdata.client.photos.*
+import com.google.gdata.data.*
+import com.google.gdata.data.media.*
+import com.google.gdata.data.media.mediarss.*
+import com.google.gdata.data.photos.*
 
 import org.apache.log4j.Logger
 
 import grails.test.*
-import org.gmock.*
+import org.junit.*
+import org.mockito.*
+import static org.mockito.Mockito.*
 
 /**
  * Set of unit tests for the Picasa service tests.
  */
-@WithGMock
 class PicasaServiceTests extends GrailsUnitTestCase {
 
     // Declare test properties
     PicasaService picasaService
-    def mockPicasaWebService
-    def mockLogger
+    @Mock PicasawebService mockPicasaWebService
+    @Mock AlbumEntry mockAlbumEntry
+    @Mock UserFeed mockUserFeed
 
     // Declare test items
-    def mockAlbumEntry
+    List<AlbumEntry> listOfAlbumEntries
 
     // Declare some test values
     static final String USERNAME = "username"
@@ -42,11 +45,11 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     protected void setUp() {
         super.setUp()
 
-        //  Declare mock objects
-        mockPicasaWebService = mock(PicasawebService)
+        // Initialise all mocks
+        MockitoAnnotations.initMocks(this)
+        mockLogging(PicasaService, true)
 
         // Initialise service
-        mockLogging(PicasaService, true)
         picasaService = PicasaService.newInstance()
         picasaService.picasaWebService = mockPicasaWebService
         
@@ -57,52 +60,44 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         picasaService.picasaImgmax = IMG_MAX
         picasaService.picasaThumbsize = THUMBSIZE
         picasaService.picasaMaxResults = MAX_RESULTS
-
-        // Build some test results
-        mock
-
-        List<AlbumEntry> listOfAlbumEntries = new ArrayList<AlbumEntry>()
-        listOfAlbumEntries.add()
-
-        // Build test geo location
-
-
-        // Build test album
-        mockAlbumEntry = mock(AlbumEntry)
-        mockAlbumEntry.getId().returns("123")
-        mockAlbumEntry.getGeoLocation().returns(new com.google.gdata.data.geo.impl.W3CPoint(0.00, 0.00))
-        mockAlbumEntry.getMediaThumbnails().returns(null)
-        mockAlbumEntry.getMediaKeywords().returns(null)
-        mockAlbumEntry.getTitle().returns(TextConstruct.plainText("Test title"))
-        mockAlbumEntry.getDescription().returns(TextConstruct.plainText("Test description"))
-        mockAlbumEntry.getLocation().returns("Test location")
-        mockAlbumEntry.getPhotosUsed().returns(new Integer(10))
-        mockAlbumEntry.getDate().returns(new Date())
-        mockAlbumEntry.getAccess().returns(GphotoAccess.Value.PUBLIC)
-
-
-        // Check whether album has thumbails
+        
+        // Build test keywords
+        MediaKeywords keywords = new MediaKeywords()
+        ArrayList<String> keywordList = new ArrayList<String>()
+        keywordList.add("Keyword One")
+        keywordList.add("Keyword Two")
+        keywordList.add("Keyword Three")
+        keywords.addKeywords(keywordList)
+        
+        /*
         def thumbnails = item?.getMediaThumbnails()
         if (thumbnails?.size() > 0) {
             album.image = thumbnails?.get(thumbnails?.size()-1)?.getUrl()
             album.width = thumbnails?.get(thumbnails?.size()-1)?.getWidth()
             album.height = thumbnails?.get(thumbnails?.size()-1)?.getHeight()
         }
+        */
 
-        // Check whether photo has any tags
-        def keywords = item?.getMediaKeywords()?.getKeywords()
-        if (keywords?.size() > 0) {
-            // Add all tags
-            for (String keyword : keywords) {
-                Tag tag = new Tag()
-                tag.keyword = keyword
+        // Build test album
+        /*
+        mockAlbumEntry = mock(AlbumEntry)
+        mockAlbumEntry.getId().returns("123")
+        mockAlbumEntry.getGeoLocation().returns(new com.google.gdata.data.geo.impl.W3CPoint(0.00, 0.00))
+        mockAlbumEntry.getMediaThumbnails().returns(null)
+        mockAlbumEntry.getMediaKeywords().returns(keywords)
+        mockAlbumEntry.getTitle().returns(TextConstruct.plainText("Test title"))
+        mockAlbumEntry.getDescription().returns(TextConstruct.plainText("Test description"))
+        mockAlbumEntry.getLocation().returns("Test location")
+        mockAlbumEntry.getPhotosUsed().returns(new Integer(10))
+        mockAlbumEntry.getDate().returns(new Date())
+        mockAlbumEntry.getAccess().returns(GphotoAccess.Value.PUBLIC)
+        */
 
-                if (!tag.hasErrors()) {
-                    album.addToTags(tag)
-                }
-            }
-        }
-
+        // Prepare a valid result set
+        listOfAlbumEntries = new ArrayList<AlbumEntry>()
+        listOfAlbumEntries.add(mockAlbumEntry)
+        listOfAlbumEntries.add(mockAlbumEntry)
+        listOfAlbumEntries.add(mockAlbumEntry)
     }
 
     /**
@@ -117,13 +112,11 @@ class PicasaServiceTests extends GrailsUnitTestCase {
      */
     void testConnectWithTestLoginDetails() {
         // Run test
-        play {
-            def result = picasaService.connect(USERNAME, PASSWORD, APP_NAME,
-                IMG_MAX, THUMBSIZE, MAX_RESULTS)
+        def result = picasaService.connect(USERNAME, PASSWORD, APP_NAME,
+            IMG_MAX, THUMBSIZE, MAX_RESULTS)
 
-            // Check result
-            assertFalse(result)
-        }
+        // Check result
+        assertFalse(result)
     }
 
     /**
@@ -139,22 +132,19 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             "&imgmax=" + IMG_MAX)
 
         // Prepare mock user feed
-        def mockUserFeed = mock(UserFeed)
-        mockUserFeed.getAlbumEntries().returns(new AlbumEntry())
+        when(mockUserFeed.getAlbumEntries()).thenReturn(listOfAlbumEntries)
 
         // Get user feed
-        mockPicasaWebService.getFeed(feedUrl, UserFeed.class).returns(mockUserFeed)
+        when(mockPicasaWebService.getFeed(feedUrl, UserFeed.class)).thenReturn(mockUserFeed)
 
-        //UserFeed userFeed = 
+        // 
 
         // Run test
-        play {
-            List<Album> albumList = picasaService.listAlbums()
+        List<Album> albumList = picasaService.listAlbums()
 
-            // Check result
-            assertNotNull("Expected an instantiated album list to be returned!", albumList)
-            assertEquals("Expected album list to be empty!", 0, albumList.size())
-        }
+        // Check result
+        assertNotNull("Expected an instantiated album list to be returned!", albumList)
+        assertEquals("Expected album list to be empty!", 0, albumList.size())
     }
 
     /**
@@ -165,18 +155,16 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         picasaService.serviceInitialised = false
 
         // Run test
-        play {
-            try {
-                picasaService.listAlbums()
-                fail("Expected PicasaServiceException to be thrown!")
-                
-            } catch (PicasaServiceException pse) {
-                // Check result
-                assertEquals("Unexpected exception has been thrown!",
-                    "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
-                    "configuration is missing. Please refer to the documentation and ensure " +
-                    "you have declared all of the required configuration.", pse.getMessage())
-            }
+        try {
+            picasaService.listAlbums()
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration.", pse.getMessage())
         }
     }
 }
