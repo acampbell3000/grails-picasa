@@ -1,4 +1,4 @@
-VERSION: 0.4.0
+VERSION: 0.4.1
 
 Known issues:
 - Sort links need updating to support ajax requests fully.
@@ -6,8 +6,12 @@ Known issues:
 - Add to provide (OAuth) ability to add comments.
 - Provide RSS feed for albums, and maybe comments and tags?
 - Optimisation excercise.
-- Param valiadation exercise.
+- Param valiadation exercise (i.e. Math.min on max).
 - PicasaService is a Singleton so could could problems for concurrent requests for different users.
+- RSS feed needs tweek to pass validation.
+
+Release notes 0.4.1
+- 
 
 Release notes 0.4.0
 - Update all controller index methods to point to the album controller's index.
