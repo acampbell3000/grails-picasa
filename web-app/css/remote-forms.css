@@ -23,6 +23,13 @@ body {
     line-height: 1.5em;
 }
 
+.cleaner {
+    clear: both;
+    height: 1px;
+    margin: 0px;
+    padding: 0px;
+}
+
 #loader {
     position: absolute;
     top: 125px;
@@ -180,14 +187,23 @@ th.desc a {
 #comments {
     font-size: 0.8em;
 }
-
 #comments td {
     padding: 10px;
 }
-
 #comments em {
     display: block;
     clear: both;
     margin-top: 10px;
     font-style: normal;
+}
+
+#pagination {
+    width: 80%;
+    float: left;
+    text-align: left;
+}
+#feeds {
+    width: 20%;
+    float: right;
+    text-align: right;
 }

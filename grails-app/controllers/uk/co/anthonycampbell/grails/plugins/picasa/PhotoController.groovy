@@ -2,7 +2,6 @@ package uk.co.anthonycampbell.grails.plugins.picasa
 
 import org.apache.commons.lang.StringUtils
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
-import grails.converters.XML;
 
 /**
  * Photo controller
@@ -14,6 +13,11 @@ import grails.converters.XML;
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class PhotoController {
+
+    // Declare feed types
+    public static final String RSS_FEED = "rss";
+    public static final String XML_FEED = "xml";
+    public static final String JSON_FEED = "json";
 
     // Declare dependencies
     def grailsApplication
@@ -78,10 +82,10 @@ class PhotoController {
         final List<Tag> tagList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = (params.feed != null && !params.feed == "") ? params.feed : ""
+        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
         
         // Prepare display values
-        final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
+        final String paramAlbumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
         final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
@@ -90,12 +94,12 @@ class PhotoController {
         flash.message = ""
 
         log.debug("Attempting to list photos and tags through the Picasa web service " +
-                "(albumId=" + albumId + ")")
+                "(albumId=" + paramAlbumId + ")")
 
         // Get photo list from picasa service
         try {
-            photoList.addAll(picasaService.listPhotosForAlbum(albumId, showPrivate))
-            tagList.addAll(picasaService.listTagsForAlbum(albumId))
+            photoList.addAll(picasaService.listPhotosForAlbum(paramAlbumId, showPrivate))
+            tagList.addAll(picasaService.listTagsForAlbum(paramAlbumId))
 
             log.debug("Success...")
             
@@ -144,14 +148,98 @@ class PhotoController {
             }
         }
 
-        log.debug("Display list with " + listView + " view")
+        // Render correct feed
+        if (feed == RSS_FEED) {
+            log.debug("Display list with the " + feed + " feed")
 
-        //contentType:"text/xml"
+            // Get album information for feed
+            final Album album
+            try {
+                album = picasaService.getAlbum(paramAlbumId, showPrivate)
 
-        render(view: listView, model: [albumId: albumId,
-                photoInstanceList: displayList,
-                photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),
-                tagInstanceList: tagList])
+            } catch (PicasaServiceException pse) { }
+
+            // Begin RSS ouput
+            render(contentType: "application/rss+xml", encoding: "UTF-8") {
+                rss(version: "2.0") {
+                    channel {
+                        title((album != null && StringUtils.isNotEmpty(album.name)) ? album.name : "")
+                        link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
+                        description((album != null && StringUtils.isNotEmpty(album.description)) ? album.description : "")
+                        generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
+                        lastBuildDate((album != null && album.dateCreated != null) ? album.dateCreated : "")
+                        managingEditor((StringUtils.isNotEmpty(grailsApplication.config.picasa.username)) ? grailsApplication.config.picasa.username : "")
+                        image {
+                            url((album != null && StringUtils.isNotEmpty(album.image)) ? album.image : "")
+                            title((album != null && StringUtils.isNotEmpty(album.name)) ? album.name : "")
+                            link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
+                        }
+
+                        for (p in photoList) {
+                            item {
+                                guid(p.photoId)
+                                pubDate(p.dateCreated)
+                                title(p.title)
+                                description(p.description)
+                                link(createLink(controller: "photo", action: "show", id: paramAlbumId + "/" + p.photoId, absolute: "true"))
+                                enclosure(type: "image/jpeg", url: p.image, length: "0")
+                            }   
+                        }
+                    }
+                }
+            }
+        } else if (feed == XML_FEED || feed == JSON_FEED) {
+            log.debug("Display list with " + feed + " feed")
+            
+            // Declare possible feed render types
+            final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
+            final def jsonType = [builder: "json", encoding: "UTF-8"]
+
+            // Determine correct type
+            final def type = (feed == XML_FEED ? xmlType : jsonType)
+
+            // Begin ouput
+            render(type) {
+                photos {
+                    for (p in photoList) {
+                        photo {
+                            // Main attributes
+                            photoId(p.photoId)
+                            albumId(p.albumId)
+                            title(p.title)
+                            description(p.description)
+                            cameraModel(p.cameraModel)
+                            geoLocation {
+                                latitude(p.geoLocation?.latitude)
+                                longitude(p.geoLocation?.longitude)
+                            }
+                            thumbnailImage(p.thumbnailImage)
+                            thumbnailWidth(p.thumbnailWidth)
+                            thumbnailHeight(p.thumbnailHeight)
+                            image(p.image)
+                            width(p.width)
+                            height(p.height)
+                            previousPhotoId(p.previousPhotoId)
+                            nextPhotoId(p.nextPhotoId)
+                            dateCreated(p.dateCreated)
+                            isPublic(p.isPublic)
+
+                            // Tags
+                            for(t in tagList) {
+                                tag(t?.keyword)
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            log.debug("Display list with " + listView + " view")
+
+            render(view: listView, model: [albumId: paramAlbumId,
+                    photoInstanceList: displayList,
+                    photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),
+                    tagInstanceList: tagList])
+        }
     }
 
     /**
@@ -163,7 +251,7 @@ class PhotoController {
     private doShow(final boolean isAjax) {
 
         // Initialise result
-        final Photo photoInstance = new Photo()
+        Photo photoInstance = new Photo()
         final List<Comment> commentList = new ArrayList<Comment>()
         final List<Comment> commentDisplayList = new ArrayList<Comment>()
 

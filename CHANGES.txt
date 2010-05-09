@@ -4,7 +4,7 @@ Known issues:
 - Sort links need updating to support ajax requests fully.
 - Poor code coverage of the PicasaService.
 - Add to provide (OAuth) ability to add comments.
-- Provide RSS feed for albums, photos and maybe comments and tags?
+- Provide RSS feed for albums, and maybe comments and tags?
 - Optimisation excercise
 - Param valiadation exercise
 
@@ -17,6 +17,8 @@ Release notes 0.4.0
 - Small PicasaService bug fixes and improvements.
 - README updates.
 - Message property updates.
+- Introduction of RSS feed for photo listing.
+- Update photo listing to include feed links.
 
 Release notes 0.3.0
 - Introduction of the "showPrivateAlbums" and "showPrivatePhotos" config options.

@@ -816,6 +816,7 @@ class PicasaService implements InitializingBean {
         album.geoLocation = (!geoPoint.hasErrors()) ? geoPoint : null
 
         // Check whether album has thumbails
+
         def thumbnails = item?.getMediaThumbnails()
         if (thumbnails?.size() > 0) {
             album.image = thumbnails?.get(thumbnails?.size()-1)?.getUrl()
