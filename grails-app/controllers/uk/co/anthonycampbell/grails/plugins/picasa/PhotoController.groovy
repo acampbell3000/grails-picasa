@@ -2,6 +2,7 @@ package uk.co.anthonycampbell.grails.plugins.picasa
 
 import org.apache.commons.lang.StringUtils
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
+import java.text.SimpleDateFormat
 
 /**
  * Photo controller
@@ -15,9 +16,14 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU
 class PhotoController {
 
     // Declare feed types
-    public static final String RSS_FEED = "rss";
-    public static final String XML_FEED = "xml";
-    public static final String JSON_FEED = "json";
+    public static final String RSS_FEED = "rss"
+    public static final String XML_FEED = "xml"
+    public static final String JSON_FEED = "json"
+
+    // RFC date formats
+    private static final String RFC_822 = "EE, d MMM yyyy HH:mm:ss Z"
+    private static final String RFC_3339_NO_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss"
+    private static final String RFC_3339_TIMEZONE = "Z"
 
     // Declare dependencies
     def grailsApplication
@@ -161,24 +167,32 @@ class PhotoController {
 
             // Begin RSS ouput
             render(contentType: "application/rss+xml", encoding: "UTF-8") {
-                rss(version: "2.0") {
+                rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
+                        "atom:link"(href:"${createLink(controller: "photo", action: "list", absolute: true)}/${paramAlbumId}/feed/rss", rel: "self", type: "application/rss+xml")
                         title((album != null && StringUtils.isNotEmpty(album.name)) ? album.name : "")
                         link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
                         description((album != null && StringUtils.isNotEmpty(album.description)) ? album.description : "")
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
-                        lastBuildDate((album != null && album.dateCreated != null) ? album.dateCreated : "")
-                        managingEditor((StringUtils.isNotEmpty(grailsApplication.config.picasa.username)) ? grailsApplication.config.picasa.username : "")
-                        image {
-                            url((album != null && StringUtils.isNotEmpty(album.image)) ? album.image : "")
-                            title((album != null && StringUtils.isNotEmpty(album.name)) ? album.name : "")
-                            link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
+                        lastBuildDate((album != null && album.dateCreated != null) ? album.dateCreated?.format(RFC_822) : "")
+
+                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
+                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        }
+
+                        if (album != null && StringUtils.isNotEmpty(album.image)) {
+                            image {
+                                url(StringUtils.isNotEmpty(album.image) ? album.image : "")
+                                title(StringUtils.isNotEmpty(album.name) ? album.name : "")
+                                link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
+                            }
                         }
 
                         for (p in photoList) {
                             item {
-                                guid(p.photoId)
-                                pubDate(p.dateCreated)
+                                guid(isPermaLink: "false", p.photoId)
+                                pubDate(p.dateCreated?.format(RFC_822))
+                                "atom:updated"(formatDateRfc3339(p.dateCreated))
                                 title(p.title)
                                 description(p.description)
                                 link(createLink(controller: "photo", action: "show", id: paramAlbumId + "/" + p.photoId, absolute: "true"))
@@ -221,7 +235,7 @@ class PhotoController {
                             height(p.height)
                             previousPhotoId(p.previousPhotoId)
                             nextPhotoId(p.nextPhotoId)
-                            dateCreated(p.dateCreated)
+                            dateCreated(p.dateCreated?.format(RFC_822))
                             isPublic(p.isPublic)
 
                             // Tags
@@ -366,5 +380,31 @@ class PhotoController {
                 photoId: photoId,
                 photoComments: commentDisplayList,
                 photoCommentTotal: (commentList?.size() ? commentList.size() : 0)])
+    }
+    
+    /**
+     * Formats the provided date to provide a valid RFC 3339 timestamp
+     * (i.e. 2002-10-02T10:00:00-05:00). Java formatter strips ":" which
+     * goes against the RFC 3339 strict standard.
+     *
+     * @param date the date to format.
+     * @return the formatted date.
+     */
+    private String formatDateRfc3339(Date date) {
+        // Format two parts of RFC standard
+        final String formattedDate = date?.format(RFC_3339_NO_TIMEZONE);
+        String timeZone = date?.format(RFC_3339_TIMEZONE);
+
+        // Put colon back in
+        if (timeZone != null && timeZone.length() > 2) {
+            final String timeZoneHead = timeZone.substring(0, timeZone.length() - 2)
+            final String timeZoneTail = timeZone.substring(timeZone.length() - 2, timeZone.length())
+            timeZone = timeZoneHead << ":" << timeZoneTail
+        } else {
+            // RFC 3339 requires a 'Z' to be available if no timezone is available.
+            timeZone = "Z";
+        }
+        
+        return formattedDate << timeZone;
     }
 }

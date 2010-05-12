@@ -8,10 +8,12 @@ Known issues:
 - Optimisation excercise.
 - Param valiadation exercise (i.e. Math.min on max).
 - PicasaService is a Singleton so could could problems for concurrent requests for different users.
-- RSS feed needs tweek to pass validation.
 
 Release notes 0.4.1
-- 
+- Update to Grails 1.3.0.
+- Introduction of new config property rssManagingEditor.
+- Photo RSS now builds a valid W3C feed, including RFC 882 and 3339 dates.
+- README update.
 
 Release notes 0.4.0
 - Update all controller index methods to point to the album controller's index.

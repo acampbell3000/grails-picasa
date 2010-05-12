@@ -94,6 +94,9 @@ Picasa configuration block:
         showPrivateAlbums = false
         showPrivatePhotos = false
         useTagCache = false
+
+        // Feeds
+        rssManagingEditor = "Joe Bloggs"
     }
 
 Configuration properties:
@@ -111,6 +114,7 @@ Configuration properties:
     * showPrivateAlbums - Whether to include private albums in all album requests.
     * showPrivatePhotos - Whether to include private photos in all photo requests.
     * useTagCache - Stores locally the tags associated with each album. Reduces Google web service calls when viewing an album's photo listing.
+    * rssManagingEditor = Name of author managing the RSS feed.
 
 Note: The properties imgmax and thumbsize are subject to a valid set of values
 detailed by the API's reference guide.
