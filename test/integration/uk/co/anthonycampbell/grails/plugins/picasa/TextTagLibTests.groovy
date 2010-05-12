@@ -1,4 +1,4 @@
-import uk.co.anthonycampbell.grails.taglib.TextTagLib
+package uk.co.anthonycampbell.grails.taglib;
 
 import org.codehaus.groovy.grails.web.taglib.exceptions.GrailsTagException
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
