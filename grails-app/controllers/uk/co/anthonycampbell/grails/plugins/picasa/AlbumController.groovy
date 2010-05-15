@@ -153,6 +153,7 @@ class AlbumController {
                                 title(a.name)
                                 description(a.description)
                                 link(createLink(controller: "album", action: "show", id: a.albumId, absolute: "true"))
+                                
                                 if (StringUtils.isNotEmpty(a.image)) {
                                     enclosure(type: "image/jpeg", url: a.image, length: "0")
                                 }

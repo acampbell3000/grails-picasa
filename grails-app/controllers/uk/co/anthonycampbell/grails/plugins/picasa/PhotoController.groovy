@@ -85,7 +85,7 @@ class PhotoController {
         final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
         
         // Prepare display values
-        final String paramAlbumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
+        final String paramAlbumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
         final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
@@ -149,7 +149,7 @@ class PhotoController {
             render(contentType: "application/rss+xml", encoding: "UTF-8") {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
-                        "atom:link"(href:"${createLink(controller: "photo", action: "list", absolute: true)}/${paramAlbumId}/feed/rss", rel: "self", type: "application/rss+xml")
+                        "atom:link"(href:"${createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
                         title((album != null && StringUtils.isNotEmpty(album.name)) ? album.name : "")
                         link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
                         description((album != null && StringUtils.isNotEmpty(album.description)) ? album.description : "")
@@ -176,7 +176,10 @@ class PhotoController {
                                 title(p.title)
                                 description(p.description)
                                 link(createLink(controller: "photo", action: "show", id: paramAlbumId + "/" + p.photoId, absolute: "true"))
-                                enclosure(type: "image/jpeg", url: p.image, length: "0")
+
+                                if (StringUtils.isNotEmpty(p.image)) {
+                                    enclosure(type: "image/jpeg", url: p.image, length: "0")
+                                }
                             }   
                         }
                     }

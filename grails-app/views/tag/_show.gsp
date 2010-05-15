@@ -1,6 +1,6 @@
 
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
-                    <div id="listPhoto">
+                    <div id="showTag">
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>
 					</g:if>
@@ -44,8 +44,15 @@
 							</tbody>
 						</table>
 
-						<div id="pagination">
-							<g:remotePaginate action="ajaxShow" update="listPhoto" id="${tagKeyword}" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${photoInstanceTotal}" />
-						</div>
-                        <div class="cleaner"></div>
+                        <div id="showTagFooter">
+                            <div id="pagination">
+                                <g:remotePaginate action="ajaxShow" update="showTag" id="${tagKeyword}" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${photoInstanceTotal}" />
+                            </div>
+                            <div id="feeds">
+                                <a href="${createLink(action: 'show', id: tagKeyword)}/feed/rss">RSS</a> |
+                                <a href="${createLink(action: 'show', id: tagKeyword)}/feed/xml">XML</a> |
+                                <a href="${createLink(action: 'show', id: tagKeyword)}/feed/json">JSON</a>
+                            </div>
+                            <div class="cleaner"></div>
+                        </div>
 					</div>
