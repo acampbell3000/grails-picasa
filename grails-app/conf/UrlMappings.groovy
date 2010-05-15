@@ -51,6 +51,11 @@ class UrlMappings {
             action = "show"
         }
 
+        "/tag/list/feed/$feed" {
+            controller = "tag"
+            action = "list"
+        }
+
         "/"(view:"/index")
         "500"(view:"/error")
     }

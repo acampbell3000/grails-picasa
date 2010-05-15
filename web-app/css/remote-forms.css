@@ -177,7 +177,7 @@ th.desc a {
 /**
  * Custom DIVs
  */
-#listTag {
+#tagListing {
     border: 1px solid #CCCCCC;
     font-size: 0.8em;
     padding: 10px;

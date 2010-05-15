@@ -69,17 +69,17 @@ class TagController {
      */
     private doList(boolean isAjax) {
         // Initialise lists
-        List<Tag> tagList = new ArrayList<Tag>()
-        List<Tag> displayList = new ArrayList<Tag>()
+        final List<Tag> tagList = new ArrayList<Tag>()
+        final List<Tag> displayList = new ArrayList<Tag>()
 
         // Check type of request
         final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
 
         // Prepare display values
-        int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
-        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywordsCon : 10))).intValue()
-        def listView = "list"
-        if(isAjax) listView = "_list"
+        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywords : 10))).intValue(), 500)
+        String listView = "list"
+        if (isAjax) listView = "_list"
         flash.message = ""
 
         log.debug("Attempting to list tags through the Picasa web service")
@@ -132,18 +132,18 @@ class TagController {
      */
     private doShow(boolean isAjax) {
         // Initialise lists
-        List<Photo> photoList = new ArrayList<Photo>()
-        List<Photo> displayList = new ArrayList<Photo>()
+        final List<Photo> photoList = new ArrayList<Photo>()
+        final List<Photo> displayList = new ArrayList<Photo>()
 
         // Check type of request
         final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
 
         // Prepare display values
         final String paramTagId = (StringUtils.isNotEmpty(params.id)) ? params.id : ""
-        def showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
-        int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
-        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue()
-        def listView = "show"
+        final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
+        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
+        String listView = "show"
         if(isAjax) listView = "_show"
         flash.message = ""
 
@@ -197,8 +197,8 @@ class TagController {
             render(contentType: "application/rss+xml", encoding: "UTF-8") {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
-                        "atom:link"(href:"${createLink(controller: "tag", action: "show", id: paramTagId, absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
-                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.details.legend", default: "Tag Listing", args: paramTagId))
+                        "atom:link"(href: "${createLink(controller: "tag", action: "show", id: paramTagId, absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.details.legend", default: "Tag Listing", args: [paramTagId]))
                         link(createLink(controller: "tag", action: "show", id: paramTagId, absolute: "true"))
                         description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.rss.description", default: "RSS feed for the tag listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
@@ -214,7 +214,7 @@ class TagController {
                                 "atom:updated"(DateUtil.formatDateRfc3339(p.dateCreated))
                                 title(p.title)
                                 description(p.description)
-                                link(createLink(controller: "photo", action: "show", id: p.albumId + "/" + p.photoId, absolute: "true"))
+                                link(createLink(controller: "tag", action: "show", id: p.albumId + "/" + p.photoId, absolute: "true"))
 
                                 if (StringUtils.isNotEmpty(p.image)) {
                                     enclosure(type: "image/jpeg", url: p.image, length: "0")
@@ -267,11 +267,9 @@ class TagController {
                             isPublic(p.isPublic)
 
                             // Tags
-                            if (tagList?.size > 0) {
-                                tags {
-                                    for(t in tagList) {
-                                        tag(t?.keyword)
-                                    }
+                            tags {
+                                for(t in p.tags) {
+                                    tag(t?.keyword)
                                 }
                             }
                         }
@@ -293,11 +291,11 @@ class TagController {
                 }
             }
 
-            log.debug("Display list with " + listView + " view and keyword " + params.id)
+            log.debug("Display list with " + listView + " view and keyword " + paramTagId)
 
             render(view: listView, model: [photoInstanceList: displayList,
                     photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),
-                    tagKeyword: params.id])
+                    tagKeyword: paramTagId])
         }
     }
 }

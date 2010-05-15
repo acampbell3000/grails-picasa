@@ -69,17 +69,17 @@ class AlbumController {
      */
     private doList(boolean isAjax) {
         // Initialise lists
-        List<Album> albumList = new ArrayList<Album>()
-        List<Album> displayList = new ArrayList<Album>()
-        List<Tag> tagList = new ArrayList<Tag>()
+        final List<Album> albumList = new ArrayList<Album>()
+        final List<Album> displayList = new ArrayList<Album>()
+        final List<Tag> tagList = new ArrayList<Tag>()
 
         // Check type of request
         final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
 
         // Prepare display values
-        def showPrivate = (grailsApplication.config.picasa.showPrivateAlbums != null) ? grailsApplication.config.picasa.showPrivateAlbums : false
-        int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
-        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue()
+        final boolean showPrivate = (grailsApplication.config.picasa.showPrivateAlbums != null) ? grailsApplication.config.picasa.showPrivateAlbums : false
+        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
         def listView = "list"
         if(isAjax) listView = "_list"
         flash.message = ""
@@ -199,11 +199,9 @@ class AlbumController {
                             isPublic(a.isPublic)
 
                             // Tags
-                            if (tagList?.size > 0) {
-                                tags {
-                                    for(t in tagList) {
-                                        tag(t?.keyword)
-                                    }
+                            tags {
+                                for(t in p.tags) {
+                                    tag(t?.keyword)
                                 }
                             }
                         }

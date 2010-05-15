@@ -222,11 +222,9 @@ class PhotoController {
                             isPublic(p.isPublic)
 
                             // Tags
-                            if (tagList?.size > 0) {
-                                tags {
-                                    for(t in tagList) {
-                                        tag(t?.keyword)
-                                    }
+                            tags {
+                                for(t in p.tags) {
+                                    tag(t?.keyword)
                                 }
                             }
                         }
