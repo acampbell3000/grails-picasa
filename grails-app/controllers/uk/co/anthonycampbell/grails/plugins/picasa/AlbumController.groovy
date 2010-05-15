@@ -183,47 +183,29 @@ class AlbumController {
                     for (a in albumList) {
                         album {
                             // Main attributes
-                            photoId(p.photoId)
-                            albumId(p.albumId)
-                            title(p.title)
-                            description(p.description)
-                            cameraModel(p.cameraModel)
+                            albumId(a.albumId)
+                            name(a.name)
+                            description(a.description)
+                            location(a.location)
                             geoLocation {
-                                latitude(p.geoLocation?.latitude)
-                                longitude(p.geoLocation?.longitude)
+                                latitude(a.geoLocation?.latitude)
+                                longitude(a.geoLocation?.longitude)
                             }
-                            thumbnailImage(p.thumbnailImage)
-                            thumbnailWidth(p.thumbnailWidth)
-                            thumbnailHeight(p.thumbnailHeight)
-                            image(p.image)
-                            width(p.width)
-                            height(p.height)
-                            previousPhotoId(p.previousPhotoId)
-                            nextPhotoId(p.nextPhotoId)
-                            dateCreated(p.dateCreated?.format(DateUtil.RFC_822))
-                            isPublic(p.isPublic)
+                            image(a.image)
+                            width(a.width)
+                            height(a.height)
+                            dateCreated(a.dateCreated?.format(DateUtil.RFC_822))
+                            isPublic(a.isPublic)
 
                             // Tags
-                            for(t in tagList) {
-                                tag(t?.keyword)
+                            if (tagList?.size > 0) {
+                                tags {
+                                    for(t in tagList) {
+                                        tag(t?.keyword)
+                                    }
+                                }
                             }
                         }
-
-                        /*
-                            // Declare album properties
-                            String albumId = ""
-                            String name = ""
-                            String description = ""
-                            String location = ""
-                            GeoPoint geoLocation
-                            String image = ""
-                            String width = ""
-                            String height = ""
-                            int photoCount = 0
-                            List tags
-                            Date dateCreated = new Date()
-                            boolean isPublic = false
-                         */
                     }
                 }
             }
