@@ -1,5 +1,6 @@
 package uk.co.anthonycampbell.grails.plugins.picasa
 
+import org.apache.commons.lang.StringUtils
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
 
 /**
@@ -12,6 +13,11 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class AlbumController {
+
+    // Declare feed types
+    public static final String RSS_FEED = "rss"
+    public static final String XML_FEED = "xml"
+    public static final String JSON_FEED = "json"
     
     // Declare dependencies
     def grailsApplication
@@ -67,6 +73,9 @@ class AlbumController {
         List<Album> displayList = new ArrayList<Album>()
         List<Tag> tagList = new ArrayList<Tag>()
 
+        // Check type of request
+        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+
         // Prepare display values
         def showPrivate = (grailsApplication.config.picasa.showPrivateAlbums != null) ? grailsApplication.config.picasa.showPrivateAlbums : false
         int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
@@ -114,26 +123,131 @@ class AlbumController {
 
         // Always sort Tags alphabetically
         Collections.sort(tagList, new TagKeywordComparator())
+        
+        // Render correct feed
+        if (feed == RSS_FEED) {
+            log.debug("Display list with the " + feed + " feed")
 
-        log.debug("Convert response into display list")
+            // Keep track of latest album date
+            def latestBuildDate
 
-        // Convert to array to allow easy display preparation
-        Album[] albumArray = albumList.toArray()
-        if (albumArray) {
-            // Prepare display list
-            albumArray = Arrays.copyOfRange(albumArray, offset,
-                ((offset + max) > albumArray.length ? albumArray.length : (offset + max)))
-            if (albumArray) {
-                // Update display list
-                displayList.addAll(Arrays.asList(albumArray))
+            // Begin RSS ouput
+            render(contentType: "application/rss+xml", encoding: "UTF-8") {
+                rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
+                    channel {
+                        "atom:link"(href:"${createLink(controller: "album", action: "list", absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Album.legend", default: "Photo Albums"))
+                        link(createLink(controller: "album", action: "list", absolute: "true"))
+                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Album.rss.description", default: "Photo Albums"))
+                        generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
+
+                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
+                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        }
+                        
+                        for (a in albumList) {
+                            item {
+                                guid(isPermaLink: "false", a.albumId)
+                                pubDate(a.dateCreated?.format(DateUtil.RFC_822))
+                                "atom:updated"(DateUtil.formatDateRfc3339(a.dateCreated))
+                                title(a.name)
+                                description(a.description)
+                                link(createLink(controller: "album", action: "show", id: a.albumId, absolute: "true"))
+                                if (StringUtils.isNotEmpty(a.image)) {
+                                    enclosure(type: "image/jpeg", url: a.image, length: "0")
+                                }
+                            }
+                            
+                            if (latestBuildDate == null || latestBuildDate.compareTo(a.dateCreated) < 0) {
+                                latestBuildDate = a.dateCreated
+                            }
+                        }
+                        
+                        lastBuildDate(latestBuildDate != null ? latestBuildDate?.format(DateUtil.RFC_822) : "")
+                    }
+                }
             }
+        } else if (feed == XML_FEED || feed == JSON_FEED) {
+            log.debug("Display list with " + feed + " feed")
+
+            // Declare possible feed render types
+            final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
+            final def jsonType = [builder: "json", encoding: "UTF-8"]
+
+            // Determine correct type
+            final def type = (feed == XML_FEED ? xmlType : jsonType)
+
+            // Begin ouput
+            render(type) {
+                albums {
+                    for (a in albumList) {
+                        album {
+                            // Main attributes
+                            photoId(p.photoId)
+                            albumId(p.albumId)
+                            title(p.title)
+                            description(p.description)
+                            cameraModel(p.cameraModel)
+                            geoLocation {
+                                latitude(p.geoLocation?.latitude)
+                                longitude(p.geoLocation?.longitude)
+                            }
+                            thumbnailImage(p.thumbnailImage)
+                            thumbnailWidth(p.thumbnailWidth)
+                            thumbnailHeight(p.thumbnailHeight)
+                            image(p.image)
+                            width(p.width)
+                            height(p.height)
+                            previousPhotoId(p.previousPhotoId)
+                            nextPhotoId(p.nextPhotoId)
+                            dateCreated(p.dateCreated?.format(DateUtil.RFC_822))
+                            isPublic(p.isPublic)
+
+                            // Tags
+                            for(t in tagList) {
+                                tag(t?.keyword)
+                            }
+                        }
+
+                        /*
+                            // Declare album properties
+                            String albumId = ""
+                            String name = ""
+                            String description = ""
+                            String location = ""
+                            GeoPoint geoLocation
+                            String image = ""
+                            String width = ""
+                            String height = ""
+                            int photoCount = 0
+                            List tags
+                            Date dateCreated = new Date()
+                            boolean isPublic = false
+                         */
+                    }
+                }
+            }
+        } else {
+            log.debug("Convert response into display list")
+
+            // Convert to array to allow easy display preparation
+            Album[] albumArray = albumList.toArray()
+            if (albumArray) {
+                // Prepare display list
+                albumArray = Arrays.copyOfRange(albumArray, offset,
+                    ((offset + max) > albumArray.length ? albumArray.length : (offset + max)))
+                if (albumArray) {
+                    // Update display list
+                    displayList.addAll(Arrays.asList(albumArray))
+                }
+            }
+
+            log.debug("Display list with " + listView + " view")
+
+            render(view: listView, model: [albumInstanceList: displayList,
+                    albumInstanceTotal: (albumList?.size() ? albumList.size() : 0),
+                    tagInstanceList: tagList])
         }
-
-        log.debug("Display list with " + listView + " view")
-
-        render(view: listView, model: [albumInstanceList: displayList,
-                albumInstanceTotal: (albumList?.size() ? albumList.size() : 0),
-                tagInstanceList: tagList])
     }
 
     /**

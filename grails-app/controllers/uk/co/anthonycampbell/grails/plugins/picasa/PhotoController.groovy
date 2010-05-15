@@ -2,7 +2,6 @@ package uk.co.anthonycampbell.grails.plugins.picasa
 
 import org.apache.commons.lang.StringUtils
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
-import java.text.SimpleDateFormat
 
 /**
  * Photo controller
@@ -19,11 +18,6 @@ class PhotoController {
     public static final String RSS_FEED = "rss"
     public static final String XML_FEED = "xml"
     public static final String JSON_FEED = "json"
-
-    // RFC date formats
-    private static final String RFC_822 = "EE, d MMM yyyy HH:mm:ss Z"
-    private static final String RFC_3339_NO_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss"
-    private static final String RFC_3339_TIMEZONE = "Z"
 
     // Declare dependencies
     def grailsApplication
@@ -140,20 +134,6 @@ class PhotoController {
         // Always sort Tags alphabetically
         Collections.sort(tagList, new TagKeywordComparator())
 
-        log.debug("Convert response into display list")
-
-        // Convert to array to allow easy display preparation
-        Photo[] photoArray = photoList.toArray()
-        if (photoArray != null) {
-            // Prepare display list
-            photoArray = Arrays.copyOfRange(photoArray, offset,
-                ((offset + max) > photoArray.length ? photoArray.length : (offset + max)))
-            if (photoArray) {
-                // Update display list
-                displayList.addAll(Arrays.asList(photoArray))
-            }
-        }
-
         // Render correct feed
         if (feed == RSS_FEED) {
             log.debug("Display list with the " + feed + " feed")
@@ -174,7 +154,7 @@ class PhotoController {
                         link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
                         description((album != null && StringUtils.isNotEmpty(album.description)) ? album.description : "")
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
-                        lastBuildDate((album != null && album.dateCreated != null) ? album.dateCreated?.format(RFC_822) : "")
+                        lastBuildDate((album != null && album.dateCreated != null) ? album.dateCreated?.format(DateUtil.RFC_822) : "")
 
                         if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
                             managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
@@ -191,8 +171,8 @@ class PhotoController {
                         for (p in photoList) {
                             item {
                                 guid(isPermaLink: "false", p.photoId)
-                                pubDate(p.dateCreated?.format(RFC_822))
-                                "atom:updated"(formatDateRfc3339(p.dateCreated))
+                                pubDate(p.dateCreated?.format(DateUtil.RFC_822))
+                                "atom:updated"(DateUtil.formatDateRfc3339(p.dateCreated))
                                 title(p.title)
                                 description(p.description)
                                 link(createLink(controller: "photo", action: "show", id: paramAlbumId + "/" + p.photoId, absolute: "true"))
@@ -235,7 +215,7 @@ class PhotoController {
                             height(p.height)
                             previousPhotoId(p.previousPhotoId)
                             nextPhotoId(p.nextPhotoId)
-                            dateCreated(p.dateCreated?.format(RFC_822))
+                            dateCreated(p.dateCreated?.format(DateUtil.RFC_822))
                             isPublic(p.isPublic)
 
                             // Tags
@@ -247,6 +227,20 @@ class PhotoController {
                 }
             }
         } else {
+            log.debug("Convert response into display list")
+
+            // Convert to array to allow easy display preparation
+            Photo[] photoArray = photoList.toArray()
+            if (photoArray != null) {
+                // Prepare display list
+                photoArray = Arrays.copyOfRange(photoArray, offset,
+                    ((offset + max) > photoArray.length ? photoArray.length : (offset + max)))
+                if (photoArray) {
+                    // Update display list
+                    displayList.addAll(Arrays.asList(photoArray))
+                }
+            }
+
             log.debug("Display list with " + listView + " view")
 
             render(view: listView, model: [albumId: paramAlbumId,
@@ -270,7 +264,7 @@ class PhotoController {
         final List<Comment> commentDisplayList = new ArrayList<Comment>()
 
         // Check type of request
-        final String feed = (params.feed != null && !params.feed == "") ? params.feed : ""
+        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
 
         // Prepare display values
         final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
@@ -380,31 +374,5 @@ class PhotoController {
                 photoId: photoId,
                 photoComments: commentDisplayList,
                 photoCommentTotal: (commentList?.size() ? commentList.size() : 0)])
-    }
-    
-    /**
-     * Formats the provided date to provide a valid RFC 3339 timestamp
-     * (i.e. 2002-10-02T10:00:00-05:00). Java formatter strips ":" which
-     * goes against the RFC 3339 strict standard.
-     *
-     * @param date the date to format.
-     * @return the formatted date.
-     */
-    private String formatDateRfc3339(Date date) {
-        // Format two parts of RFC standard
-        final String formattedDate = date?.format(RFC_3339_NO_TIMEZONE);
-        String timeZone = date?.format(RFC_3339_TIMEZONE);
-
-        // Put colon back in
-        if (timeZone != null && timeZone.length() > 2) {
-            final String timeZoneHead = timeZone.substring(0, timeZone.length() - 2)
-            final String timeZoneTail = timeZone.substring(timeZone.length() - 2, timeZone.length())
-            timeZone = timeZoneHead << ":" << timeZoneTail
-        } else {
-            // RFC 3339 requires a 'Z' to be available if no timezone is available.
-            timeZone = "Z";
-        }
-        
-        return formattedDate << timeZone;
     }
 }

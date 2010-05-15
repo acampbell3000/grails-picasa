@@ -44,7 +44,16 @@
 							</g:each>
 							</tbody>
 						</table>
-						<div id="pagination">
-							<g:remotePaginate action="ajaxList" update="listAlbum" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${albumInstanceTotal}" />
-						</div>
+                      
+                        <div id="listAlbumFooter">
+                            <div id="pagination">
+                                <g:remotePaginate action="ajaxList" update="listAlbum" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${albumInstanceTotal}" />
+                            </div>
+                            <div id="feeds">
+                                <a href="${createLink(action: 'list')}/feed/rss">RSS</a> |
+                                <a href="${createLink(action: 'list')}/feed/xml">XML</a> |
+                                <a href="${createLink(action: 'list')}/feed/json">JSON</a>
+                            </div>
+                            <div class="cleaner"></div>
+                        </div>
 					</div>

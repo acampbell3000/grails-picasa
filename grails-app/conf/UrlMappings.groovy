@@ -6,6 +6,11 @@ class UrlMappings {
             }
         }
 
+        "/album/list/feed/$feed" {
+            controller = "album"
+            action = "list"
+        }
+
         "/photo/list/$albumId" {
             controller = "photo"
             action = "list"

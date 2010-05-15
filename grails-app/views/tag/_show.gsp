@@ -43,7 +43,9 @@
 							</g:each>
 							</tbody>
 						</table>
+
 						<div id="pagination">
 							<g:remotePaginate action="ajaxShow" update="listPhoto" id="${tagKeyword}" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${photoInstanceTotal}" />
 						</div>
+                        <div class="cleaner"></div>
 					</div>

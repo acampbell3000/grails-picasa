@@ -19,5 +19,6 @@
                             <div id="pagination">
                                 <g:remotePaginate action="comments" update="comments" albumId="${albumId}" photoId="${photoId}" max="${(grailsApplication.config.picasa.maxComments) ? grailsApplication.config.picasa.maxComments : 10}" maxsteps="${(grailsApplication.config.picasa.maxCommentSteps) ? grailsApplication.config.picasa.maxCommentSteps : 10}" total="${photoCommentTotal}" />
                             </div>
+                            <div class="cleaner"></div>
                         </g:if>
                         </div>
