@@ -1,4 +1,4 @@
-VERSION: 0.4.2
+VERSION: 0.4.3
 
 Known issues:
 - Sort links need updating to support ajax requests fully.
@@ -8,7 +8,10 @@ Known issues:
 - Param valiadation exercise (i.e. Math.min on max).
 - PicasaService is a Singleton so could could problems for concurrent requests for different users.
 
-Release notes 0.4.2 (TBA)
+Release notes 0.4.3 (TBA)
+- 
+
+Release notes 0.4.2 (16th May 2010)
 - Pagination float fix. 
 - Fixed tag listing defect.
 - Introduction of RSS feed for tag listing.
