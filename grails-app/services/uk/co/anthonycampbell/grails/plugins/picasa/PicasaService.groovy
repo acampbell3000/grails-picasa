@@ -26,6 +26,9 @@ class PicasaService implements InitializingBean {
     boolean transactional = true
     boolean serviceInitialised = false
     
+    // Declare service scope
+    static scope = "session"
+    
     // Declare cache (used to reduce Google API calls)
     private static Map<String, List> tagCache = new HashMap<String, List>()
 
