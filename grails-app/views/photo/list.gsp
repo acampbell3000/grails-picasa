@@ -15,7 +15,7 @@
                     <g:render template="/photo/list" model="['photoInstanceList': photoInstanceList, 'photoInstanceTotal': photoInstanceTotal, 'albumId': albumId]" />
 
                     <g:if test="${tagInstanceList != null && tagInstanceList.size > 0}">
-                    <div id="listTag">
+                    <div id="tagListing">
                         <g:each in="${tagInstanceList}" status="tagIndex" var="tagInstance">${(tagIndex > 0) ? ", " : ""}<g:link controller="tag" action="show" id="${tagInstance?.keyword}">${tagInstance?.keyword}</g:link></g:each>
                     </div>
                     </g:if>
