@@ -27,7 +27,7 @@ class TagController {
      * Re-direct index requests to list view.
      */
     def index = {
-        redirect(controller: "album", action: "index", params: params)
+        redirect(controller: "tag", action: "list", params: params)
 	}
 
     /**
@@ -103,24 +103,77 @@ class TagController {
             Collections.reverse(tagList)
         }
 
-        log.debug("Convert response into display list")
+        // Render correct feed
+        if (feed == RSS_FEED) {
+            log.debug("Display list with the " + feed + " feed")
 
-        // Convert to array to allow easy display preparation
-        Tag[] tagArray = tagList.toArray()
-        if (tagArray) {
-            // Prepare display list
-            tagArray = Arrays.copyOfRange(tagArray, offset,
-                ((offset + max) > tagArray.length ? tagArray.length : (offset + max)))
-            if (tagArray) {
-                // Update display list
-                displayList.addAll(Arrays.asList(tagArray))
+            // Last build date
+            final Date date = new Date()
+
+            // Begin RSS ouput
+            render(contentType: "application/rss+xml", encoding: "UTF-8") {
+                rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
+                    channel {
+                        "atom:link"(href: "${createLink(controller: "tag", action: "list", absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.legend", default: "Tag Listing"))
+                        link(createLink(controller: "tag", action: "list", absolute: "true"))
+                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.rss.description", default: "RSS feed for the tag listing"))
+                        generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
+                        lastBuildDate(date.format(DateUtil.RFC_822))
+
+                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
+                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        }
+
+                        for (t in tagList) {
+                            item {
+                                guid(isPermaLink: "false", t.keyword)
+                                title(t.keyword)
+                                description(t.keyword)
+                                link(createLink(controller: "tag", action: "show", id: t.keyword, absolute: "true"))
+                            }
+                        }
+                    }
+                }
             }
+        } else if (feed == XML_FEED || feed == JSON_FEED) {
+            log.debug("Display list with " + feed + " feed")
+
+            // Declare possible feed render types
+            final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
+            final def jsonType = [builder: "json", encoding: "UTF-8"]
+
+            // Determine correct type
+            final def type = (feed == XML_FEED ? xmlType : jsonType)
+
+            // Begin ouput
+            render(type) {
+                tags {
+                    for (t in tagList) {
+                        tag(t?.keyword)
+                    }
+                }
+            }
+        } else {
+            log.debug("Convert response into display list")
+
+            // Convert to array to allow easy display preparation
+            Tag[] tagArray = tagList.toArray()
+            if (tagArray) {
+                // Prepare display list
+                tagArray = Arrays.copyOfRange(tagArray, offset,
+                    ((offset + max) > tagArray.length ? tagArray.length : (offset + max)))
+                if (tagArray) {
+                    // Update display list
+                    displayList.addAll(Arrays.asList(tagArray))
+                }
+            }
+
+            log.debug("Display list with " + listView + " view")
+
+            render(view: listView, model: [tagInstanceList: displayList,
+                    tagInstanceTotal: (tagList?.size() ? tagList.size() : 0)])
         }
-
-        log.debug("Display list with " + listView + " view")
-
-        render(view: listView, model: [tagInstanceList: displayList,
-                tagInstanceTotal: (tagList?.size() ? tagList.size() : 0)])
     }
 
     /**

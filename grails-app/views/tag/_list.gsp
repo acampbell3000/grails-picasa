@@ -10,7 +10,7 @@
 
                         <div id="listTagFooter">
                             <div id="pagination">
-                                <g:remotePaginate action="ajaxList" update="listTag" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${tagInstanceTotal}" />
+                                <g:remotePaginate action="ajaxList" update="listTag" max="${(grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywords : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${tagInstanceTotal}" />
                             </div>
                             <div id="feeds">
                                 <a href="${createLink(action: 'list')}/feed/rss">RSS</a> |
