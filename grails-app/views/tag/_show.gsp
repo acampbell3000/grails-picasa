@@ -44,7 +44,7 @@
 							</tbody>
 						</table>
 
-                        <div id="showTagFooter">
+                        <div id="contentFooter">
                             <div id="pagination">
                                 <g:remotePaginate action="ajaxShow" update="showTag" id="${tagKeyword}" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${photoInstanceTotal}" />
                             </div>

@@ -45,7 +45,7 @@
 							</tbody>
 						</table>
                       
-                        <div id="listAlbumFooter">
+                        <div id="contentFooter">
                             <div id="pagination">
                                 <g:remotePaginate action="ajaxList" update="listAlbum" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${albumInstanceTotal}" />
                             </div>
