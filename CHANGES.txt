@@ -3,8 +3,8 @@ VERSION: 0.4.4
 Known issues:
 - Sort links need updating to support ajax requests fully.
 - Poor code coverage of the PicasaService.
-- Add to provide (OAuth) ability to add comments.
-- Optimisation excercise.
+- Provide (OAuth) ability to add comments.
+- Optimisation excercise (finals etc).
 - Param valiadation exercise (i.e. Math.min on max).
 
 Release notes 0.4.4 (TBA)
