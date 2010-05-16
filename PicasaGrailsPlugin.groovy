@@ -1,3 +1,5 @@
+package uk.co.anthonycampbell.grails.plugins.picasa
+
 class PicasaGrailsPlugin {
     // the plugin version
     def version = "0.4.2"

@@ -23,6 +23,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     <resource>uk.co.anthonycampbell.grails.plugins.picasa.PicasaService</resource>
     <resource>uk.co.anthonycampbell.grails.plugins.picasa.PicasaServiceException</resource>
     <resource>uk.co.anthonycampbell.grails.taglib.TextTagLib</resource>
+    <resource>uk.co.anthonycampbell.grails.plugins.picasa.DateUtil</resource>
   </resources>
   <dependencies />
   <behavior />
