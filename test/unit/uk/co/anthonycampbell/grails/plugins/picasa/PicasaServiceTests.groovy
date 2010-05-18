@@ -176,9 +176,36 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     /**
      * Test the PicasaService.listAlbums() method.
      */
-    void testListAlbumsWithServiceNotInitialised() {
+    void testListAlbums_WithServiceNotInitialised() {
         // Ensure service is NOT initialised
         picasaService.serviceInitialised = false
+
+        // Run test
+        try {
+            picasaService.listAlbums()
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration.", pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listAlbums() method.
+     */
+    void testListAlbums_WithNullAlbumsFromFeed() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        // Prepare mock user feed
+        when(mockUserFeed.getAlbumEntries()).thenReturn(null)
+
+        // Get user feed
+        when(mockPicasaWebService.getFeed(USER_FEED_URL, UserFeed.class)).thenReturn(mockUserFeed)
 
         // Run test
         try {

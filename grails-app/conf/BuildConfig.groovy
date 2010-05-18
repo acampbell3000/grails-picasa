@@ -11,7 +11,10 @@ grails.project.dependency.resolution = {
 
     dependencies {
         test 'org.mockito:mockito-all:1.8.4'
-        //test 'junit:junit:4.0'
+    }
+
+    plugins {
+        test ':code-coverage:'
     }
 }
 
