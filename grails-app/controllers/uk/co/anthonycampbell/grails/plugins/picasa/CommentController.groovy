@@ -49,12 +49,12 @@ class CommentController {
      */
     private doList(boolean isAjax) {
         // Initialise lists
-        List<Tag> tagList = new ArrayList<Tag>()
-        List<Tag> displayList = new ArrayList<Tag>()
+        final List<Tag> tagList = new ArrayList<Tag>()
+        final List<Tag> displayList = new ArrayList<Tag>()
 
         // Prepare display values
-        int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
-        int max = new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywordsCon : 10))).intValue()
+        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywords : 10))).intValue(), 500)
         def listView = "list"
         if(isAjax) listView = "_list"
         flash.message = ""

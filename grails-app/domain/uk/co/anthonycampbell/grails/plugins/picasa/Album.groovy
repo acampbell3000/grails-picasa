@@ -29,13 +29,13 @@ class Album {
 
     // Declare constraints
     static constraints = {
-        albumId(blank:false)
-        name(blank:false, size:2..250)
-        description(nullable:true)
-        location(nullable:true)
-        geoLocation(nullable:true)
-        image(blank:false, url:true)
-        width(blank:false)
-        height(blank:false)
+        albumId(blank: false)
+        name(blank: false, size: 2..250)
+        description(nullable: true)
+        location(nullable: true)
+        geoLocation(nullable: true)
+        image(blank: false, url: true)
+        width(blank: false)
+        height(blank: false)
     }
 }

@@ -14,7 +14,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        test ':code-coverage:'
+        test 'org.grails.plugins:code-coverage:latest.integration'
     }
 }
 

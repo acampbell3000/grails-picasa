@@ -120,7 +120,7 @@ class PicasaService implements InitializingBean {
                 for (AlbumEntry entry : userFeed.getAlbumEntries()) {
                     // Transfer entry into domain class
                     final Album album = convertToAlbumDomain(entry)
-
+                    def errors = album.hasErrors()
                     // If we have a valid public entry add to listing
                     if (!album.hasErrors()) {
                         if (showAll || album.isPublic) {

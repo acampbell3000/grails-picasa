@@ -27,13 +27,17 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     PicasaService picasaService
     @Mock PicasawebService mockPicasaWebService
     @Mock AlbumEntry mockAlbumEntry
+    @Mock TagEntry mockTagEntry
     @Mock UserFeed mockUserFeed
+    @Mock AlbumFeed mockAlbumFeed
+    @Mock AlbumFeed mockTagFeed
     @Mock MediaThumbnail mockMediaThumbnail
     @Mock MediaKeywords mockMediaKeywords
     @Mock TextConstruct mockTextConstruct
 
     // Declare test items
     List<AlbumEntry> listOfAlbumEntries
+    List<TagEntry> listOfTagEntries
 
     // Declare some test config values
     static final String USERNAME = "username"
@@ -61,6 +65,13 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             "http://picasaweb.google.com/data/feed/api/user/" +
             USERNAME + "?kind=album&thumbsize=" + THUMBSIZE +
             "&imgmax=" + IMG_MAX)
+    static final URL ALBUM_FEED_URL = new URL(
+            "http://picasaweb.google.com/data/feed/api/user/" +
+            USERNAME + "/albumid/" + TEST_ALBUM_ID + "?thumbsize=" + THUMBSIZE +
+            "&imgmax=" + IMG_MAX)
+    static final URL ALBUM_TAG_FEED_URL = new URL(
+            "http://picasaweb.google.com/data/feed/api/user/" + USERNAME +
+            "/albumid/" + TEST_ALBUM_ID + "?kind=tag")
 
     /**
      * Set up test properties and values for the unit tests.
@@ -74,11 +85,17 @@ class PicasaServiceTests extends GrailsUnitTestCase {
 
         // Add validation methods
         mockForConstraintsTests(Album)
-        mockForConstraintsTests(GeoPoint)
+        mockForConstraintsTests(Photo)
+        mockForConstraintsTests(Comment)
         mockForConstraintsTests(Tag)
+        mockForConstraintsTests(GeoPoint)
 
         // Add addition meta program methods
         mockDomain(Album, [])
+        mockDomain(Photo, [])
+        mockDomain(Comment, [])
+        mockDomain(Tag, [])
+        mockDomain(GeoPoint, [])
 
         // Initialise service
         picasaService = PicasaService.newInstance()
@@ -112,7 +129,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         when(mockTextConstruct.getPlainText())
             .thenReturn(TEST_TITLE)
             .thenReturn(TEST_DESCRIPTION)
-        
+
         // Mock test album
         when(mockAlbumEntry.getId()).thenReturn(TEST_ALBUM_ID)
         when(mockAlbumEntry.getGeoLocation()).thenReturn(TEST_W3C_POINT)
@@ -125,11 +142,32 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         when(mockAlbumEntry.getDate()).thenReturn(TEST_DATE)
         when(mockAlbumEntry.getAccess()).thenReturn(TEST_ACCESS_PUBLIC)
 
-        // Prepare a valid result set
+        // Mock test album feed
+        when(mockAlbumFeed.getId()).thenReturn(TEST_ALBUM_ID)
+        when(mockAlbumFeed.getGeoLocation()).thenReturn(TEST_W3C_POINT)
+        when(mockAlbumFeed.getMediaThumbnails()).thenReturn(THUMBNAIL_LIST)
+        when(mockAlbumFeed.getMediaKeywords()).thenReturn(mockMediaKeywords)
+        //when(mockAlbumFeed.getTitle()).thenReturn(mockTextConstruct)
+        when(mockAlbumFeed.getDescription()).thenReturn(mockTextConstruct)
+        when(mockAlbumFeed.getLocation()).thenReturn(TEST_LOCATION)
+        when(mockAlbumFeed.getPhotosUsed()).thenReturn(TEST_PHOTO_COUNT)
+        when(mockAlbumFeed.getDate()).thenReturn(TEST_DATE)
+        when(mockAlbumFeed.getAccess()).thenReturn(TEST_ACCESS_PUBLIC)
+
+        // Prepare a valid album result set
         listOfAlbumEntries = new ArrayList<AlbumEntry>()
         listOfAlbumEntries.add(mockAlbumEntry)
         listOfAlbumEntries.add(mockAlbumEntry)
         listOfAlbumEntries.add(mockAlbumEntry)
+
+        // Mock test tag
+        when(mockTagEntry.getTitle()).thenReturn(mockTextConstruct)
+
+        // Prepare a valid tag result set
+        listOfTagEntries = new ArrayList<TagEntry>()
+        listOfTagEntries.add(mockTagEntry)
+        listOfTagEntries.add(mockTagEntry)
+        listOfTagEntries.add(mockTagEntry)
     }
 
     /**
@@ -197,27 +235,44 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     /**
      * Test the PicasaService.listAlbums() method.
      */
-    void testListAlbums_WithNullAlbumsFromFeed() {
+    void testListAlbums_WithEmptyAlbumList() {
         // Ensure service is initialised
         picasaService.serviceInitialised = true
 
-        // Prepare mock user feed
-        when(mockUserFeed.getAlbumEntries()).thenReturn(null)
+        // Prepare mock user feed with empty list
+        when(mockUserFeed.getAlbumEntries()).thenReturn(Collections.emptyList())
 
         // Get user feed
         when(mockPicasaWebService.getFeed(USER_FEED_URL, UserFeed.class)).thenReturn(mockUserFeed)
 
         // Run test
-        try {
-            picasaService.listAlbums()
-            fail("Expected PicasaServiceException to be thrown!")
+        List<Album> albumList = picasaService.listAlbums()
 
-        } catch (PicasaServiceException pse) {
-            // Check result
-            assertEquals("Unexpected exception has been thrown!",
-                "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration.", pse.getMessage())
-        }
+        // Check result
+        assertNotNull("Expected an instantiated album list to be returned!", albumList)
+        assertEquals("Unexpected album list size returned!",
+            0, albumList.size())
+    }
+
+    /**
+     * Test the PicasaService.getAlbum() method.
+     */
+    void testGetAlbum() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        // Get album feed
+        when(mockPicasaWebService.getFeed(ALBUM_FEED_URL, AlbumFeed.class)).thenReturn(mockAlbumFeed)
+
+        // Get tag feed
+        when(mockPicasaWebService.query(new Query(ALBUM_TAG_FEED_URL), AlbumFeed.class)).thenReturn(mockTagFeed)
+
+        // Run test
+        Album album = picasaService.getAlbum(TEST_ALBUM_ID)
+
+        // Check result
+        assertNotNull("Expected an instantiated album to be returned!", album)
+        assertEquals("Unexpected album returned!",
+            TEST_ALBUM_ID, album.getId())
     }
 }
