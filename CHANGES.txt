@@ -3,9 +3,7 @@ VERSION: 0.4.4
 Known issues:
 - Sort links need updating to support ajax requests fully.
 - Poor code coverage of the PicasaService.
-- Provide (OAuth) ability to add comments.
-- Optimisation excercise (finals etc).
-- Param valiadation exercise (i.e. Math.min on max).
+- Provide (OAuth) ability to add comments.i
 
 Release notes 0.4.4 (TBA)
 - Update to Grails 1.3.1.

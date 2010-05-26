@@ -117,13 +117,13 @@ class PicasaService implements InitializingBean {
                 // Get user feed
                 final UserFeed userFeed = picasaWebService.getFeed(feedUrl, UserFeed.class)
 
-                for (AlbumEntry entry : userFeed.getAlbumEntries()) {
+                for (AlbumEntry entry : userFeed?.getAlbumEntries()) {
                     // Transfer entry into domain class
                     final Album album = convertToAlbumDomain(entry)
-                    def errors = album.hasErrors()
+
                     // If we have a valid public entry add to listing
-                    if (!album.hasErrors()) {
-                        if (showAll || album.isPublic) {
+                    if (!album?.hasErrors()) {
+                        if (showAll || album?.isPublic) {
                             albumListing.add(album)
                         }
                     }
@@ -200,7 +200,7 @@ class PicasaService implements InitializingBean {
                 }
 
                 // Update album feed with results
-                for (TagEntry tag : tagResultsFeed.getTagEntries()) {
+                for (TagEntry tag : tagResultsFeed?.getTagEntries()) {
                     albumTags.addKeyword(tag?.getTitle()?.getPlainText())
                 }
                 albumFeed?.setKeywords(albumTags)
@@ -209,8 +209,8 @@ class PicasaService implements InitializingBean {
                 final Album domain = convertToAlbumDomain(albumFeed)
 
                 // If we have a valid public entry add to listing
-                if (!domain.hasErrors()) {
-                    if (showAll || domain.isPublic) {
+                if (!domain?.hasErrors()) {
+                    if (showAll || domain?.isPublic) {
                         album = domain
                     }
                 }
@@ -272,13 +272,13 @@ class PicasaService implements InitializingBean {
                 // Get album feed
                 final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
-                for (PhotoEntry entry : albumFeed.getPhotoEntries()) {
+                for (PhotoEntry entry : albumFeed?.getPhotoEntries()) {
                     // Transfer entry into domain class
                     final Photo photo = convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
-                    if (!photo.hasErrors()) {
-                        if (showAll || photo.isPublic) {
+                    if (!photo?.hasErrors()) {
+                        if (showAll || photo?.isPublic) {
                             photoListing.add(photo)
                         }
                     }
@@ -348,13 +348,13 @@ class PicasaService implements InitializingBean {
                 // Get album feed
                 final AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
 
-                for (PhotoEntry entry : tagSearchResultsFeed.getPhotoEntries()) {
+                for (PhotoEntry entry : tagSearchResultsFeed?.getPhotoEntries()) {
                     // Transfer entry into domain class
                     final Photo photo = convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
-                    if (!photo.hasErrors()) {
-                        if (showAll || photo.isPublic) {
+                    if (!photo?.hasErrors()) {
+                        if (showAll || photo?.isPublic) {
                             photoListing.add(photo)
                         }
                     }
@@ -404,7 +404,7 @@ class PicasaService implements InitializingBean {
             final boolean useTagCache = (grailsApplication.config.picasa.useTagCache != null) ? grailsApplication.config.picasa.useTagCache : false
 
             // Check whether cache contains required tag listing
-            if (useTagCache && tagCache.containsKey(albumId)) {
+            if (useTagCache && tagCache?.containsKey(albumId)) {
                 log.debug("Tag cache enabled...")
 
                 return tagCache.get(albumId)
@@ -429,7 +429,7 @@ class PicasaService implements InitializingBean {
                     final Tag tag = convertToTagDomain(entry)
 
                     // If we have a valid entry add to listing
-                    if (!tag.hasErrors()) {
+                    if (!tag?.hasErrors()) {
                         tagListing.add(tag)
                     }
                 }
@@ -486,7 +486,7 @@ class PicasaService implements InitializingBean {
                     final Tag tag = convertToTagDomain(entry)
 
                     // If we have a valid entry add to listing
-                    if (!tag.hasErrors()) {
+                    if (!tag?.hasErrors()) {
                         tagListing.add(tag)
                     }
                 }
@@ -553,7 +553,7 @@ class PicasaService implements InitializingBean {
                     final Comment comment = convertToCommentDomain(entry)
 
                     // If we have a valid entry add to listing
-                    if (!comment.hasErrors()) {
+                    if (!comment?.hasErrors()) {
                         commentListing.add(comment)
                     }
                 }
@@ -621,8 +621,8 @@ class PicasaService implements InitializingBean {
                 final Photo domain = convertToPhotoDomain(photoFeed)
 
                 // If we have a valid public entry add to listing
-                if (!domain.hasErrors()) {
-                    if (showAll || domain.isPublic) {
+                if (!domain?.hasErrors()) {
+                    if (showAll || domain?.isPublic) {
                         photo = domain
                     }
                 }
@@ -630,11 +630,11 @@ class PicasaService implements InitializingBean {
                 // Check we have a photo to work with
                 if (photo != null) {
                     // First get list of any comments
-                    for (CommentEntry commentEntry : photoFeed.getCommentEntries()) {
+                    for (CommentEntry commentEntry : photoFeed?.getCommentEntries()) {
                         // Transfer comment into domain class
                         final Comment comment = convertToCommentDomain(commentEntry)
 
-                        if (!comment.hasErrors()) {
+                        if (!comment?.hasErrors()) {
                             photo.addToComments(comment)
                         }
                     }
@@ -656,7 +656,7 @@ class PicasaService implements InitializingBean {
                     String next = ""
 
                     // Find photo and store previous and subsequent IDs (if available)
-                    for (PhotoEntry entry : albumFeed.getPhotoEntries()) {
+                    for (PhotoEntry entry : albumFeed?.getPhotoEntries()) {
                         // Prepare ID
                         current = entry?.getId()?.substring(entry?.getId()?.lastIndexOf('/') + 1,
                             entry?.getId()?.length())
@@ -961,7 +961,7 @@ class PicasaService implements InitializingBean {
         // Return updated comment
         return comment
     }
-
+    
     /**
      * Convert the provided com.google.gdata.data.Person object into the
      * Person domain class.
