@@ -297,7 +297,7 @@ class PicasaService implements InitializingBean {
             }
         } else {
             def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
+                "configuration is missing. Please refer tUo the documentation and ensure you have " +
                 "declared all of the required configuration."
 
             log.error(errorMessage)

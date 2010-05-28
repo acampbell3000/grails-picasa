@@ -10,6 +10,9 @@ import com.google.gdata.data.geo.impl.W3CPoint
 import com.google.gdata.data.media.*
 import com.google.gdata.data.media.mediarss.*
 import com.google.gdata.data.photos.*
+import com.google.gdata.util.AuthenticationException
+import com.google.gdata.util.RedirectRequiredException
+import com.google.gdata.util.ServiceException
 
 import org.apache.log4j.Logger
 
@@ -55,6 +58,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     // Declare some test values
     static final String TEST_ALBUM_ID = "123"
     static final String TEST_PHOTO_ID = "456"
+    static final String TEST_TAG_KEYWORD = "Keyword"
     static final W3CPoint TEST_W3C_POINT = new W3CPoint(0.00, 0.00)
     static final String TEST_MEDIA_THUMBNAIL_URL = ""
     static final int TEST_MEDIA_THUMBNAIL_WIDTH = 100
@@ -70,12 +74,15 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     static final String TEST_CONTENT_URL = "http://localhost"
     static final int TEST_CONTENT_WIDTH = 100
     static final int TEST_CONTENT_HEIGHT = 100
+    static final boolean TEST_SHOW_ALL = true
 
     // Declare test feeds
     static final URL USER_FEED_URL = new URL(
             "http://picasaweb.google.com/data/feed/api/user/" +
             USERNAME + "?kind=album&thumbsize=" + THUMBSIZE +
             "&imgmax=" + IMG_MAX)
+    static final URL SIMPLE_USER_FEED_URL = new URL(
+            "http://picasaweb.google.com/data/feed/api/user/" + USERNAME)
     static final URL ALBUM_FEED_URL = new URL(
             "http://picasaweb.google.com/data/feed/api/user/" +
             USERNAME + "/albumid/" + TEST_ALBUM_ID + "?thumbsize=" + THUMBSIZE +
@@ -83,6 +90,9 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     static final URL ALBUM_TAG_FEED_URL = new URL(
             "http://picasaweb.google.com/data/feed/api/user/" + USERNAME +
             "/albumid/" + TEST_ALBUM_ID + "?kind=tag")
+
+    // Test tag query
+    static final Query TEST_QUERY = new Query(SIMPLE_USER_FEED_URL)
 
     /**
      * Set up test properties and values for the unit tests.
@@ -214,6 +224,13 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         listOfTagEntries.add(mockTagEntry)
         listOfTagEntries.add(mockTagEntry)
         listOfTagEntries.add(mockTagEntry)
+
+        // Update tag query
+        TEST_QUERY.setStringCustomParameter("kind", "photo")
+        TEST_QUERY.setStringCustomParameter("tag", TEST_TAG_KEYWORD)
+        TEST_QUERY.setStringCustomParameter("thumbsize", "" + THUMBSIZE)
+        TEST_QUERY.setStringCustomParameter("imgmax", "" + IMG_MAX)
+        TEST_QUERY.setStringCustomParameter("max-results", "" + MAX_RESULTS)
     }
 
     /**
@@ -274,7 +291,8 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             assertEquals("Unexpected exception has been thrown!",
                 "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
                 "configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration.", pse.getMessage())
+                "you have declared all of the required configuration.",
+                pse.getMessage())
         }
     }
 
@@ -296,8 +314,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
 
         // Check result
         assertNotNull("Expected an instantiated album list to be returned!", albumList)
-        assertEquals("Unexpected album list size returned!",
-            0, albumList.size())
+        assertEquals("Unexpected album list size returned!", 0, albumList.size())
     }
 
     /**
@@ -311,7 +328,8 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         when(mockPicasaWebService.getFeed(ALBUM_FEED_URL, AlbumFeed.class)).thenReturn(mockAlbumFeed)
 
         // Get tag feed
-        when(mockPicasaWebService.query(new Query(ALBUM_TAG_FEED_URL), AlbumFeed.class)).thenReturn(new AlbumFeed())
+        when(mockPicasaWebService.query(new Query(ALBUM_TAG_FEED_URL), AlbumFeed.class))
+            .thenReturn(mockAlbumFeed)
 
         // Run test
         Album album = picasaService.getAlbum(TEST_ALBUM_ID)
@@ -336,8 +354,369 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         List<Photo> photoList = picasaService.listPhotosForAlbum(TEST_ALBUM_ID)
 
         // Check result
-        assertNotNull("Expected an instantiated album to be returned!", photoList)
-        assertEquals("Unexpected album returned!",
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected photo list returned!",
             listOfPhotoEntries.size(), photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForAlbum() method.
+     */
+    void testListPhotosForAlbum_WithNoPhotos() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        // No photos
+        when(mockAlbumFeed.getPhotoEntries()).thenReturn(Collections.emptyList())
+
+        // Get album feed
+        when(mockPicasaWebService.getFeed(ALBUM_FEED_URL, AlbumFeed.class)).thenReturn(mockAlbumFeed)
+
+        // Run test
+        List<Photo> photoList = picasaService.listPhotosForAlbum(TEST_ALBUM_ID)
+
+        // Check result
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected number of photos returned!", 0, photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForAlbum() method.
+     */
+    void testListPhotosForAlbum_WithServiceNotInitialised() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = false
+
+        try {
+            // Run test
+            picasaService.listPhotosForAlbum(TEST_ALBUM_ID)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to list your Google Picasa Web Album Photos. Some of the plug-in " +
+                "configuration is missing. Please refer tUo the documentation and ensure you have " +
+                "declared all of the required configuration.",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForAlbum() method.
+     */
+    void testListPhotosForAlbum_WithEmptyAlbumId() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        try {
+            // Run test
+            picasaService.listPhotosForAlbum("")
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                "provided ID was invalid. (albumId=" + "" + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForAlbum() method.
+     */
+    void testListPhotosForAlbum_WithNullAlbumId() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        try {
+            // Run test
+            picasaService.listPhotosForAlbum(null)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                "provided ID was invalid. (albumId=" + null + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForAlbum() method.
+     */
+    void testListPhotosForAlbum_WithFeedException() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        // Get album feed
+        when(mockPicasaWebService.getFeed(ALBUM_FEED_URL, AlbumFeed.class))
+            .thenThrow(new ServiceException("Test exception"))
+
+        try {
+            // Run test
+            picasaService.listPhotosForAlbum(TEST_ALBUM_ID)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                "provided ID was invalid. (albumId=" + TEST_ALBUM_ID + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForTag() method.
+     */
+    void testListPhotosForTag() {
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(TEST_QUERY, AlbumFeed.class)).thenReturn(mockAlbumFeed)
+
+        // Run test
+        List<Photo> photoList = picasaService.listPhotosForTag(TEST_TAG_KEYWORD)
+
+        // Check result
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected photo list returned!",
+            listOfPhotoEntries.size(), photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForTag() method.
+     */
+    void testListPhotosForTag_WithNoPhotos() {
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(TEST_QUERY, AlbumFeed.class))
+            .thenReturn(Collections.emptyList())
+
+        // Run test
+        List<Photo> photoList = picasaService.listPhotosForTag(TEST_TAG_KEYWORD)
+
+        // Check result
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected photo list returned!", 0, photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForTag() method.
+     */
+    void testListPhotosForTag_WithServiceNotInitialised() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = false
+
+        try {
+            // Run test
+            picasaService.listPhotosForTag(TEST_TAG_KEYWORD)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
+                "configuration is missing. Please refer two the documentation and ensure you have " +
+                "declared all of the required configuration.",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForTag() method.
+     */
+    void testListPhotosForTag_WithEmptyTagKeyword() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        try {
+            // Run test
+            picasaService.listPhotosForTag("")
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Tags. The " +
+                "provided ID was invalid. (albumId=" + "" + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForTag() method.
+     */
+    void testListPhotosForTag_WithNullTagKeyword() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        try {
+            // Run test
+            picasaService.listPhotosForTag(null)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Tags. The " +
+                "provided ID was invalid. (albumId=" + null + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listPhotosForTag() method.
+     */
+    void testListPhotosForTag_WithFeedException() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(TEST_QUERY, AlbumFeed.class))
+            .thenThrow(new ServiceException("Test exception"))
+
+        try {
+            // Run test
+            picasaService.listPhotosForTag(TEST_TAG_KEYWORD)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                "provided ID was invalid. (albumId=" + TEST_TAG_KEYWORD + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listTagsForAlbum() method.
+     */
+    void testListTagsForAlbum() {
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(new Query(ALBUM_TAG_FEED_URL), AlbumFeed.class))
+            .thenReturn(mockAlbumFeed)
+
+        // Run test
+        List<Photo> photoList = picasaService.listTagsForAlbum(TEST_ALBUM_ID)
+
+        // Check result
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected photo list returned!",
+            listOfPhotoEntries.size(), photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listTagsForAlbum() method.
+     */
+    void testListTagsForAlbum_WithNoPhotos() {
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(new Query(ALBUM_TAG_FEED_URL), AlbumFeed.class))
+            .thenReturn(Collections.emptyList())
+
+        // Run test
+        List<Photo> photoList = picasaService.listTagsForAlbum(TEST_ALBUM_ID)
+
+        // Check result
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected photo list returned!", 0, photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listTagsForAlbum() method.
+     */
+    void testListTagsForAlbum_WithServiceNotInitialised() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = false
+
+        try {
+            // Run test
+            picasaService.listTagsForAlbum(TEST_ALBUM_ID)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
+                "configuration is missing. Please refer two the documentation and ensure you have " +
+                "declared all of the required configuration.",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listTagsForAlbum() method.
+     */
+    void testListTagsForAlbum_WithEmptyAlbumId() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        try {
+            // Run test
+            picasaService.listTagsForAlbum("")
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Tags. The " +
+                "provided ID was invalid. (albumId=" + "" + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listTagsForAlbum() method.
+     */
+    void testListTagsForAlbum_WithNullAlbumId() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        try {
+            // Run test
+            picasaService.listTagsForAlbum(null)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Tags. The " +
+                "provided ID was invalid. (albumId=" + null + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listTagsForAlbum() method.
+     */
+    void testListTagsForAlbum_WithFeedException() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(new Query(ALBUM_TAG_FEED_URL), AlbumFeed.class))
+            .thenThrow(new ServiceException("Test exception"))
+
+        try {
+            // Run test
+            picasaService.listTagsForAlbum(TEST_ALBUM_ID)
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                "provided ID was invalid. (albumId=" + TEST_ALBUM_ID + ", showAll=" + false + ")",
+                pse.getMessage())
+        }
     }
 }
