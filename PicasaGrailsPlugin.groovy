@@ -1,5 +1,12 @@
-package uk.co.anthonycampbell.grails.plugins.picasa
 
+/*
+ * Grails Picasa Plug-in
+ *
+ * A simple plug-in which provides a photo gallery driven from your Google Picasa
+ * Web Albums account.
+ *
+ * @author Anthony Campbell (anthonycampbell.co.uk)
+ */
 class PicasaGrailsPlugin {
     // the plugin version
     def version = "0.4.4"
