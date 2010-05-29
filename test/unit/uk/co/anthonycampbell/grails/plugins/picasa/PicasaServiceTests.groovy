@@ -28,6 +28,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
 
     // Declare test properties
     PicasaService picasaService
+    @Mock GrailsApplication mockGrailsApplication
     @Mock PicasawebService mockPicasaWebService
     @Mock AlbumEntry mockAlbumEntry
     @Mock PhotoEntry mockPhotoEntry
@@ -90,6 +91,9 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     static final URL ALBUM_TAG_FEED_URL = new URL(
             "http://picasaweb.google.com/data/feed/api/user/" + USERNAME +
             "/albumid/" + TEST_ALBUM_ID + "?kind=tag")
+    static final URL SIMPLE_TAG_FEED_URL = new URL(
+            "http://picasaweb.google.com/data/feed/api/user/" + USERNAME +
+            "?kind=tag")
 
     // Test tag query
     static final Query TEST_QUERY = new Query(SIMPLE_USER_FEED_URL)
@@ -121,6 +125,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         // Initialise service
         picasaService = PicasaService.newInstance()
         picasaService.picasaWebService = mockPicasaWebService
+        picasaService.grailsApplication = mockGrailsApplication
         
         // Prepare dummy data
         picasaService.picasaUsername = USERNAME
@@ -145,6 +150,13 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         KEYWORD_LIST.add("Keyword Two")
         KEYWORD_LIST.add("Keyword Three")
         when(mockMediaKeywords.getKeywords()).thenReturn(KEYWORD_LIST)
+
+        // Test query
+        TEST_QUERY.setStringCustomParameter("kind", "photo")
+        TEST_QUERY.setStringCustomParameter("tag", TEST_TAG_KEYWORD)
+        TEST_QUERY.setStringCustomParameter("thumbsize", "" + THUMBSIZE)
+        TEST_QUERY.setStringCustomParameter("imgmax", "" + IMG_MAX)
+        TEST_QUERY.setStringCustomParameter("max-results", "" + MAX_RESULTS)
 
         // Mock text construct for title and description
         when(mockTextConstruct.getPlainText())
@@ -225,12 +237,10 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         listOfTagEntries.add(mockTagEntry)
         listOfTagEntries.add(mockTagEntry)
 
-        // Update tag query
-        TEST_QUERY.setStringCustomParameter("kind", "photo")
-        TEST_QUERY.setStringCustomParameter("tag", TEST_TAG_KEYWORD)
-        TEST_QUERY.setStringCustomParameter("thumbsize", "" + THUMBSIZE)
-        TEST_QUERY.setStringCustomParameter("imgmax", "" + IMG_MAX)
-        TEST_QUERY.setStringCustomParameter("max-results", "" + MAX_RESULTS)
+        grailsApplication.config.picasa.useTagCache = true
+
+        // Mock grails application tag cache value
+        //when(mockGrailsApplication.getTitle()).thenReturn(mockTextConstruct)
     }
 
     /**
@@ -521,7 +531,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             // Check result
             assertEquals("Unexpected exception has been thrown!",
                 "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
-                "configuration is missing. Please refer two the documentation and ensure you have " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
                 "declared all of the required configuration.",
                 pse.getMessage())
         }
@@ -647,7 +657,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             // Check result
             assertEquals("Unexpected exception has been thrown!",
                 "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
-                "configuration is missing. Please refer two the documentation and ensure you have " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
                 "declared all of the required configuration.",
                 pse.getMessage())
         }
@@ -669,7 +679,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             // Check result
             assertEquals("Unexpected exception has been thrown!",
                 "Unable to retrieve your Google Picasa Web Album Tags. The " +
-                "provided ID was invalid. (albumId=" + "" + ", showAll=" + false + ")",
+                "provided ID was invalid. (username=" + USERNAME + ", albumId=" + "" + ")",
                 pse.getMessage())
         }
     }
@@ -690,7 +700,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             // Check result
             assertEquals("Unexpected exception has been thrown!",
                 "Unable to retrieve your Google Picasa Web Album Tags. The " +
-                "provided ID was invalid. (albumId=" + null + ", showAll=" + false + ")",
+                "provided ID was invalid. (username=" + USERNAME + ", albumId=" + null + ")",
                 pse.getMessage())
         }
     }
@@ -715,7 +725,92 @@ class PicasaServiceTests extends GrailsUnitTestCase {
             // Check result
             assertEquals("Unexpected exception has been thrown!",
                 "Unable to retrieve your Google Picasa Web Album Photos. The " +
-                "provided ID was invalid. (albumId=" + TEST_ALBUM_ID + ", showAll=" + false + ")",
+                "provided ID was invalid. (username=" + USERNAME + ", albumId=" + TEST_ALBUM_ID + ")",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listAllTags() method.
+     */
+    void testListAllTags() {
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(new Query(SIMPLE_TAG_FEED_URL), AlbumFeed.class))
+            .thenReturn(mockAlbumFeed)
+
+        // Run test
+        List<Photo> photoList = picasaService.listAllTags()
+
+        // Check result
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected photo list returned!",
+            listOfPhotoEntries.size(), photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listAllTags() method.
+     */
+    void testListAllTags_WithNoPhotos() {
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(new Query(SIMPLE_TAG_FEED_URL), AlbumFeed.class))
+            .thenReturn(Collections.emptyList())
+
+        // Run test
+        List<Photo> photoList = picasaService.listAllTags()
+
+        // Check result
+        assertNotNull("Expected an instantiated photo list to be returned!", photoList)
+        assertEquals("Unexpected photo list returned!", 0, photoList.size())
+    }
+
+    /**
+     * Test the PicasaService.listAllTags() method.
+     */
+    void testListAllTags_WithServiceNotInitialised() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = false
+
+        try {
+            // Run test
+            picasaService.listAllTags()
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
+                "declared all of the required configuration.",
+                pse.getMessage())
+        }
+    }
+
+    /**
+     * Test the PicasaService.listAllTags() method.
+     */
+    void testListAllTags_WithFeedException() {
+        // Ensure service is initialised
+        picasaService.serviceInitialised = true
+
+        // Get tag feed
+        when(mockPicasaWebService.query(new Query(SIMPLE_TAG_FEED_URL), AlbumFeed.class))
+            .thenThrow(new ServiceException("Test exception"))
+
+        try {
+            // Run test
+            picasaService.listAllTags()
+            fail("Expected PicasaServiceException to be thrown!")
+
+        } catch (PicasaServiceException pse) {
+            // Check result
+            assertEquals("Unexpected exception has been thrown!",
+                "Unable to list your Google Picasa Web Album Tags. A problem occurred " +
+                "when making the request through the Google Data API. (username=" +
+                USERNAME + ")",
                 pse.getMessage())
         }
     }

@@ -401,7 +401,7 @@ class PicasaService implements InitializingBean {
             }
 
             // Check whether cache should be in use
-            final boolean useTagCache = (grailsApplication.config.picasa.useTagCache != null) ? grailsApplication.config.picasa.useTagCache : false
+            final boolean useTagCache = (grailsApplication?.config?.picasa?.useTagCache != null) ? grailsApplication.config.picasa.useTagCache : false
 
             // Check whether cache contains required tag listing
             if (useTagCache && tagCache?.containsKey(albumId)) {
