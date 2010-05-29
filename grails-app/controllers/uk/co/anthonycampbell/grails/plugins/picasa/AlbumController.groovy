@@ -200,7 +200,7 @@ class AlbumController {
 
                             // Tags
                             tags {
-                                for(t in p.tags) {
+                                for(t in a.tags) {
                                     tag(t?.keyword)
                                 }
                             }
