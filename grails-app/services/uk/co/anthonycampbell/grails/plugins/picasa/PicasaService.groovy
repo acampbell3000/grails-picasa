@@ -251,7 +251,7 @@ class PicasaService implements InitializingBean {
         if(serviceInitialised) {
             // Validate ID
             if (StringUtils.isEmpty(albumId)) {
-                def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                def errorMessage = "Unable to list your Google Picasa Web Album Photos. The " +
                     "provided ID was invalid. (albumId=" + albumId + ", showAll=" + showAll + ")"
 
                 log.error(errorMessage)
@@ -320,7 +320,7 @@ class PicasaService implements InitializingBean {
         if(serviceInitialised) {
             // Validate ID
             if (StringUtils.isEmpty(tagKeyword)) {
-                def errorMessage = "Unable to retrieve your Google Picasa Web Album Photos. The " +
+                def errorMessage = "Unable to list your Google Picasa Web Album Photos. The " +
                     "provided tag keyword was invalid. (tagKeyword=" + tagKeyword +
                     ", showAll=" + showAll + ")"
 
@@ -393,7 +393,7 @@ class PicasaService implements InitializingBean {
         if(serviceInitialised) {
             // Validate ID
             if (StringUtils.isEmpty(albumId)) {
-                def errorMessage = "Unable to retrieve your Google Picasa Web Album Tags. The " +
+                def errorMessage = "Unable to list your Google Picasa Web Album Tags. The " +
                     "provided ID was invalid. (albumId=" + albumId + ")"
 
                 log.error(errorMessage)
@@ -527,7 +527,7 @@ class PicasaService implements InitializingBean {
         if(serviceInitialised) {
             // Validate IDs
             if (StringUtils.isEmpty(albumId) || StringUtils.isEmpty(photoId)) {
-                def errorMessage = "Unable to retrieve your Google Picasa Web Album Comments. The " +
+                def errorMessage = "Unable to list your Google Picasa Web Album Comments. The " +
                     "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId + ")"
 
                 log.error(errorMessage)

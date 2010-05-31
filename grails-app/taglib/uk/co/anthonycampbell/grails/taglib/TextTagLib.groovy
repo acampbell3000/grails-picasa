@@ -574,5 +574,76 @@ class TextTagLib {
             writer << ' '
         }
     }
+
+	/**
+	 * Display ajax based sortable columns
+	 *
+	 * Outputs an ajax based sortable column tag.
+	 */
+    def remoteSortableColumn = { attrs ->
+		final def writer = out
+        
+		if (!attrs.property)
+			throwTagError("Tag [sortableColumn] is missing required attribute [property]")
+		if (!attrs.title && !attrs.titleKey)
+			throwTagError("Tag [sortableColumn] is missing required attribute [title] or [titleKey]")
+
+		final def property = attrs.remove("property")
+		final String action = attrs.action ? attrs.remove("action") : (actionName ?: "list")
+        final String update = attrs.update ? attrs.remove("update") : ""
+
+		def defaultOrder = attrs.remove("defaultOrder")
+		if (defaultOrder != "desc") defaultOrder = "asc"
+
+		// Current sorting property and order
+		def sort = params.sort
+		def order = params.order
+
+		// Add sorting property and params to link params
+		def linkParams = [:]
+		if (params.id) linkParams.put("id", params.id)
+		if (attrs.params) linkParams.putAll(attrs.remove("params"))
+		linkParams.sort = property
+
+		// Determine and add sorting order for this column to link params
+		attrs.class = (attrs.class ? "${attrs.class} sortable" : "sortable")
+		if(property == sort) {
+			attrs.class = attrs.class + " sorted " + order
+			if(order == "asc") {
+				linkParams.order = "desc"
+			} else {
+				linkParams.order = "asc"
+			}
+		} else {
+			linkParams.order = defaultOrder
+		}
+
+        // Prepare link attributes
+        def linkSortAttrs = [action: action, update: update, method: "get"]
+        if (attrs.controller) {
+            linkSortAttrs.controller = attrs.controller
+        }
+        if (attrs.id != null) {
+            linkSortAttrs.id = attrs.id
+        }
+        linkSortAttrs.params = linkParams
+
+		// Determine column title
+		def title = attrs.remove("title")
+		def titleKey = attrs.remove("titleKey")
+		if(titleKey) {
+			if(!title) title = titleKey
+			def messageSource = grailsAttributes.messageSource
+			def locale = RCU.getLocale(request)
+			title = messageSource.getMessage(titleKey, null, title, locale)
+		}
+
+		writer << "<th "
+		// process remaining attributes
+		attrs.each { k, v ->
+			writer << "${k}=\"${v.encodeAsHTML()}\" "
+		}
+		writer << ">${remoteLink(linkSortAttrs.clone()) { title }}</th>"
+	}
 }
 

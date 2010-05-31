@@ -9,17 +9,17 @@
 								<tr>
                                     <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.albumId.label" default="Album ID" /></th>
 								
-									<g:sortableColumn property="name" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.name.label', default: 'Name')}" />
+									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="name" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.name.label', default: 'Name')}" />
 								
-									<g:sortableColumn property="description" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.description.label', default: 'Description')}" />
+									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="description" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.description.label', default: 'Description')}" />
                                     
                                     <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.image.label" default="Image" /></th>
 
-									<g:sortableColumn property="location" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.location.label', default: 'Location')}" />
+									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="location" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.location.label', default: 'Location')}" />
 
 									<th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.geoLocation.label" default="Geo Location" /></th>
 
-									<g:sortableColumn property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.dateCareated.label', default: 'Date Created')}" />
+									<g:sortableColumn action="ajaxList" update="listAlbum" property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.dateCareated.label', default: 'Date Created')}" />
 								</tr>
 							</thead>
 							<tbody>
