@@ -212,19 +212,16 @@ class CommentController {
 
             log.debug("Display list with " + listView + " view")
 
+            /*
+            def commentInstance = new Comment()
+            commentInstance.properties = params
+            flash.message = ""
+            return [commentInstance: commentInstance]
+            */
+
             render(view: listView, model: [commentInstanceList: displayList,
                     commentInstanceTotal: (commentList?.size() ?: 0)])
         }
-    }
-    
-    /**
-     * Initialise form and render view
-     */
-    def create = {
-        def commentInstance = new Comment()
-        commentInstance.properties = params
-        flash.message = ""
-        return [commentInstance: commentInstance]
     }
 
     /**

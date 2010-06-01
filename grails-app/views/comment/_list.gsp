@@ -15,8 +15,8 @@
                             </g:each>
                             </table>
 
-                            <div id="addComment">
-                                hi
+                            <div id="createComment">
+                                <g:render template="create" model="['commentInstance': new Comment()]" />
                             </div>
 
                             <div id="contentFooter">
