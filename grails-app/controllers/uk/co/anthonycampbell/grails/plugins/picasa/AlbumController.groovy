@@ -4,7 +4,6 @@ import grails.converters.JSON
 import grails.converters.XML
 
 import org.apache.commons.lang.StringUtils
-import org.springframework.web.servlet.support.RequestContextUtils as RCU
 
 /**
  * Album controller

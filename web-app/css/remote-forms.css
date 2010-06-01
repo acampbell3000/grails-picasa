@@ -197,8 +197,8 @@ th.desc a {
     font-style: normal;
 }
 
-#listComment #pagination {
-    font-size: 1.2em;
+#listComment #pagination, #listComment #feeds {
+    font-size: 1.3em;
 }
 
 #pagination {

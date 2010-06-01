@@ -4,7 +4,6 @@ import grails.converters.JSON
 import grails.converters.XML
 
 import org.apache.commons.lang.StringUtils
-import org.springframework.web.servlet.support.RequestContextUtils as RCU
 
 /**
  * Photo controller
@@ -153,17 +152,17 @@ class PhotoController {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
                         "atom:link"(href:"${createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
-                        title((album != null && StringUtils.isNotEmpty(album.name)) ? album.name : "")
+                        title(StringUtils.isNotEmpty(album?.name) ? album.name : "")
                         link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
-                        description((album != null && StringUtils.isNotEmpty(album.description)) ? album.description : "")
+                        description(StringUtils.isNotEmpty(album?.description) ? album?.description : message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Photo.rss.description", default: "RSS feed for the photo listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
-                        lastBuildDate((album != null && album.dateCreated != null) ? album.dateCreated?.format(DateUtil.RFC_822) : "")
+                        lastBuildDate((album?.dateCreated != null) ? album?.dateCreated?.format(DateUtil.RFC_822) : "")
 
                         if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
                             managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
                         }
 
-                        if (album != null && StringUtils.isNotEmpty(album.image)) {
+                        if (StringUtils.isNotEmpty(album?.image)) {
                             image {
                                 url(StringUtils.isNotEmpty(album.image) ? album.image : "")
                                 title(StringUtils.isNotEmpty(album.name) ? album.name : "")

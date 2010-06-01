@@ -1,7 +1,6 @@
 package uk.co.anthonycampbell.grails.plugins.picasa
 
 import org.apache.commons.lang.StringUtils
-import org.springframework.web.servlet.support.RequestContextUtils as RCU;
 
 /**
  * Tag controller

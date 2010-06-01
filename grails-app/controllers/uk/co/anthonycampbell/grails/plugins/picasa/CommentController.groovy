@@ -1,6 +1,10 @@
 package uk.co.anthonycampbell.grails.plugins.picasa
 
-import org.springframework.web.servlet.support.RequestContextUtils as RCU;
+import grails.converters.JSON
+import grails.converters.XML
+
+import org.apache.commons.lang.StringUtils
+import org.springframework.web.servlet.support.RequestContextUtils as RCU
 
 /**
  * Comment controller
@@ -59,6 +63,9 @@ class CommentController {
         final List<Comment> commentList = new ArrayList<Comment>()
         final List<Comment> displayList = new ArrayList<Comment>()
 
+        // Check type of request
+        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+
         // Prepare display values
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
@@ -95,32 +102,34 @@ class CommentController {
             render(contentType: "application/rss+xml", encoding: "UTF-8") {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
-                        "atom:link"(href:"${createLink(controller: "album", action: "list", absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
-                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Album.legend", default: "Photo Albums"))
-                        link(createLink(controller: "album", action: "list", absolute: "true"))
-                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Album.rss.description", default: "Photo Albums"))
+                        "atom:link"(href:"${createLink(controller: "comment", action: "list", absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.legend", default: "Photo Comments"))
+                        link(createLink(controller: "comment", action: "list", absolute: "true"))
+                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.description", default: "RSS feed for the photo comment listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
 
                         if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
                             managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
                         }
 
-                        for (a in albumList) {
+                        for (c in commentList) {
                             item {
-                                guid(isPermaLink: "false", a.albumId)
-                                pubDate(a.dateCreated?.format(DateUtil.RFC_822))
-                                "atom:updated"(DateUtil.formatDateRfc3339(a.dateCreated))
-                                title(a.name)
-                                description(a.description)
-                                link(createLink(controller: "album", action: "show", id: a.albumId, absolute: "true"))
-
-                                if (StringUtils.isNotEmpty(a.image)) {
-                                    enclosure(type: "image/jpeg", url: a.image, length: "0")
+                                guid(isPermaLink: "false", c?.commentId)
+                                pubDate(c?.dateCreated?.format(DateUtil.RFC_822))
+                                "atom:updated"(DateUtil.formatDateRfc3339(c?.dateCreated))
+                                
+                                if (StringUtils.isNotEmpty(c?.author?.name)) {
+                                    title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.title", args: [c?.author?.name], default: "New comment"))
+                                } else {
+                                    title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.title.simple", default: "New comment"))
                                 }
+                                
+                                description(c?.message)
+                                link(createLink(controller: "comment", action: "show", id: c?.commentId, absolute: "true"))
                             }
 
-                            if (latestBuildDate == null || latestBuildDate.compareTo(a.dateCreated) < 0) {
-                                latestBuildDate = a.dateCreated
+                            if (latestBuildDate == null || latestBuildDate.compareTo(c?.dateCreated) < 0) {
+                                latestBuildDate = c?.dateCreated
                             }
                         }
 
@@ -140,29 +149,19 @@ class CommentController {
 
             // Begin ouput
             render(type) {
-                albums {
-                    for (a in albumList) {
-                        album {
+                comments {
+                    for (c in commentList) {
+                        comment {
                             // Main attributes
-                            albumId(a.albumId)
-                            name(a.name)
-                            description(a.description)
-                            location(a.location)
-                            geoLocation {
-                                latitude(a.geoLocation?.latitude)
-                                longitude(a.geoLocation?.longitude)
-                            }
-                            image(a.image)
-                            width(a.width)
-                            height(a.height)
-                            dateCreated(a.dateCreated?.format(DateUtil.RFC_822))
-                            isPublic(a.isPublic)
-
-                            // Tags
-                            tags {
-                                for(t in a.tags) {
-                                    tag(t?.keyword)
-                                }
+                            commentId(c?.commentId)
+                            albumId(c?.albumId)
+                            photoId(c?.photoId)
+                            message(c?.message)
+                            dateCreated(c?.dateCreated?.format(DateUtil.RFC_822))
+                            author {
+                                name(c?.author?.name)
+                                email(c?.author?.email)
+                                uri(c?.author?.uri)
                             }
                         }
                     }
