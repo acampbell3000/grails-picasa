@@ -1,4 +1,3 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Comment" %>
                         <div id="listComment">
                         <g:if test="${commentInstanceList != null && commentInstanceList?.size() > 0}">
@@ -15,6 +14,10 @@
                                 </tr>
                             </g:each>
                             </table>
+
+                            <div id="addComment">
+                                hi
+                            </div>
 
                             <div id="contentFooter">
                                 <div id="pagination">

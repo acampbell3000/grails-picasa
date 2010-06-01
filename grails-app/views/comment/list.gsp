@@ -1,4 +1,3 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Comment" %>
 <html>
     <head>

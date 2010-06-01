@@ -52,6 +52,34 @@ class CommentController {
     }
 
     /**
+     * Invoke non-ajax save method
+     */
+    def save = {
+        doSave(false)
+    }
+
+    /**
+     * Invoke ajax save method
+     */
+    def ajaxSave = {
+        doSave(true)
+    }
+
+    /**
+     * Invoke non-ajax update method
+     */
+    def update = {
+        doUpdate(false)
+    }
+
+    /**
+     * Invoke ajax update method
+     */
+    def ajaxUpdate = {
+        doUpdate(true)
+    }
+
+    /**
      * Request list of comments through the Picasa web service.
      * Sort and prepare response to be displayed in the view.
      *
@@ -125,7 +153,7 @@ class CommentController {
                                 }
                                 
                                 description(c?.message)
-                                link(createLink(controller: "comment", action: "show", id: c?.commentId, absolute: "true"))
+                                link(createLink(controller: "comment", action: "list", absolute: "true"))
                             }
 
                             if (latestBuildDate == null || latestBuildDate.compareTo(c?.dateCreated) < 0) {
@@ -188,21 +216,6 @@ class CommentController {
                     commentInstanceTotal: (commentList?.size() ?: 0)])
         }
     }
-
-    /**
-     * Get selected instance and render show view
-     */
-    def show = {
-        def commentInstance = Comment.get(params.id)
-
-        // Check whether comment exists
-        if (!commentInstance) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'comment.label', default: 'Comment'), params.id])}"
-            redirect(action: "list")
-		} else {
-            [commentInstance: commentInstance]
-        }
-    }
     
     /**
      * Initialise form and render view
@@ -212,20 +225,6 @@ class CommentController {
         commentInstance.properties = params
         flash.message = ""
         return [commentInstance: commentInstance]
-    }
-
-    /**
-     * Invoke non-ajax save method
-     */
-    def save = {
-        doSave(false)
-    }
-
-    /**
-     * Invoke ajax save method
-     */
-    def ajaxSave = {
-        doSave(true)
     }
 
     /**
@@ -241,45 +240,6 @@ class CommentController {
         } else {
             flash.message = ""
             return [commentInstance: commentInstance]
-        }
-    }
-
-    /**
-     * Invoke non-ajax update method
-     */
-    def update = {
-        doUpdate(false)
-    }
-
-    /**
-     * Invoke ajax update method
-     */
-    def ajaxUpdate = {
-        doUpdate(true)
-    }
-
-    /**
-     * Get selected instance and attempt to perform a hard delete
-     */
-    def delete = {
-        def commentInstance = Comment.get(params.id)
-
-        // Check whether comment exists
-        if (commentInstance) {
-            try {
-				// Attempt delete
-                commentInstance.delete(flush: true)
-                flash.message = "${message(code: 'default.deleted.message', args: [message(code: 'comment.label', default: 'Comment'), params.id])}"
-                redirect(action: "list")
-
-            } catch (org.springframework.dao.DataIntegrityViolationException e) {
-                flash.message = "${message(code: 'default.not.deleted.message', args: [message(code: 'comment.label', default: 'Comment'), params.id])}"
-                redirect(action: "show", id: params.id)
-            }
-        }
-        else {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'comment.label', default: 'Comment'), params.id])}"
-            redirect(action: "list")
         }
     }
 
