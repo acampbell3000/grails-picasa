@@ -1,8 +1,11 @@
-VERSION: 0.4.5
+VERSION: 0.5.0
 
 Known issues:
 - Poor code coverage of the PicasaService.
 - Provide (OAuth) ability to add comments.
+
+Release notes 0.5.0 (TBA)
+- 
 
 Release notes 0.4.5 (1st June 2010)
 - Further PicasaService code coverage. 
