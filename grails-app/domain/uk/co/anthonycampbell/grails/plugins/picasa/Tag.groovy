@@ -15,6 +15,6 @@ class Tag {
 
     // Declare tag constraints
     static constraints = {
-        keyword(blank:false, size:2..250)
+        keyword(blank: false, size: 2..250)
     }
 }

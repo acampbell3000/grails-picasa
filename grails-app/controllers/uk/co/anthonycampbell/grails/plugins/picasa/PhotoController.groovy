@@ -90,7 +90,7 @@ class PhotoController {
         // Prepare display values
         final String paramAlbumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
-        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
         String listView = "list"
         if (isAjax) listView = "_list"
@@ -278,7 +278,7 @@ class PhotoController {
         final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
         final String photoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
-        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxComments) ? grailsApplication.config.picasa.maxComments : 10))).intValue(), 500)
         String showView = "show"
         if (isAjax) showView = "_show"
@@ -343,7 +343,7 @@ class PhotoController {
         // Prepare display values
         final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
         final String photoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
-        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxComments) ? grailsApplication.config.picasa.maxComments : 10))).intValue(), 500)
         final String showView = "_comments"
         flash.message = ""

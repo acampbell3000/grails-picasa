@@ -76,7 +76,7 @@ class TagController {
         final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
 
         // Prepare display values
-        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywords : 10))).intValue(), 500)
         String listView = "list"
         if (isAjax) listView = "_list"
@@ -194,7 +194,7 @@ class TagController {
         // Prepare display values
         final String paramTagId = (StringUtils.isNotEmpty(params.id)) ? params.id : ""
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
-        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
         String listView = "show"
         if(isAjax) listView = "_show"

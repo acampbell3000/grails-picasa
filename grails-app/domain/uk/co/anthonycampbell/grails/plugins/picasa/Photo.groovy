@@ -31,7 +31,7 @@ class Photo {
     boolean isPublic = false
 
     // Declare relationships
-    static hasMany = [ tags : Tag, comments : Comment ]
+    static hasMany = [ tags: Tag, comments: Comment ]
 
     // Declare photo constraints
     static constraints = {

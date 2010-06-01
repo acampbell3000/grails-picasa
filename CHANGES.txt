@@ -5,7 +5,9 @@ Known issues:
 - Provide (OAuth) ability to add comments.
 
 Release notes 0.5.0 (TBA)
-- 
+- Introduction of dependency on OAuth plug-in.
+- Controller "elvis" clean up.
+- Domain class comment clean up. 
 
 Release notes 0.4.5 (1st June 2010)
 - Further PicasaService code coverage. 

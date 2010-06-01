@@ -41,7 +41,7 @@ class CommentController {
     }
 
     /**
-     * Request list of tags through the Picasa web service.
+     * Request list of comments through the Picasa web service.
      * Sort and prepare response to be displayed in the view.
      *
      * @param isAjax whether the request is from an Ajax call.
@@ -49,55 +49,55 @@ class CommentController {
      */
     private doList(boolean isAjax) {
         // Initialise lists
-        final List<Tag> tagList = new ArrayList<Tag>()
-        final List<Tag> displayList = new ArrayList<Tag>()
+        final List<Comment> commentList = new ArrayList<Comment>()
+        final List<Comment> displayList = new ArrayList<Comment>()
 
         // Prepare display values
-        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywords : 10))).intValue(), 500)
+        final int offset = params.int("offset") ?: 0
+        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
         def listView = "list"
-        if(isAjax) listView = "_list"
+        if (isAjax) listView = "_list"
         flash.message = ""
 
         log.debug("Attempting to list tags through the Picasa web service")
 
-        // Get photo list from picasa service
+        // Get comment list from picasa service
         try {
-            tagList.addAll(picasaService.listAllTags())
+            commentList.addAll(picasaService.listAllComments())
 
             log.debug("Success...")
 
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Tag.list.not.available')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available')}"
         }
 
-        // Sort tags
-        Collections.sort(tagList, new TagKeywordComparator())
+        // Sort comments
+        Collections.sort(commentList, new CommentDateComparator())
 
         // If required, reverse list
         if (params.order == "asc") {
-            Collections.reverse(tagList)
+            Collections.reverse(commentList)
         }
 
-        log.debug("Convert response into display list")
+        log.debug("Convert response into comment list")
 
         // Convert to array to allow easy display preparation
-        Tag[] tagArray = tagList.toArray()
-        if (tagArray) {
+        Comment[] commentArray = commentList.toArray()
+        if (commentArray) {
             // Prepare display list
-            tagArray = Arrays.copyOfRange(tagArray, offset,
-                ((offset + max) > tagArray.length ? tagArray.length : (offset + max)))
-            if (tagArray) {
+            commentArray = Arrays.copyOfRange(commentArray, offset,
+                ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
+            if (commentArray) {
                 // Update display list
-                displayList.addAll(Arrays.asList(tagArray))
+                displayList.addAll(Arrays.asList(commentArray))
             }
         }
 
         log.debug("Display list with " + listView + " view")
 
-        render(view: listView, model: [tagInstanceList: displayList,
-                tagInstanceTotal: (tagList?.size() ? tagList.size() : 0)])
+        render(view: listView, model: [commentInstanceList: displayList,
+                commentInstanceTotal: (commentList?.size() ?: 0)])
     }
 
     /**

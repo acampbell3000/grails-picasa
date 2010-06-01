@@ -10,7 +10,7 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  */
 class Comment {
 
-    // Declare album properties
+    // Declare comment properties
     String commentId = ""
     String albumId = ""
     String photoId = ""
@@ -20,10 +20,10 @@ class Comment {
 
     // Declare constraints
     static constraints = {
-        commentId(blank:false)
-        albumId(blank:false)
-        photoId(blank:false)
-        message(blank:false, size:2..1000)
-        author(nullable:false)
+        commentId(blank: false)
+        albumId(blank: false)
+        photoId(blank: false)
+        message(blank: false, size: 2..1000)
+        author(nullable: false)
     }
 }

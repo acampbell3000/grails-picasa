@@ -10,13 +10,13 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  */
 class GeoPoint {
 
-    // Declare album properties
+    // Declare geo point properties
     Double latitude = 0
     Double longitude = 0
 
     // Declare constraints
     static constraints = {
-        latitude(nullable:false)
-        longitude(nullable:false)
+        latitude(nullable: false)
+        longitude(nullable: false)
     }
 }

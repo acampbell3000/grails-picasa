@@ -7,18 +7,18 @@
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class PicasaGrailsPlugin {
-    // the plugin version
+    // The plugin version
     def version = "0.5.0"
-    // the version or versions of Grails the plugin is designed for
+    // The version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.1 > *"
-    // the other plugins this plugin depends on
-    def dependsOn = [:]
-    // resources that are excluded from plugin packaging
+    // The other plugins this plugin depends on
+    def dependsOn = [ oauth: 0.1 ]
+    // Resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
+    // Plug-in details
     def author = "Anthony Campbell"
     def authorEmail = "acampbell3000 [[at] googlemail [dot]] com"
     def title = "Grails Picasa Plug-in"

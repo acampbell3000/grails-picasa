@@ -10,15 +10,15 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  */
 class Person {
 
-    // Declare album properties
+    // Declare person properties
     String name = ""
     String email = ""
     String uri = ""
 
     // Declare constraints
     static constraints = {
-        name(blank:false)
-        email(blank:false, email:true)
-        uri(blank:false)
+        name(blank: false)
+        email(blank: false, email: true)
+        uri(blank: false)
     }
 }

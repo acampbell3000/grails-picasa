@@ -81,7 +81,7 @@ class AlbumController {
 
         // Prepare display values
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivateAlbums != null) ? grailsApplication.config.picasa.showPrivateAlbums : false
-        final int offset = new Integer(((params.offset) ? params.offset : 0)).intValue()
+        final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
         def listView = "list"
         if(isAjax) listView = "_list"

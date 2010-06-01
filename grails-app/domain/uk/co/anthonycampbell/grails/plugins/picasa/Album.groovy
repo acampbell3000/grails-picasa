@@ -25,7 +25,7 @@ class Album {
     boolean isPublic = false
 
     // Declare relationships
-    static hasMany = [ tags : Tag ]
+    static hasMany = [ tags: Tag ]
 
     // Declare constraints
     static constraints = {
