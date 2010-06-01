@@ -56,6 +56,16 @@ class UrlMappings {
             action = "list"
         }
 
+        "/comment/list/feed/$feed" {
+            controller = "comment"
+            action = "list"
+        }
+
+        "/comment/ajaxList/feed/$feed" {
+            controller = "comment"
+            action = "ajaxList"
+        }
+
         "/"(view:"/index")
         "500"(view:"/error")
     }

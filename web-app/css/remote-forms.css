@@ -184,17 +184,21 @@ th.desc a {
     margin-top: 1.5em;
 }
 
-#comments {
+#comments, #listComment {
     font-size: 0.8em;
 }
-#comments td {
+#comments td, #listComment td {
     padding: 10px;
 }
-#comments em {
+#comments em, #listComment em {
     display: block;
     clear: both;
     margin-top: 10px;
     font-style: normal;
+}
+
+#listComment #pagination {
+    font-size: 1.2em;
 }
 
 #pagination {

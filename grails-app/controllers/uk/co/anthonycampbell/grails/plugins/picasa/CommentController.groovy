@@ -84,24 +84,110 @@ class CommentController {
             Collections.reverse(commentList)
         }
 
-        log.debug("Convert response into comment list")
+        // Render correct feed
+        if (feed == RSS_FEED) {
+            log.debug("Display list with the " + feed + " feed")
 
-        // Convert to array to allow easy display preparation
-        Comment[] commentArray = commentList.toArray()
-        if (commentArray) {
-            // Prepare display list
-            commentArray = Arrays.copyOfRange(commentArray, offset,
-                ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
-            if (commentArray) {
-                // Update display list
-                displayList.addAll(Arrays.asList(commentArray))
+            // Keep track of latest album date
+            def latestBuildDate
+
+            // Begin RSS ouput
+            render(contentType: "application/rss+xml", encoding: "UTF-8") {
+                rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
+                    channel {
+                        "atom:link"(href:"${createLink(controller: "album", action: "list", absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Album.legend", default: "Photo Albums"))
+                        link(createLink(controller: "album", action: "list", absolute: "true"))
+                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Album.rss.description", default: "Photo Albums"))
+                        generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
+
+                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
+                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        }
+
+                        for (a in albumList) {
+                            item {
+                                guid(isPermaLink: "false", a.albumId)
+                                pubDate(a.dateCreated?.format(DateUtil.RFC_822))
+                                "atom:updated"(DateUtil.formatDateRfc3339(a.dateCreated))
+                                title(a.name)
+                                description(a.description)
+                                link(createLink(controller: "album", action: "show", id: a.albumId, absolute: "true"))
+
+                                if (StringUtils.isNotEmpty(a.image)) {
+                                    enclosure(type: "image/jpeg", url: a.image, length: "0")
+                                }
+                            }
+
+                            if (latestBuildDate == null || latestBuildDate.compareTo(a.dateCreated) < 0) {
+                                latestBuildDate = a.dateCreated
+                            }
+                        }
+
+                        lastBuildDate(latestBuildDate != null ? latestBuildDate?.format(DateUtil.RFC_822) : "")
+                    }
+                }
             }
+        } else if (feed == XML_FEED || feed == JSON_FEED) {
+            log.debug("Display list with " + feed + " feed")
+
+            // Declare possible feed render types
+            final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
+            final def jsonType = [builder: "json", encoding: "UTF-8"]
+
+            // Determine correct type
+            final def type = (feed == XML_FEED ? xmlType : jsonType)
+
+            // Begin ouput
+            render(type) {
+                albums {
+                    for (a in albumList) {
+                        album {
+                            // Main attributes
+                            albumId(a.albumId)
+                            name(a.name)
+                            description(a.description)
+                            location(a.location)
+                            geoLocation {
+                                latitude(a.geoLocation?.latitude)
+                                longitude(a.geoLocation?.longitude)
+                            }
+                            image(a.image)
+                            width(a.width)
+                            height(a.height)
+                            dateCreated(a.dateCreated?.format(DateUtil.RFC_822))
+                            isPublic(a.isPublic)
+
+                            // Tags
+                            tags {
+                                for(t in a.tags) {
+                                    tag(t?.keyword)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            log.debug("Convert response into display list")
+
+            // Convert to array to allow easy display preparation
+            Comment[] commentArray = commentList.toArray()
+            if (commentArray) {
+                // Prepare display list
+                commentArray = Arrays.copyOfRange(commentArray, offset,
+                    ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
+                if (commentArray) {
+                    // Update display list
+                    displayList.addAll(Arrays.asList(commentArray))
+                }
+            }
+
+            log.debug("Display list with " + listView + " view")
+
+            render(view: listView, model: [commentInstanceList: displayList,
+                    commentInstanceTotal: (commentList?.size() ?: 0)])
         }
-
-        log.debug("Display list with " + listView + " view")
-
-        render(view: listView, model: [commentInstanceList: displayList,
-                commentInstanceTotal: (commentList?.size() ?: 0)])
     }
 
     /**

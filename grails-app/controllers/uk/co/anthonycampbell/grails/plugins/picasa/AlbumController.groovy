@@ -229,7 +229,7 @@ class AlbumController {
             log.debug("Display list with " + listView + " view")
 
             render(view: listView, model: [albumInstanceList: displayList,
-                    albumInstanceTotal: (albumList?.size() ? albumList.size() : 0),
+                    albumInstanceTotal: (albumList?.size() ?: 0),
                     tagInstanceList: tagList])
         }
     }

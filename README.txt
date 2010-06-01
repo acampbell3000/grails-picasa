@@ -52,12 +52,27 @@ configured by default in the downloaded binary. Therefore, you must update
 your grails-app/conf/UrlMappings.groovy to include the following mapping
 block:
 
+    "/album/list/feed/$feed" {
+        controller = "album"
+        action = "list"
+    }
+
     "/photo/list/$albumId" {
         controller = "photo"
         action = "list"
     }
 
+    "/photo/list/$albumId/feed/$feed" {
+        controller = "photo"
+        action = "list"
+    }
+
     "/photo/ajaxList/$albumId" {
+        controller = "photo"
+        action = "ajaxList"
+    }
+
+    "/photo/ajaxList/$albumId/feed/$feed" {
         controller = "photo"
         action = "ajaxList"
     }
@@ -70,6 +85,31 @@ block:
     "/photo/ajaxShow/$albumId/$photoId" {
         controller = "photo"
         action = "ajaxShow"
+    }
+
+    "/photo/comments/$albumId/$photoId" {
+        controller = "photo"
+        action = "comments"
+    }
+
+    "/tag/show/$id/feed/$feed" {
+        controller = "tag"
+        action = "show"
+    }
+
+    "/tag/list/feed/$feed" {
+        controller = "tag"
+        action = "list"
+    }
+
+    "/comment/list/feed/$feed" {
+        controller = "comment"
+        action = "list"
+    }
+
+    "/comment/ajaxList/feed/$feed" {
+        controller = "comment"
+        action = "ajaxList"
     }
 
 The next step is to provide the Picasa plug-in your Google Picasa web
