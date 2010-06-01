@@ -1,9 +1,10 @@
-package uk.co.anthonycampbell.grails.taglib;
+package uk.co.anthonycampbell.grails.taglib
+
+import org.codehaus.groovy.grails.commons.DomainClassArtefactHandler
 
 import org.springframework.beans.SimpleTypeConverter
-
-import org.springframework.validation.Errors;
-import org.springframework.web.servlet.support.RequestContextUtils as RCU;
+import org.springframework.validation.Errors
+import org.springframework.web.servlet.support.RequestContextUtils as RCU
 
 /**
  * Text Tag Library
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU;
  * <li>remoteArea</li>
  * <li>remoteSelect</li>
  * <li>remotePaginate</li>
+ * <li>remoteSortableColumn</li>
  * <li>displayFieldError</li>
  * </ul>
  */
