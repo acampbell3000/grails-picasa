@@ -594,12 +594,12 @@ class PicasaService implements InitializingBean {
 
                 // Declare comment feed
                 final URL commentUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "?kind=comment&max-results=" + this.picasaMaxResults)
+                    this.picasaUsername + "?kind=comment")
                 
                 log.debug("CommentUrl: " + commentUrl)
 
                 // Get all comments for this user
-                final AlbumFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, AlbumFeed.class);
+                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class);
 
                 // Update list with results
                 for (CommentEntry entry : commentResultsFeed?.getCommentEntries()) {

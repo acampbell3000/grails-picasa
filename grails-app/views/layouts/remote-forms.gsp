@@ -26,7 +26,7 @@
         <g:layoutBody />
         </div>
         <div id="footer">
-            <p><a href="http://grails.org/plugin/skin-loader">remote-forms</a> by <a href="http://anthonycampbell.co.uk">@acampbell3000</a></p>
+            <p><a href="http://grails.org/plugin/skin-loader">remote-forms skin</a> by <a href="http://anthonycampbell.co.uk">@acampbell3000</a></p>
         </div>
     </body>
 </html>

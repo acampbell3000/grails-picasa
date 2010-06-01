@@ -1,5 +1,5 @@
 
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
+<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Comment" %>
                         <div id="comments">
                         <g:if test="${photoComments != null && photoComments?.size() > 0}">
                             <table>

@@ -12,8 +12,15 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU;
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class CommentController {
-    
+
+    // Declare feed types
+    public static final String RSS_FEED = "rss"
+    public static final String XML_FEED = "xml"
+    public static final String JSON_FEED = "json"
+
     // Declare dependencies
+    def grailsApplication
+    def picasaService
     def messageSource
     
     // Delete, save and update actions only accept POST requests
@@ -23,7 +30,7 @@ class CommentController {
      * Re-direct index requests to list view
      */
     def index = {
-        redirect(controller: "album", action: "index", params: params)
+        redirect(controller: "comment", action: "list", params: params)
 	}
 
     /**
@@ -71,9 +78,6 @@ class CommentController {
             flash.message =
                 "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available')}"
         }
-
-        // Sort comments
-        Collections.sort(commentList, new CommentDateComparator())
 
         // If required, reverse list
         if (params.order == "asc") {
