@@ -66,20 +66,6 @@ class CommentController {
     }
 
     /**
-     * Invoke non-ajax update method
-     */
-    def update = {
-        doUpdate(false)
-    }
-
-    /**
-     * Invoke ajax update method
-     */
-    def ajaxUpdate = {
-        doUpdate(true)
-    }
-
-    /**
      * Request list of comments through the Picasa web service.
      * Sort and prepare response to be displayed in the view.
      *
@@ -224,22 +210,6 @@ class CommentController {
         }
     }
 
-    /**
-     * Get selected instance and render edit view
-     */
-    def edit = {
-        def commentInstance = Comment.get(params.id)
-
-        // Check whether comment exists
-        if (!commentInstance) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'comment.label', default: 'Comment'), params.id])}"
-            redirect(action: "list")
-        } else {
-            flash.message = ""
-            return [commentInstance: commentInstance]
-        }
-    }
-
     /*
      * Validate an individual field
      */
@@ -273,54 +243,6 @@ class CommentController {
 
         // Render error message
         render(errorMessage)
-    }
-
-    /**
-     * Attempt to update the provided comment instance.
-     * In addition, render the correct view depending on whether the
-     * call is Ajax or not.
-     *
-     * @param isAjax whether the request is from an Ajax call.
-     */
-    private doUpdate(boolean isAjax) {
-        def commentInstance = Comment.get(params.id)
-        def editView = "edit"
-        def showView = "show"
-        if(isAjax) {
-            editView = "ajaxEdit"
-            showView = "ajaxShow"
-        }
-
-		log.debug("Attempting to update an instance of Comment (isAjax = " + isAjax + ")")
-
-        // Check whether comment exists
-        if (commentInstance) {
-			// Check version has not changed
-            if (params.version) {
-                def version = params.version.toLong()
-                if (commentInstance.version > version) {
-                    commentInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
-						[message(code: 'comment.label', default: 'Comment')] as Object[],
-						"Another user has updated this Comment while you were editing")
-                    render(view: editView, model: [commentInstance: commentInstance])
-                    return
-                }
-            }
-
-			// Get updated properties
-            commentInstance.properties = params
-
-			// Perform update
-            if (!commentInstance.hasErrors() && commentInstance.save(flush: true)) {
-                flash.message = "${message(code: 'default.updated.message', args: [message(code: 'comment.label', default: 'Comment'), commentInstance.id])}"
-				render(view: showView, model: [commentInstance: commentInstance])
-            } else {
-                render(view: editView, model: [commentInstance: commentInstance])
-            }
-        } else {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'comment.label', default: 'Comment'), params.id])}"
-            redirect(action: "list")
-        }
     }
     
     /**
