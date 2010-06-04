@@ -15,10 +15,6 @@
                             </g:each>
                             </table>
 
-                            <div id="createComment">
-                                <g:render template="create" model="['commentInstance': new Comment()]" />
-                            </div>
-
                             <div id="contentFooter">
                                 <div id="pagination">
                                     <g:remotePaginate action="ajaxList" update="listComment" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${commentInstanceTotal}" />
