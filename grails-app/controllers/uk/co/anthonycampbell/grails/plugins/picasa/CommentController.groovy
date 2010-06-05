@@ -28,7 +28,10 @@ class CommentController {
     def messageSource
     
     // Delete, save and update actions only accept POST requests
-	static allowedMethods = [delete:'POST', save:'POST', ajaxSave:'POST', update:'POST', ajaxUpdate:'POST']
+	static allowedMethods = [delete: 'POST', save: 'POST', ajaxSave: 'POST']
+    
+    // Check user authorisation before adding any new comments
+    def beforeInterceptor = [action: this.&checkUser, except: ['index', 'list', 'ajaxList', 'validate']]
 
     /**
      * Re-direct index requests to list view
@@ -63,6 +66,41 @@ class CommentController {
      */
     def ajaxSave = {
         doSave(true)
+    }
+
+    /*
+     * Validate an individual field
+     */
+    def validate = {
+        // Initialise domain instance and error message
+        def commentInstance = new Comment(params)
+        def errorMessage = ""
+        def field = ""
+
+        // Get selected field
+        for (param in params) {
+            if (param.key != null && !param.key.equals("action")
+                    && !param.key.equals("controller")) {
+                field = param.key
+                break
+            }
+        }
+
+		log.debug("Validating field: " + field)
+
+        // Check whether provided field has errors
+        if (!commentInstance.validate() && commentInstance.errors.hasFieldErrors(field)) {
+			// Get error message value
+            errorMessage = messageSource.getMessage(
+                contactFormInstance.errors.getFieldError(field),
+                RCU.getLocale(request)
+            )
+
+			log.debug("Error message: " + errorMessage)
+        }
+
+        // Render error message
+        render(errorMessage)
     }
 
     /**
@@ -198,55 +236,14 @@ class CommentController {
 
             log.debug("Display list with " + listView + " view")
 
-            /*
-            def commentInstance = new Comment()
-            commentInstance.properties = params
-            flash.message = ""
-            return [commentInstance: commentInstance]
-            */
-
             render(view: listView, model: [commentInstanceList: displayList,
                     commentInstanceTotal: (commentList?.size() ?: 0)])
         }
     }
-
-    /*
-     * Validate an individual field
-     */
-    def validate = {
-        // Initialise domain instance and error message
-        def commentInstance = new Comment(params)
-        def errorMessage = ""
-        def field = ""
-
-        // Get selected field
-        for (param in params) {
-            if (param.key != null && !param.key.equals("action")
-                    && !param.key.equals("controller")) {
-                field = param.key
-                break
-            }
-        }
-
-		log.debug("Validating field: " + field)
-
-        // Check whether provided field has errors
-        if (!commentInstance.validate() && commentInstance.errors.hasFieldErrors(field)) {
-			// Get error message value
-            errorMessage = messageSource.getMessage(
-                contactFormInstance.errors.getFieldError(field),
-                RCU.getLocale(request)
-            )
-
-			log.debug("Error message: " + errorMessage)
-        }
-
-        // Render error message
-        render(errorMessage)
-    }
     
     /**
      * Attempt to save the provided comment instance.
+     * 
      * In addition, render the correct view depending on whether the
      * call is Ajax or not.
      *
@@ -270,5 +267,29 @@ class CommentController {
         else {
             render(view: createView, model: [commentInstance: commentInstance])
         }
+    }
+
+    /**
+     * Check whether there is a session available for the user.
+     *
+     * @return whether the user is logged in.
+     */
+    private boolean checkUser() {
+        // Initialise result
+        boolean loggedIn = false
+
+        log.debug("Check whether the current user is logged in...")
+
+        // Check whether user object available in the session
+        if (!session.user) {
+            log.debug("User is NOT logged in.")
+            redirect(controller: "user", action: "login")
+
+        } else {
+            log.debug("User IS logged in.")
+            loggedIn = true
+        }
+
+        return loggedIn
     }
 }

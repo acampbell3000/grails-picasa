@@ -269,7 +269,8 @@ class PhotoController {
         Photo photoInstance = new Photo()
         final List<Comment> commentList = new ArrayList<Comment>()
         final List<Comment> commentDisplayList = new ArrayList<Comment>()
-
+        final Comment commentInstance = new Comment()
+        
         // Check type of request
         final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
 
@@ -282,6 +283,11 @@ class PhotoController {
         String showView = "show"
         if (isAjax) showView = "_show"
         flash.message = ""
+
+        // Prepare new comment
+        commentInstance.albumId = albumId
+        commentInstance.albumId = photoId
+        commentInstance.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.message.default', default: 'Add a comment...')
 
         log.debug("Attempting to get photo through the Google Picasa web service " +
                 "(albumId=" + albumId + ", photoId=" + photoId + ")")
@@ -322,7 +328,8 @@ class PhotoController {
                 photoId: params.photoId,
                 photoInstance: photoInstance,
                 photoComments: commentDisplayList,
-                photoCommentTotal: (commentList?.size() ? commentList.size() : 0)])
+                photoCommentTotal: (commentList?.size() ? commentList.size() : 0),
+                commentInstance: commentInstance])
     }
 
     /**

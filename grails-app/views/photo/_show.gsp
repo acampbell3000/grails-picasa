@@ -110,4 +110,8 @@
                         </div>
 
                         <g:render template="comments" model="['photoInstance': photoInstance]" />
+
+                        <g:render template="../comment/create" model="['albumId': albumId,
+                                  'photoId': photoId,
+                                  'commentInstance': commentInstance]" />
 					 </div>
