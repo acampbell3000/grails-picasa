@@ -1,0 +1,213 @@
+/**
+ * Remote forms cascading Style Sheet
+ *
+ * @author Anthony Campbell (anthonycampbell.co.uk)
+ */
+
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+h1, h2, h3, p, a {
+    margin: 1em 0px;
+}
+
+img {
+    border: none;
+}
+
+body {
+    background-color: #FFFFFF;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5em;
+}
+
+.cleaner {
+    clear: both;
+    height: 1px;
+    margin: 0px;
+    padding: 0px;
+}
+
+#loader {
+    position: absolute;
+    top: 125px;
+    left: 75%;
+}
+
+#header {
+    width: 100%;
+    height: 90px;
+    margin-bottom: 20px;
+    background-color: #FCFCFC;
+    background-image: url('../images/header_bg.png');
+    background-repeat: repeat-x;
+    border-bottom: 3px solid #DDDDDD;
+}
+
+#logo {
+    width: 800px;
+    margin: 0px auto;
+    padding: 20px 0px;
+}
+
+#nav {
+    position: absolute;
+    top: 10px;
+    left: 70%;
+    list-style: square;
+}
+
+#content {
+    width: 800px;
+    margin: 0px auto 20px auto;
+}
+
+#footer {
+    width: 800px;
+    margin: 0px auto 20px auto;
+    text-align: center;
+}
+
+/**
+ * Forms
+*/
+input, textarea, select {
+    font-size: 1.05em;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+fieldset {
+    background-color: #EFEFEF;
+    padding: 0px 20px;
+    border: 3px solid #DDDDDD;
+}
+
+legend {
+    display: none;
+}
+
+label {
+    display: block;
+}
+
+.button {
+    font-size: 1.05em;
+    color: #FFFFFF;
+    background-color: #b2c951;
+    border: 1px solid #245416;
+    padding: 5px;
+    margin: 10px 5px 0px 0px;
+}
+.button:hover {
+    background-color: #c9e06d;
+}
+
+/**
+ * Tables
+*/
+table {
+    border: 1px solid #CCCCCC;
+    width: 100%
+}
+tr {
+    border: 0px;
+}
+td, th {
+    font: 11px verdana, arial, helvetica, sans-serif;
+    padding: 5px 6px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #FFFFFF url(../images/icon/shadow.jpg);
+    background-repeat: repeat-x;
+    background-position: bottom;
+    color: #666666;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+}
+th a:link, th a:visited, th a:hover {
+    color: #333333;
+    display: block;
+    font-size: 10px;
+    text-decoration: none;
+    width: 100%;
+}
+th.asc a, th.desc a {
+    background-position: right;
+    background-repeat: no-repeat;
+}
+th.asc a {
+    background-image: url(../images/icon/sorted_asc.gif);
+}
+th.desc a {
+    background-image: url(../images/icon/sorted_desc.gif);
+}
+
+.odd {
+    background: #F7F7F7;
+}
+.even {
+    background: #FFFFFF;
+}
+
+/*
+ * Flash message
+*/
+#flashMessage, #errorMessage {
+    background-color: #BFC4FF;
+    background-image: url(../images/icon/information.png);
+    background-repeat: no-repeat;
+    background-position: 10px 10px;
+    border: 1px solid #8F93BF;
+    color: #000000;
+    margin-top: 20px;
+    margin-right: 0px;
+    margin-bottom: 20px;
+    margin-left: 0px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 35px;
+}
+
+/**
+ * Custom DIVs
+ */
+#tagListing {
+    border: 1px solid #CCCCCC;
+    font-size: 0.8em;
+    padding: 10px;
+    margin-top: 1.5em;
+}
+
+#comments, #listComment {
+    font-size: 0.8em;
+}
+#comments td, #listComment td {
+    padding: 10px;
+}
+#comments em, #listComment em {
+    display: block;
+    clear: both;
+    margin-top: 10px;
+    font-style: normal;
+}
+
+#listComment #pagination, #listComment #feeds {
+    font-size: 1.3em;
+}
+
+#pagination {
+    width: 80%;
+    float: left;
+    text-align: left;
+}
+#feeds {
+    width: 20%;
+    float: right;
+    text-align: right;
+}

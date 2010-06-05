@@ -1,0 +1,96 @@
+VERSION: 0.5.0
+
+Known issues:
+- Poor code coverage of the PicasaService.
+- Provide (OAuth) ability to add comments.
+
+Release notes 0.5.0 (TBA)
+- Introduction of dependency on OAuth plug-in.
+- Controller "elvis" clean up.
+- Domain class comment clean up.
+- Introduction of most recent comment listing.
+- Footer output update.
+- URL mappings update to provide feeds for comment listing.
+- README update to detail new URL mappings. 
+- Small CSS tweaks.
+- Removal of RCU from controllers.
+- Comment views refactor.
+
+Release notes 0.4.5 (1st June 2010)
+- Further PicasaService code coverage. 
+- Small controller tweaks.
+- Album controller JSON / XML feed fix.
+- Updated list sortable columns to support ajax requests.
+
+Release notes 0.4.4 (28th May 2010)
+- Update to Grails 1.3.1.
+- Further PicasaService code coverage.
+- Fix for defect GRAILSPLUGINS-2220.
+
+Release notes 0.4.3 (16th May 2010)
+- Change PicasaService scope to "session".
+
+Release notes 0.4.2 (16th May 2010)
+- Pagination float fix. 
+- Fixed tag listing defect.
+- Introduction of RSS feed for tag listing.
+- Small CSS tweaks.
+
+Release notes 0.4.1 (13th May 2010)
+- Update to Grails 1.3.0.
+- Introduction of new config property rssManagingEditor.
+- Photo RSS now builds a valid W3C feed, including RFC 882 and 3339 dates.
+- README update.
+- Move TextTagLibTests into package.
+
+Release notes 0.4.0 (9th May 2010)
+- Update all controller index methods to point to the album controller's index.
+- Introduction of new configuration property to allow control of the tag cache.
+- Introduction of PicasaService unit tests.
+- Pagination of the photo comments.
+- Introduction of new comment pagination configuration.
+- Small PicasaService bug fixes and improvements.
+- README updates.
+- Message property updates.
+- Introduction of RSS feed for photo listing.
+- Update photo listing to include feed links.
+
+Release notes 0.3.0 (24th April 2010)
+- Introduction of the "showPrivateAlbums" and "showPrivatePhotos" config options.
+- Update PicasaService to include the ability to configure whether to include private photos and albums.
+- README updates.
+- Fixed small bug in the album show view.
+
+Release notes 0.2.0 (21st April 2010)
+- Small fix to remove tag list div when there are no tags to display.
+- Removal of dependency on Spring Security.
+- Introduction of the Comment domain class.
+- Introduction of the Person domain class.
+- Inserted comments into the show photo views.
+- Added person to comments.
+- Small comment / person bug fixes to the PicasaService.
+- Grails upgrade to 1.2.2.
+- Changes tags and comment properties to lists to allow predictable ordering.
+
+Release notes 0.1.0 (10th April 2010)
+- README update.
+- Insert next/previous ID check into the photo show views.
+- Introduction of tags into domain objects from photo result sets.
+- Introduction of tag listing into list views.
+- PicasaService updates to support tag queries and searches.
+- Initial support for the tag controller.
+- Introduction of new configuration properties.
+- Initial support for the tag listing and show views.
+
+Release notes 0.0.3
+- README update.
+- Introduction of new connect() method allowing the Picasa web service connection to be reset during runtime.
+- Introduction of new reset() method allowing the Picasa web service to revert back to the default Config.groovy connection details during runtime.
+
+Release notes 0.0.2
+- Introduction of further documentation (README / CHANGES)
+- Internationalised the Photo and Album views
+- Small tweak to the Picasa Service and Album / Photo controllers
+
+Initial release: 0.0.1
+
