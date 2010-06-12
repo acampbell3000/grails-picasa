@@ -19,7 +19,7 @@
                 <img src="${resource(dir:'images/icon', file:'loader.gif')}" width="32" height="32" alt="${message(code: 'loading.label', default: 'Loading...')}" title="${message(code: 'loading.label', default: 'Loading...')}" />
             </div>
             <div id="logo">
-                <a href="${createLink(uri: '/')}"><img src="${resource(dir:'images', file:'logo_remote_forms.png')}" width="163" height="43" alt="remote-forms" title="remote-forms" /></a>
+                <a href="http://www.grails.org/plugin/picasa"><img src="${resource(dir:'images', file:'grails-picasa-plugin-logo.png')}" width="163" height="43" alt="Grails Picasa plug-in" title="Grails Picasa plug-in" /></a>
             </div>
         </div>
         <div id="content">
