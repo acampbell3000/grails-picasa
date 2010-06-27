@@ -41,11 +41,6 @@ class UrlMappings {
             action = "ajaxShow"
         }
 
-        "/photo/comments/$albumId/$photoId" {
-            controller = "photo"
-            action = "comments"
-        }
-
         "/tag/show/$id/feed/$feed" {
             controller = "tag"
             action = "show"
@@ -54,6 +49,26 @@ class UrlMappings {
         "/tag/list/feed/$feed" {
             controller = "tag"
             action = "list"
+        }
+
+        "/comment/list/$albumId/$photoId" {
+            controller = "comment"
+            action = "list"
+        }
+
+        "/comment/ajaxList/$albumId/$photoId" {
+            controller = "comment"
+            action = "ajaxList"
+        }
+
+        "/comment/list/$albumId/$photoId/feed/$feed" {
+            controller = "comment"
+            action = "list"
+        }
+
+        "/comment/ajaxList/$albumId/$photoId/feed/$feed" {
+            controller = "comment"
+            action = "ajaxList"
         }
 
         "/comment/list/feed/$feed" {

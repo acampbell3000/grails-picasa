@@ -77,7 +77,7 @@
 									<td valign="top" style="text-align: left;" class="value">
 										<ul>
 										<g:each in="${photoInstance.tags}" var="t">
-											<li><g:link controller="tag" action="show" id="${t.keyword}">${t?.keyword}</g:link></li>
+											<li><g:link controller="tag" action="show" id="${t.keyword}"><span class="weight${t?.displayWeight}">${t?.keyword}</span></g:link></li>
 										</g:each>
 										</ul>
 									</td>
@@ -105,13 +105,15 @@
 							</tbody>
 						</table>
 
+                        <g:if test="${photoInstance.image}">
                         <div id="photo">
                             <p><img src="${fieldValue(bean: photoInstance, field: "image")}" width="${fieldValue(bean: photoInstance, field: "width")}" height="${fieldValue(bean: photoInstance, field: "height")}" alt="${fieldValue(bean: photoInstance, field: "title")}" title="${fieldValue(bean: photoInstance, field: "title")}" /></p>
                         </div>
+                        </g:if>
 
-                        <g:render template="comments" model="['photoInstance': photoInstance]" />
-
-                        <g:render template="../comment/create" model="['albumId': albumId,
+                        <g:render template="../comment/comments" model="['albumId': albumId,
                                   'photoId': photoId,
+                                  'commentInstanceList': commentInstanceList,
+                                  'commentInstanceTotal': commentInstanceTotal,
                                   'commentInstance': commentInstance]" />
 					 </div>

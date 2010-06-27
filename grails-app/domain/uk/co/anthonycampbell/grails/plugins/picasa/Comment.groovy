@@ -24,6 +24,6 @@ class Comment {
         albumId(blank: false)
         photoId(blank: false)
         message(blank: false, size: 2..1000)
-        author(nullable: false)
+        author(nullable: true)
     }
 }

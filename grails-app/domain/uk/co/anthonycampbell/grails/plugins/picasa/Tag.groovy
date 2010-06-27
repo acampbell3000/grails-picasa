@@ -12,9 +12,13 @@ class Tag {
 
     // Declare tag properties
     String keyword = ""
+    int weight = 0
+    int displayWeight = 0
 
     // Declare tag constraints
     static constraints = {
         keyword(blank: false, size: 2..250)
+        weight(nullable: false)
+        displayWeight(nullable: false)
     }
 }

@@ -1,4 +1,3 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
 <html>
     <head>
@@ -16,7 +15,7 @@
 
                     <g:if test="${tagInstanceList != null && tagInstanceList.size > 0}">
                     <div id="tagListing">
-                        <g:each in="${tagInstanceList}" status="tagIndex" var="tagInstance">${(tagIndex > 0) ? ", " : ""}<g:link controller="tag" action="show" id="${tagInstance?.keyword}">${tagInstance?.keyword}</g:link></g:each>
+                        <g:each in="${tagInstanceList}" status="tagIndex" var="tagInstance">${(tagIndex > 0) ? ", " : ""}<g:link controller="tag" action="show" id="${tagInstance?.keyword}"><span class="weight${tagInstance?.displayWeight}">${tagInstance?.keyword}</span></g:link></g:each>
                     </div>
                     </g:if>
     </body>
