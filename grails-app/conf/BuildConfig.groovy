@@ -10,13 +10,12 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
+        runtime 'javax.mail:mail:1.4.3'
         test 'org.mockito:mockito-all:1.8.4'
-        provided 'javax.mail:mail:1.4.3'
-        runtime 'oauth.signpost:signpost-core:1.2'
     }
 
     plugins {
-        runtime 'org.grails.plugins:oauth:latest.integration'
+        //runtime 'org.grails.plugins:oauth:0.2'
         test 'org.grails.plugins:code-coverage:latest.integration'
     }
 }

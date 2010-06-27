@@ -72,16 +72,15 @@ class TagController {
         final List<Tag> displayList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+        final String feed = StringUtils.isNotEmpty(params.feed) ? params.feed : ""
 
         // Prepare display values
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxKeywords) ? grailsApplication.config.picasa.maxKeywords : 10))).intValue(), 500)
-        String listView = "list"
-        if (isAjax) listView = "_list"
+        final int max = Math.min(new Integer(params.int("max") ?: (grailsApplication.config.picasa.maxKeywords ?: 10)).intValue(), 500)
+        final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
-        log.debug("Attempting to list tags through the Picasa web service")
+        log.debug("Attempting to list tags through the Google Picasa web service")
 
         // Get photo list from picasa service
         try {
@@ -149,7 +148,11 @@ class TagController {
             render(type) {
                 tags {
                     for (t in tagList) {
-                        tag(t?.keyword)
+                        tag {
+                            keyword(t?.keyword)
+                            weight(t?.weight)
+                            displayWeight(t?.displayWeight)
+                        }
                     }
                 }
             }
@@ -188,19 +191,18 @@ class TagController {
         final List<Photo> displayList = new ArrayList<Photo>()
 
         // Check type of request
-        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+        final String feed = StringUtils.isNotEmpty(params.feed) ? params.feed : ""
 
         // Prepare display values
-        final String paramTagId = (StringUtils.isNotEmpty(params.id)) ? params.id : ""
+        final String paramTagId = StringUtils.isNotEmpty(params.id) ? params.id : ""
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
-        String listView = "show"
-        if(isAjax) listView = "_show"
+        final int max = Math.min(new Integer(params.int("max") ?: (grailsApplication.config.picasa.max ?: 10)).intValue(), 500)
+        final String listView = isAjax ? "_show" : "show"
         flash.message = ""
 
         log.debug("Attempting to list photos for the selected tag through the Picasa web service " +
-                "(tagKeyword=" + params.id + ")")
+                "(tagKeyword=" + paramTagId + ")")
 
         // Get photo list from picasa service
         try {
@@ -321,7 +323,11 @@ class TagController {
                             // Tags
                             tags {
                                 for(t in p.tags) {
-                                    tag(t?.keyword)
+                                    tag {
+                                        keyword(t?.keyword)
+                                        weight(t?.weight)
+                                        displayWeight(t?.displayWeight)
+                                    }
                                 }
                             }
                         }

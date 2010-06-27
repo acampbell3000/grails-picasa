@@ -1,4 +1,3 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
                     <div id="listPhoto">
 					<g:if test="${flash.message}">

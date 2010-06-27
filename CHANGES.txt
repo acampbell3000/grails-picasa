@@ -2,9 +2,9 @@ VERSION: 0.5.0
 
 Known issues:
 - Poor code coverage of the PicasaService.
-- Provide (OAuth) ability to add comments.
 
 Release notes 0.5.0 (TBA)
+- Grails update to 1.3.2.
 - Introduction of dependency on OAuth plug-in.
 - Controller "elvis" clean up.
 - Domain class comment clean up.
@@ -13,8 +13,14 @@ Release notes 0.5.0 (TBA)
 - URL mappings update to provide feeds for comment listing.
 - README update to detail new URL mappings. 
 - Small CSS tweaks.
+- Rename of CSS file to grails-picasa.
 - Removal of RCU from controllers.
 - Comment views refactor.
+- Update PicasaService to non transactional.
+- Ability to post a photo comment through OAuth.
+- Tags now contain "weight" property.
+- Ajax improvements for the post comment UI.
+- URL mappings update.
 
 Release notes 0.4.5 (1st June 2010)
 - Further PicasaService code coverage. 

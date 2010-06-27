@@ -76,14 +76,13 @@ class AlbumController {
         final List<Tag> tagList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+        final String feed = StringUtils.isNotEmpty(params.feed) ? params.feed : ""
 
         // Prepare display values
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivateAlbums != null) ? grailsApplication.config.picasa.showPrivateAlbums : false
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
-        def listView = "list"
-        if(isAjax) listView = "_list"
+        final int max = Math.min(new Integer(params.int("max") ?: (grailsApplication.config.picasa.max ?: 10)).intValue(), 500)
+        final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
         log.debug("Attempting to list albums (showPrivateAlbums=" + showPrivate +

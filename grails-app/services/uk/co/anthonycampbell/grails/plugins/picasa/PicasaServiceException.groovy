@@ -10,7 +10,7 @@ package uk.co.anthonycampbell.grails.plugins.picasa
 class PicasaServiceException extends Exception {
 
     // Declare exception properties
-    String message
+    final String message
 
     /**
      * Constructor.
@@ -18,8 +18,8 @@ class PicasaServiceException extends Exception {
      * @param message the exception message.
      */
     public PicasaServiceException(String message) {
-        super(message);
-        this.message = message;
+        super(message)
+        this.message = message
     }
 
     /**
@@ -29,8 +29,8 @@ class PicasaServiceException extends Exception {
      * @param exception the wrapped exception.
      */
     public PicasaServiceException(String message, Exception exception) {
-        super(message, exception);
-        this.message = message;
+        super(message, exception)
+        this.message = message
     }
 
     /**

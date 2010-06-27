@@ -1,11 +1,10 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Tag" %>
                     <div id="listTag">
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>
 					</g:if>
 						<div id="tagListing">
-							<g:each in="${tagInstanceList}" status="tagIndex" var="tagInstance">${(tagIndex > 0) ? ", " : ""}<g:link controller="tag" action="show" id="${tagInstance?.keyword}">${tagInstance?.keyword}</g:link></g:each>
+							<g:each in="${tagInstanceList}" status="tagIndex" var="tagInstance">${(tagIndex > 0) ? ", " : ""}<g:link controller="tag" action="show" id="${tagInstance?.keyword}"><span class="weight${tagInstance?.displayWeight}">${tagInstance?.keyword}</span></g:link></g:each>
 						</div>
 
                         <div id="contentFooter">

@@ -4,7 +4,6 @@ import grails.converters.JSON
 import grails.converters.XML
 
 import org.apache.commons.lang.StringUtils
-import org.springframework.web.servlet.support.RequestContextUtils as RCU
 
 /**
  * Comment controller
@@ -22,16 +21,19 @@ class CommentController {
     public static final String XML_FEED = "xml"
     public static final String JSON_FEED = "json"
 
+    // Placeholder for the album / photo ID separator
+    public static final String ID_SEPARATOR = ":"
+
     // Declare dependencies
     def grailsApplication
     def picasaService
-    def messageSource
     
     // Delete, save and update actions only accept POST requests
 	static allowedMethods = [delete: 'POST', save: 'POST', ajaxSave: 'POST']
     
     // Check user authorisation before adding any new comments
-    def beforeInterceptor = [action: this.&checkUser, except: ['index', 'list', 'ajaxList', 'validate']]
+    def beforeInterceptor = [action: this.&checkUser,
+        except: ['index', 'list', 'ajaxList', 'login', 'ajaxLogin', 'logout', 'ajaxLogout']]
 
     /**
      * Re-direct index requests to list view
@@ -68,12 +70,34 @@ class CommentController {
         doSave(true)
     }
 
+    /**
+     * Apply OAuth access token returned to the Picasa service and
+     * re-direct to the original photo.
+     */
+    def login = {
+        doLogin()
+    }
+
+    /**
+     * Invoke logout method.
+     */
+    def logout = {
+        doLogout(false)
+    }
+
+    /**
+     * Invoke ajax logout method.
+     */
+    def ajaxLogout = {
+        doLogout(true)
+    }
+
     /*
-     * Validate an individual field
+     * Validate an individual comment field
      */
     def validate = {
         // Initialise domain instance and error message
-        def commentInstance = new Comment(params)
+        final def commentInstance = new Comment(params)
         def errorMessage = ""
         def field = ""
 
@@ -92,7 +116,7 @@ class CommentController {
         if (!commentInstance.validate() && commentInstance.errors.hasFieldErrors(field)) {
 			// Get error message value
             errorMessage = messageSource.getMessage(
-                contactFormInstance.errors.getFieldError(field),
+                commentInstance.errors.getFieldError(field),
                 RCU.getLocale(request)
             )
 
@@ -102,7 +126,7 @@ class CommentController {
         // Render error message
         render(errorMessage)
     }
-
+    
     /**
      * Request list of comments through the Picasa web service.
      * Sort and prepare response to be displayed in the view.
@@ -110,26 +134,32 @@ class CommentController {
      * @param isAjax whether the request is from an Ajax call.
      * @return list of photos to display.
      */
-    private doList(boolean isAjax) {
+    private doList(final boolean isAjax) {
         // Initialise lists
         final List<Comment> commentList = new ArrayList<Comment>()
         final List<Comment> displayList = new ArrayList<Comment>()
 
         // Check type of request
-        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+        final String feed = StringUtils.isNotEmpty(params.feed) ? params.feed : ""
 
         // Prepare display values
+        final String paramAlbumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
+        final String paramPhotoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
-        def listView = "list"
-        if (isAjax) listView = "_list"
+        final int max = Math.min(new Integer((params.int("max") ?: (grailsApplication.config.picasa.maxComments ?: 10))).intValue(), 500)
+        final def listView = isAjax ? "_list" : "list"
         flash.message = ""
-
-        log.debug("Attempting to list tags through the Picasa web service")
+        
+        log.debug("Attempting to get comments through the Google Picasa web service " +
+                "(albumId=" + paramAlbumId + ", photoId=" + paramPhotoId + ")")
 
         // Get comment list from picasa service
         try {
-            commentList.addAll(picasaService.listAllComments())
+            if (StringUtils.isNotEmpty(paramAlbumId) && StringUtils.isNotEmpty(paramPhotoId)) {
+                commentList.addAll(picasaService.listCommentsForPhoto(paramAlbumId, paramPhotoId))
+            } else {
+                commentList.addAll(picasaService.listAllComments())
+            }
 
             log.debug("Success...")
 
@@ -236,36 +266,142 @@ class CommentController {
 
             log.debug("Display list with " + listView + " view")
 
-            render(view: listView, model: [commentInstanceList: displayList,
+            render(view: listView, model: [albumId: paramAlbumId,
+                    photoId: paramPhotoId,
+                    commentInstanceList: displayList,
                     commentInstanceTotal: (commentList?.size() ?: 0)])
         }
     }
     
     /**
-     * Attempt to save the provided comment instance.
+     * Attempt to post the provided comment instance.
      * 
      * In addition, render the correct view depending on whether the
      * call is Ajax or not.
      *
      * @param isAjax whether the request is from an Ajax call.
      */
-    private doSave(boolean isAjax) {
-        def commentInstance = new Comment(params)
-        def showView = "show"
-        def createView = "create"
-        if(isAjax) {
-            showView = "ajaxShow"
-            createView = "ajaxCreate"
+    private doSave(final boolean isAjax) {
+        // Initialise lists and prepare comment
+        final Comment commentInstance = new Comment(params)
+        final List<Comment> commentList = new ArrayList<Comment>()
+        final List<Comment> displayList = new ArrayList<Comment>()
+        final def createView = isAjax ? "_comments" : "comments"
+
+        // Prepare display values
+        final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
+        final String photoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
+        final int offset = params.int("offset") ?: 0
+        final int max = Math.min(new Integer(params.int("max") ?: (grailsApplication.config.picasa.maxComments ?: 10)).intValue(), 500)
+        flash.message = ""
+
+		log.debug("Attempting to post a new comment (message = ${commentInstance?.message}, isAjax = " +
+            isAjax + ")")
+
+        try {
+            // Post comment through the picasa service
+            picasaService.postComment(commentInstance)
+
+            log.debug("Success...")
+
+            log.debug("Attempting to get comments through the Google Picasa web service " +
+                    "(albumId=" + albumId + ", photoId=" + photoId + ")")
+
+            commentList.addAll(picasaService.listCommentsForPhoto(albumId, photoId))
+
+            log.debug("Success...")
+
+        } catch (PicasaServiceException pse) {
+            flash.message =
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available')}"
         }
 
-		log.debug("Attempting to save an instance of Comment (isAjax = " + isAjax + ")")
-
-        if (commentInstance.save(flush: true)) {
-            flash.message = "${message(code: 'default.created.message', args: [message(code: 'comment.label', default: 'Comment'), commentInstance.id])}"
-            render(view: showView, model: [commentInstance: commentInstance])
+        // If required, reverse list
+        if (params.order == "asc") {
+            Collections.reverse(commentList)
         }
-        else {
-            render(view: createView, model: [commentInstance: commentInstance])
+
+        log.debug("Convert response into display list")
+
+        // Convert to array to allow easy display preparation
+        Comment[] commentArray = commentList.toArray()
+        if (commentArray) {
+            // Prepare display list
+            commentArray = Arrays.copyOfRange(commentArray, offset,
+                ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
+            if (commentArray) {
+                // Update display list
+                displayList.addAll(Arrays.asList(commentArray))
+            }
+        }
+
+        log.debug("Display list with " + createView + " view")
+
+        render(view: createView, model: [albumId: albumId,
+                photoId: photoId,
+                commentInstance: commentInstance,
+                commentInstanceList: displayList,
+                commentInstanceTotal: (commentList?.size() ?: 0)])
+    }
+
+    /**
+     * Update picasa service with OAuth token and re-direct to photo.
+     */
+    private doLogin() {
+        // Get session and request parameters
+        final def oAuthTokenKey = session?.oauthToken?.key
+        final def oAuthTokenSecret = session?.oauthToken?.secret
+        final def ids = params?.id?.tokenize(ID_SEPARATOR)
+        final def albumId = ids?.get(0)
+        final def photoId = ids?.get(1)
+
+        log.debug("Updating service to apply OAuth access with [key]${oAuthTokenKey} " +
+                "[secret]${oAuthTokenSecret}")
+        
+        try {
+            // Update service and session
+            picasaService.applyOAuthAccess(session?.oauthToken?.key, session?.oauthToken?.secret)
+
+            log.debug("Success...")
+
+        } catch (PicasaServiceException pse) {
+            flash.message =
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login')}"
+        }
+        
+        log.debug("Re-directing to photo ${photoId} in ${albumId}")
+
+        // Re-direct to photo
+        redirect(controller: "photo", action: "show", params: [albumId: albumId, photoId: photoId])
+    }
+
+    /**
+     * Update picasa service with OAuth token and re-direct to photo.
+     */
+    private doLogout(final boolean isAjax) {
+        // Get request parameters
+        final def ids = params?.id?.tokenize(ID_SEPARATOR)
+        final def albumId = ids?.get(0)
+        final def photoId = ids?.get(1)
+        final def showView = isAjax ? "_create" : "show"
+
+        log.debug("Updating service to remove OAuth access")
+
+        // Update service and session
+        picasaService.removeOAuthAccess()
+
+        log.debug("Success...")
+
+        if (isAjax) {
+            log.debug("Render comment ${showView} view for photo ${photoId} in ${albumId}")
+
+            // Just render create comment form
+            render(view: showView, model: [albumId: albumId, photoId: photoId])
+        } else {
+            log.debug("Re-directing to photo ${photoId} in ${albumId} with ${showView} view")
+
+            // Re-direct to photo
+            redirect(controller: "photo", action: showView, params: [albumId: albumId, photoId: photoId])
         }
     }
 
@@ -276,15 +412,14 @@ class CommentController {
      */
     private boolean checkUser() {
         // Initialise result
-        boolean loggedIn = false
+        boolean loggedIn
 
         log.debug("Check whether the current user is logged in...")
 
-        // Check whether user object available in the session
-        if (!session.user) {
+        // Check whether user is logged in
+        if (!session.oAuthLoggedIn) {
             log.debug("User is NOT logged in.")
-            redirect(controller: "user", action: "login")
-
+            loggedIn = false
         } else {
             log.debug("User IS logged in.")
             loggedIn = true

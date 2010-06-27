@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.converters.XML
 
 import org.apache.commons.lang.StringUtils
+import org.springframework.web.servlet.support.RequestContextUtils as RCU
 
 /**
  * Photo controller
@@ -15,7 +16,7 @@ import org.apache.commons.lang.StringUtils
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class PhotoController {
-
+    
     // Declare feed types
     public static final String RSS_FEED = "rss"
     public static final String XML_FEED = "xml"
@@ -24,6 +25,7 @@ class PhotoController {
     // Declare dependencies
     def grailsApplication
     def picasaService
+    def messageSource
 
     /**
      * Re-direct index requests to list view.
@@ -61,13 +63,40 @@ class PhotoController {
     def ajaxShow = {
         return doShow(true)
     }
-
-    /**
-     * Get the selected photo comments through the Picasa service and
-     * render the ajax view.
+    
+    /*
+     * Validate an individual comment field
      */
-    def comments = {
-        return doComments()
+    def validate = {
+        // Initialise domain instance and error message
+        final def commentInstance = new Comment(params)
+        def errorMessage = ""
+        def field = ""
+
+        // Get selected field
+        for (param in params) {
+            if (param.key != null && !param.key.equals("action")
+                    && !param.key.equals("controller")) {
+                field = param.key
+                break
+            }
+        }
+
+		log.debug("Validating field: " + field)
+
+        // Check whether provided field has errors
+        if (!commentInstance.validate() && commentInstance.errors.hasFieldErrors(field)) {
+			// Get error message value
+            errorMessage = messageSource.getMessage(
+                commentInstance.errors.getFieldError(field),
+                RCU.getLocale(request)
+            )
+
+			log.debug("Error message: " + errorMessage)
+        }
+
+        // Render error message
+        render(errorMessage)
     }
 
     /**
@@ -279,9 +308,8 @@ class PhotoController {
         final String photoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
         final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxComments) ? grailsApplication.config.picasa.maxComments : 10))).intValue(), 500)
-        String showView = "show"
-        if (isAjax) showView = "_show"
+        final int max = Math.min(new Integer((params.max ?: (grailsApplication.config.picasa.maxComments ?: 10))).intValue(), 500)
+        final String showView = isAjax ? "_show" : "show"
         flash.message = ""
 
         // Prepare new comment
@@ -327,66 +355,8 @@ class PhotoController {
         render(view: showView, model: [albumId: params.albumId,
                 photoId: params.photoId,
                 photoInstance: photoInstance,
-                photoComments: commentDisplayList,
-                photoCommentTotal: (commentList?.size() ? commentList.size() : 0),
+                commentInstanceList: commentDisplayList,
+                commentInstanceTotal: (commentList?.size() ? commentList.size() : 0),
                 commentInstance: commentInstance])
-    }
-
-    /**
-     * Request photo comments for provided IDs through the Picasa web service.
-     * 
-     * @return comments for provided IDs.
-     */
-    private doComments() {
-
-        // Initialise result
-        final List<Comment> commentList = new ArrayList<Comment>()
-        final List<Comment> commentDisplayList = new ArrayList<Comment>()
-
-        // Check type of request
-        final String feed = (params.feed != null && !params.feed == "") ? params.feed : ""
-
-        // Prepare display values
-        final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
-        final String photoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
-        final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.maxComments) ? grailsApplication.config.picasa.maxComments : 10))).intValue(), 500)
-        final String showView = "_comments"
-        flash.message = ""
-
-        log.debug("Attempting to get comments through the Google Picasa web service " +
-                "(albumId=" + albumId + ", photoId=" + photoId + ")")
-
-        // Get photo from picasa service
-        try {
-            commentList.addAll(picasaService.listCommentsForPhoto(albumId, photoId))
-
-            log.debug("Success...")
-        } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.not.found')}"
-        }
-
-        log.debug("Prepare comments for display")
-
-        // Convert to array to allow easy display preparation
-        Comment[] commentArray = commentList.toArray()
-        if (commentArray != null) {
-            // Prepare display list
-            commentArray = Arrays.copyOfRange(commentArray, offset,
-                ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
-            if (commentArray) {
-                // Update display list
-                commentDisplayList.addAll(Arrays.asList(commentArray))
-            }
-        }
-
-        log.debug("Display comments with " + showView + " view")
-
-        // Display photo
-        render(view: showView, model: [albumId: albumId,
-                photoId: photoId,
-                photoComments: commentDisplayList,
-                photoCommentTotal: (commentList?.size() ? commentList.size() : 0)])
     }
 }
