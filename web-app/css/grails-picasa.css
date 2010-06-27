@@ -227,23 +227,23 @@ th.desc a {
  */
 
 .weight1 {
-    font-size: 0.7em;
+    font-size: 0.75em;
 }
 .weight2 {
-    font-size: 0.8em;
-}
-.weight3 {
     font-size: 0.9em;
 }
-.weight4 {
+.weight3 {
     font-size: 1.0em;
 }
-.weight5 {
+.weight4 {
     font-size: 1.1em;
 }
+.weight5 {
+    font-size: 1.25em;
+}
 .weight6 {
-    font-size: 1.2em;
+    font-size: 1.5em;
 }
 .weight7 {
-    font-size: 1.3em;
+    font-size: 1.7em;
 }
