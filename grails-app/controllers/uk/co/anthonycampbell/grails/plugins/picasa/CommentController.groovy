@@ -103,14 +103,14 @@ class CommentController {
 
         // Get selected field
         for (param in params) {
-            if (param.key != null && !param.key.equals("action")
+            if (param?.key && !param.key.equals("action")
                     && !param.key.equals("controller")) {
                 field = param.key
                 break
             }
         }
 
-		log.debug("Validating field: " + field)
+		log.debug "Validating field: $field"
 
         // Check whether provided field has errors
         if (!commentInstance.validate() && commentInstance.errors.hasFieldErrors(field)) {
@@ -120,7 +120,7 @@ class CommentController {
                 RCU.getLocale(request)
             )
 
-			log.debug("Error message: " + errorMessage)
+			log.debug "Error message: $errorMessage"
         }
 
         // Render error message
@@ -140,32 +140,33 @@ class CommentController {
         final List<Comment> displayList = new ArrayList<Comment>()
 
         // Check type of request
-        final String feed = StringUtils.isNotEmpty(params.feed) ? params.feed : ""
+        final String feed = params.feed ?: ""
 
         // Prepare display values
-        final String paramAlbumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
-        final String paramPhotoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
+        final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
+        final String paramPhotoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer((params.int("max") ?: (grailsApplication.config.picasa.maxComments ?: 10))).intValue(), 500)
-        final def listView = isAjax ? "_list" : "list"
+        final int max = Math.min(new Integer(params.int("max") ?:
+                (grailsApplication.config.picasa.maxComments ?: 10)).intValue(), 500)
+        final String listView = isAjax ? "_list" : "list"
         flash.message = ""
         
-        log.debug("Attempting to get comments through the Google Picasa web service " +
-                "(albumId=" + paramAlbumId + ", photoId=" + paramPhotoId + ")")
+        log.debug "Attempting to get comments through the Google Picasa web service " +
+                "(albumId = $paramAlbumId, photoId = $paramPhotoId)"
 
         // Get comment list from picasa service
         try {
-            if (StringUtils.isNotEmpty(paramAlbumId) && StringUtils.isNotEmpty(paramPhotoId)) {
+            if (paramAlbumId && paramPhotoId) {
                 commentList.addAll(picasaService.listCommentsForPhoto(paramAlbumId, paramPhotoId))
             } else {
                 commentList.addAll(picasaService.listAllComments())
             }
 
-            log.debug("Success...")
+            log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available', default: 'The comment listing is currently not available. Please try again later.')}"
         }
 
         // If required, reverse list
@@ -175,7 +176,7 @@ class CommentController {
 
         // Render correct feed
         if (feed == RSS_FEED) {
-            log.debug("Display list with the " + feed + " feed")
+            log.debug "Display list with the $feed feed"
 
             // Keep track of latest album date
             def latestBuildDate
@@ -185,13 +186,15 @@ class CommentController {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
                         "atom:link"(href:"${createLink(controller: "comment", action: "list", absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
-                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.legend", default: "Photo Comments"))
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.legend",
+                                default: "Photo Comments"))
                         link(createLink(controller: "comment", action: "list", absolute: "true"))
-                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.description", default: "RSS feed for the photo comment listing"))
+                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.description",
+                                default: "RSS feed for the photo comment listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
 
-                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
-                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        if (grailsApplication.config.picasa.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication.config.picasa.rssManagingEditor ?: "")
                         }
 
                         for (c in commentList) {
@@ -200,27 +203,29 @@ class CommentController {
                                 pubDate(c?.dateCreated?.format(DateUtil.RFC_822))
                                 "atom:updated"(DateUtil.formatDateRfc3339(c?.dateCreated))
                                 
-                                if (StringUtils.isNotEmpty(c?.author?.name)) {
-                                    title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.title", args: [c?.author?.name], default: "New comment"))
+                                if (c?.author?.name) {
+                                    title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.title",
+                                            args: [c?.author?.name], default: "New comment"))
                                 } else {
-                                    title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.title.simple", default: "New comment"))
+                                    title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.title.simple",
+                                            default: "New comment"))
                                 }
                                 
                                 description(c?.message)
                                 link(createLink(controller: "comment", action: "list", absolute: "true"))
                             }
 
-                            if (latestBuildDate == null || latestBuildDate.compareTo(c?.dateCreated) < 0) {
+                            if (latestBuildDate == null || latestBuildDate?.compareTo(c?.dateCreated) < 0) {
                                 latestBuildDate = c?.dateCreated
                             }
                         }
 
-                        lastBuildDate(latestBuildDate != null ? latestBuildDate?.format(DateUtil.RFC_822) : "")
+                        lastBuildDate(latestBuildDate?.format(DateUtil.RFC_822) ?: "")
                     }
                 }
             }
         } else if (feed == XML_FEED || feed == JSON_FEED) {
-            log.debug("Display list with " + feed + " feed")
+            log.debug "Display list with $feed feed"
 
             // Declare possible feed render types
             final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
@@ -250,21 +255,21 @@ class CommentController {
                 }
             }
         } else {
-            log.debug("Convert response into display list")
+            log.debug "Convert response into display list"
 
             // Convert to array to allow easy display preparation
             Comment[] commentArray = commentList.toArray()
             if (commentArray) {
                 // Prepare display list
                 commentArray = Arrays.copyOfRange(commentArray, offset,
-                    ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
+                    ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
                 if (commentArray) {
                     // Update display list
                     displayList.addAll(Arrays.asList(commentArray))
                 }
             }
 
-            log.debug("Display list with " + listView + " view")
+            log.debug "Display list with $listView view"
 
             render(view: listView, model: [albumId: paramAlbumId,
                     photoId: paramPhotoId,
@@ -286,34 +291,35 @@ class CommentController {
         final Comment commentInstance = new Comment(params)
         final List<Comment> commentList = new ArrayList<Comment>()
         final List<Comment> displayList = new ArrayList<Comment>()
-        final def createView = isAjax ? "_comments" : "comments"
 
         // Prepare display values
-        final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
-        final String photoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
+        final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
+        final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(params.int("max") ?: (grailsApplication.config.picasa.maxComments ?: 10)).intValue(), 500)
+        final int max = Math.min(new Integer(params.int("max") ?:
+                (grailsApplication.config.picasa.maxComments ?: 10)).intValue(), 500)
+        final String createView = isAjax ? "_comments" : "comments"
         flash.message = ""
 
-		log.debug("Attempting to post a new comment (message = ${commentInstance?.message}, isAjax = " +
-            isAjax + ")")
+		log.debug "Attempting to post a new comment (message = ${commentInstance?.message}, isAjax = " +
+            isAjax + ")"
 
         try {
             // Post comment through the picasa service
             picasaService.postComment(commentInstance)
 
-            log.debug("Success...")
+            log.debug "Success..."
 
-            log.debug("Attempting to get comments through the Google Picasa web service " +
-                    "(albumId=" + albumId + ", photoId=" + photoId + ")")
+            log.debug "Attempting to get comments through the Google Picasa web service " +
+                    "(albumId=$albumId, photoId=$photoId)"
 
             commentList.addAll(picasaService.listCommentsForPhoto(albumId, photoId))
 
-            log.debug("Success...")
+            log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available', default: 'The comment listing is currently not available. Please try again later.')}"
         }
 
         // If required, reverse list
@@ -321,21 +327,21 @@ class CommentController {
             Collections.reverse(commentList)
         }
 
-        log.debug("Convert response into display list")
+        log.debug "Convert response into display list"
 
         // Convert to array to allow easy display preparation
         Comment[] commentArray = commentList.toArray()
         if (commentArray) {
             // Prepare display list
             commentArray = Arrays.copyOfRange(commentArray, offset,
-                ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
+                ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
             if (commentArray) {
                 // Update display list
                 displayList.addAll(Arrays.asList(commentArray))
             }
         }
 
-        log.debug("Display list with " + createView + " view")
+        log.debug "Display list with $createView view"
 
         render(view: createView, model: [albumId: albumId,
                 photoId: photoId,
@@ -355,21 +361,21 @@ class CommentController {
         final def albumId = ids?.get(0)
         final def photoId = ids?.get(1)
 
-        log.debug("Updating service to apply OAuth access with [key]${oAuthTokenKey} " +
-                "[secret]${oAuthTokenSecret}")
+        log.debug "Updating service to apply OAuth access with [key]$oAuthTokenKey " +
+                "[secret]$oAuthTokenSecret"
         
         try {
             // Update service and session
             picasaService.applyOAuthAccess(session?.oauthToken?.key, session?.oauthToken?.secret)
 
-            log.debug("Success...")
+            log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login', default: 'A problem was encountered when trying to connect to your Google Picasa Web Albums account. Please try again later.')}"
         }
         
-        log.debug("Re-directing to photo ${photoId} in ${albumId}")
+        log.debug "Re-directing to photo $photoId in $albumId"
 
         // Re-direct to photo
         redirect(controller: "photo", action: "show", params: [albumId: albumId, photoId: photoId])
@@ -383,25 +389,26 @@ class CommentController {
         final def ids = params?.id?.tokenize(ID_SEPARATOR)
         final def albumId = ids?.get(0)
         final def photoId = ids?.get(1)
-        final def showView = isAjax ? "_create" : "show"
+        final String showView = isAjax ? "_create" : "show"
 
-        log.debug("Updating service to remove OAuth access")
+        log.debug "Updating service to remove OAuth access"
 
         // Update service and session
         picasaService.removeOAuthAccess()
 
-        log.debug("Success...")
+        log.debug "Success..."
 
         if (isAjax) {
-            log.debug("Render comment ${showView} view for photo ${photoId} in ${albumId}")
+            log.debug "Render comment $showView view for photo $photoId in $albumId"
 
             // Just render create comment form
             render(view: showView, model: [albumId: albumId, photoId: photoId])
         } else {
-            log.debug("Re-directing to photo ${photoId} in ${albumId} with ${showView} view")
+            log.debug "Re-directing to photo $photoId in $albumId with $showView view"
 
             // Re-direct to photo
-            redirect(controller: "photo", action: showView, params: [albumId: albumId, photoId: photoId])
+            redirect(controller: "photo", action: showView, params: [albumId: albumId,
+                    photoId: photoId])
         }
     }
 
@@ -414,14 +421,14 @@ class CommentController {
         // Initialise result
         boolean loggedIn
 
-        log.debug("Check whether the current user is logged in...")
+        log.debug "Check whether the current user is logged in..."
 
         // Check whether user is logged in
-        if (!session.oAuthLoggedIn) {
-            log.debug("User is NOT logged in.")
+        if (!session?.oAuthLoggedIn) {
+            log.debug "User is NOT logged in."
             loggedIn = false
         } else {
-            log.debug("User IS logged in.")
+            log.debug "User IS logged in."
             loggedIn = true
         }
 

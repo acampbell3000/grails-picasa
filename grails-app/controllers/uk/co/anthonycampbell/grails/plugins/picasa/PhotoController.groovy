@@ -75,14 +75,14 @@ class PhotoController {
 
         // Get selected field
         for (param in params) {
-            if (param.key != null && !param.key.equals("action")
+            if (param?.key && !param.key.equals("action")
                     && !param.key.equals("controller")) {
                 field = param.key
                 break
             }
         }
 
-		log.debug("Validating field: " + field)
+		log.debug "Validating field: $field"
 
         // Check whether provided field has errors
         if (!commentInstance.validate() && commentInstance.errors.hasFieldErrors(field)) {
@@ -92,7 +92,7 @@ class PhotoController {
                 RCU.getLocale(request)
             )
 
-			log.debug("Error message: " + errorMessage)
+			log.debug "Error message: $errorMessage"
         }
 
         // Render error message
@@ -113,30 +113,30 @@ class PhotoController {
         final List<Tag> tagList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+        final String feed = params.feed ?: ""
         
         // Prepare display values
-        final String paramAlbumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
-        final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
+        final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
+        final boolean showPrivate = grailsApplication.config.picasa.showPrivatePhotos ?: false
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(((params.max) ? params.max : ((grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10))).intValue(), 500)
-        String listView = "list"
-        if (isAjax) listView = "_list"
+        final int max = Math.min(new Integer(params.int("max") ?:
+                (grailsApplication.config.picasa.max ?: 10)).intValue(), 500)
+        final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
-        log.debug("Attempting to list photos and tags through the Picasa web service " +
-                "(albumId=" + paramAlbumId + ")")
+        log.debug "Attempting to list photos and tags through the Picasa web service " +
+                "(albumId=$paramAlbumId)"
 
         // Get photo list from picasa service
         try {
             photoList.addAll(picasaService.listPhotosForAlbum(paramAlbumId, showPrivate))
             tagList.addAll(picasaService.listTagsForAlbum(paramAlbumId))
 
-            log.debug("Success...")
+            log.debug "Success..."
             
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available', default: 'The photo listing is currently not available. Please try again later.')}"
         }
 
         // If required, sort list
@@ -167,7 +167,7 @@ class PhotoController {
 
         // Render correct feed
         if (feed == RSS_FEED) {
-            log.debug("Display list with the " + feed + " feed")
+            log.debug "Display list with the $feed feed"
 
             // Get album information for feed
             final Album album
@@ -181,35 +181,38 @@ class PhotoController {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
                         "atom:link"(href:"${createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
-                        title(StringUtils.isNotEmpty(album?.name) ? album.name : "")
+                        title(album?.name ?: "")
                         link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
-                        description(StringUtils.isNotEmpty(album?.description) ? album?.description : message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Photo.rss.description", default: "RSS feed for the photo listing"))
+                        description(album?.description ?:
+                            "${message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Photo.rss.description", default: "RSS feed for the photo listing")}")
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
-                        lastBuildDate((album?.dateCreated != null) ? album?.dateCreated?.format(DateUtil.RFC_822) : "")
+                        lastBuildDate(album?.dateCreated?.format(DateUtil.RFC_822) ?: "")
 
-                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
-                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        if (grailsApplication.config.picasa.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication.config.picasa.rssManagingEditor ?: "")
                         }
 
-                        if (StringUtils.isNotEmpty(album?.image)) {
+                        if (album?.image) {
                             image {
-                                url(StringUtils.isNotEmpty(album.image) ? album.image : "")
-                                title(StringUtils.isNotEmpty(album.name) ? album.name : "")
-                                link(createLink(controller: "photo", action: "list", id: paramAlbumId, absolute: "true"))
+                                url(album.image ?: "")
+                                title(album.name ?: "")
+                                link(createLink(controller: "photo", action: "list", id: paramAlbumId,
+                                        absolute: "true"))
                             }
                         }
 
                         for (p in photoList) {
                             item {
                                 guid(isPermaLink: "false", p.photoId)
-                                pubDate(p.dateCreated?.format(DateUtil.RFC_822))
-                                "atom:updated"(DateUtil.formatDateRfc3339(p.dateCreated))
-                                title(p.title)
-                                description(p.description)
-                                link(createLink(controller: "photo", action: "show", id: paramAlbumId + "/" + p.photoId, absolute: "true"))
+                                pubDate(p?.dateCreated?.format(DateUtil.RFC_822))
+                                "atom:updated"(DateUtil.formatDateRfc3339(p?.dateCreated))
+                                title(p?.title)
+                                description(p?.description)
+                                link(createLink(controller: "photo", action: "show", id: paramAlbumId +
+                                    "/" + p?.photoId, absolute: "true"))
 
-                                if (StringUtils.isNotEmpty(p.image)) {
-                                    enclosure(type: "image/jpeg", url: p.image, length: "0")
+                                if (p?.image) {
+                                    enclosure(type: "image/jpeg", url: p?.image, length: "0")
                                 }
                             }   
                         }
@@ -217,7 +220,7 @@ class PhotoController {
                 }
             }
         } else if (feed == XML_FEED || feed == JSON_FEED) {
-            log.debug("Display list with " + feed + " feed")
+            log.debug "Display list with $feed feed"
             
             // Declare possible feed render types
             final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
@@ -232,29 +235,29 @@ class PhotoController {
                     for (p in photoList) {
                         photo {
                             // Main attributes
-                            photoId(p.photoId)
-                            albumId(p.albumId)
-                            title(p.title)
-                            description(p.description)
-                            cameraModel(p.cameraModel)
+                            photoId(p?.photoId)
+                            albumId(p?.albumId)
+                            title(p?.title)
+                            description(p?.description)
+                            cameraModel(p?.cameraModel)
                             geoLocation {
-                                latitude(p.geoLocation?.latitude)
-                                longitude(p.geoLocation?.longitude)
+                                latitude(p?.geoLocation?.latitude)
+                                longitude(p?.geoLocation?.longitude)
                             }
-                            thumbnailImage(p.thumbnailImage)
-                            thumbnailWidth(p.thumbnailWidth)
-                            thumbnailHeight(p.thumbnailHeight)
-                            image(p.image)
-                            width(p.width)
-                            height(p.height)
-                            previousPhotoId(p.previousPhotoId)
-                            nextPhotoId(p.nextPhotoId)
-                            dateCreated(p.dateCreated?.format(DateUtil.RFC_822))
-                            isPublic(p.isPublic)
+                            thumbnailImage(p?.thumbnailImage)
+                            thumbnailWidth(p?.thumbnailWidth)
+                            thumbnailHeight(p?.thumbnailHeight)
+                            image(p?.image)
+                            width(p?.width)
+                            height(p?.height)
+                            previousPhotoId(p?.previousPhotoId)
+                            nextPhotoId(p?.nextPhotoId)
+                            dateCreated(p?.dateCreated?.format(DateUtil.RFC_822))
+                            isPublic(p?.isPublic)
 
                             // Tags
                             tags {
-                                for(t in p.tags) {
+                                for(t in p?.tags) {
                                     tag(t?.keyword)
                                 }
                             }
@@ -263,25 +266,25 @@ class PhotoController {
                 }
             }
         } else {
-            log.debug("Convert response into display list")
+            log.debug "Convert response into display list"
 
             // Convert to array to allow easy display preparation
             Photo[] photoArray = photoList.toArray()
-            if (photoArray != null) {
+            if (photoArray) {
                 // Prepare display list
                 photoArray = Arrays.copyOfRange(photoArray, offset,
-                    ((offset + max) > photoArray.length ? photoArray.length : (offset + max)))
+                    ((offset + max) > photoArray?.length ? photoArray?.length : (offset + max)))
                 if (photoArray) {
                     // Update display list
                     displayList.addAll(Arrays.asList(photoArray))
                 }
             }
 
-            log.debug("Display list with " + listView + " view")
+            log.debug "Display list with $listView view"
 
             render(view: listView, model: [albumId: paramAlbumId,
                     photoInstanceList: displayList,
-                    photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),
+                    photoInstanceTotal: (photoList.size() ?: 0),
                     tagInstanceList: tagList])
         }
     }
@@ -301,62 +304,64 @@ class PhotoController {
         final Comment commentInstance = new Comment()
         
         // Check type of request
-        final String feed = (StringUtils.isNotEmpty(params.feed)) ? params.feed : ""
+        final String feed = params.feed ?: ""
 
         // Prepare display values
-        final String albumId = (StringUtils.isNotEmpty(params.albumId) && StringUtils.isNumeric(params.albumId)) ? params.albumId : null
-        final String photoId = (StringUtils.isNotEmpty(params.photoId) && StringUtils.isNumeric(params.photoId)) ? params.photoId : null
-        final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
+        final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
+        final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
+        final boolean showPrivate = grailsApplication.config.picasa.showPrivatePhotos ?: false
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer((params.max ?: (grailsApplication.config.picasa.maxComments ?: 10))).intValue(), 500)
+        final int max = Math.min(new Integer(params.int("max") ?:
+                (grailsApplication.config.picasa.maxComments ?: 10)).intValue(), 500)
         final String showView = isAjax ? "_show" : "show"
         flash.message = ""
 
         // Prepare new comment
         commentInstance.albumId = albumId
         commentInstance.albumId = photoId
-        commentInstance.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.message.default', default: 'Add a comment...')
+        commentInstance.message = "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.message.default', default: 'Add a comment...')}"
 
-        log.debug("Attempting to get photo through the Google Picasa web service " +
-                "(albumId=" + albumId + ", photoId=" + photoId + ")")
+        log.debug "Attempting to get photo through the Google Picasa web service " +
+                "(albumId=$albumId, photoId=$photoId)"
 
         // Get photo from picasa service
         try {
             photoInstance = picasaService.getPhoto(albumId, photoId, showPrivate)
 
-            log.debug("Success...")
+            log.debug "Success..."
+            
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.not.found')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.not.found', default: 'The photo you\'ve selected could not be found. Please ensure the ID is correct and try again.')}"
         }
 
         // Get comments from photo
-        if (photoInstance.comments != null) {
+        if (photoInstance?.comments) {
             commentList.addAll(photoInstance.comments)
         }
 
-        log.debug("Prepare comments for display")
+        log.debug "Prepare comments for display"
 
         // Convert to array to allow easy display preparation
         Comment[] commentArray = commentList.toArray()
-        if (commentArray != null) {
+        if (commentArray) {
             // Prepare display list
             commentArray = Arrays.copyOfRange(commentArray, offset,
-                ((offset + max) > commentArray.length ? commentArray.length : (offset + max)))
+                ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
             if (commentArray) {
                 // Update display list
                 commentDisplayList.addAll(Arrays.asList(commentArray))
             }
         }
 
-        log.debug("Display photo with " + showView + " view")
+        log.debug "Display photo with $showView view"
 
         // Display photo
         render(view: showView, model: [albumId: params.albumId,
                 photoId: params.photoId,
                 photoInstance: photoInstance,
                 commentInstanceList: commentDisplayList,
-                commentInstanceTotal: (commentList?.size() ? commentList.size() : 0),
+                commentInstanceTotal: (commentList?.size() ?: 0),
                 commentInstance: commentInstance])
     }
 }
