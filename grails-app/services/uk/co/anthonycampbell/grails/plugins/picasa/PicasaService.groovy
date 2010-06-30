@@ -110,8 +110,8 @@ class PicasaService implements InitializingBean {
         this.allowComments = grailsApplication.config?.picasa?.allowComments
 
         // Collect oauth config
-        this.picasaConsumerKey = grailsApplication.config.oauth.picasa.consumer.key
-        this.picasaConsumerSecret = grailsApplication.config.oauth.picasa.consumer.secret
+        this.picasaConsumerKey = grailsApplication.config?.oauth?.picasa?.consumer.key
+        this.picasaConsumerSecret = grailsApplication.config?.oauth?.picasa?.consumer.secret
 
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
@@ -848,7 +848,7 @@ class PicasaService implements InitializingBean {
                 }
 
                 // Check we have a photo to work with
-                if (photo != null) {
+                if (photo) {
                     // First get list of any comments
                     for (final CommentEntry commentEntry : photoFeed?.getCommentEntries()) {
                         // Transfer comment into domain class
