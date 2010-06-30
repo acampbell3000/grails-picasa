@@ -145,7 +145,7 @@ class CommentController {
         // Prepare display values
         final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
         final String paramPhotoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
-        final int offset = params.int("offset") ?: 0
+        final int offset = params.int("offset") ?: -1
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
@@ -261,8 +261,15 @@ class CommentController {
             Comment[] commentArray = commentList.toArray()
             if (commentArray) {
                 // Prepare display list
-                commentArray = Arrays.copyOfRange(commentArray, offset,
-                    ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
+                if (offset > -1) {
+                    commentArray = Arrays.copyOfRange(commentArray, offset,
+                        ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
+                } else {
+                    // By default show the last set of comments
+                    commentArray = Arrays.copyOfRange(commentArray, (commentArray?.length - max),
+                        commentArray?.length)
+                }
+
                 if (commentArray) {
                     // Update display list
                     displayList.addAll(Arrays.asList(commentArray))
