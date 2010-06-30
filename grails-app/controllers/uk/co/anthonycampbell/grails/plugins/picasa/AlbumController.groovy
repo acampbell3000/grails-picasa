@@ -165,7 +165,7 @@ class AlbumController {
                                 }
                             }
                             
-                            if (latestBuildDate == null || latestBuildDate?.compareTo(a?.dateCreated) < 0) {
+                            if (!latestBuildDate || latestBuildDate?.compareTo(a?.dateCreated) < 0) {
                                 latestBuildDate = a?.dateCreated
                             }
                         }

@@ -283,7 +283,7 @@ class TagController {
                                 }
                             }
 
-                            if (latestBuildDate == null || latestBuildDate?.compareTo(p?.dateCreated) < 0) {
+                            if (!latestBuildDate || latestBuildDate?.compareTo(p?.dateCreated) < 0) {
                                 latestBuildDate = p?.dateCreated
                             }
                         }

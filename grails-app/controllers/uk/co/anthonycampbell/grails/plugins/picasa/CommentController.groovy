@@ -215,7 +215,7 @@ class CommentController {
                                 link(createLink(controller: "comment", action: "list", absolute: "true"))
                             }
 
-                            if (latestBuildDate == null || latestBuildDate?.compareTo(c?.dateCreated) < 0) {
+                            if (!latestBuildDate || latestBuildDate?.compareTo(c?.dateCreated) < 0) {
                                 latestBuildDate = c?.dateCreated
                             }
                         }
