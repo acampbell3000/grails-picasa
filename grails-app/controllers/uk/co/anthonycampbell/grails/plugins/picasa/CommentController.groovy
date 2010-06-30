@@ -147,7 +147,7 @@ class CommentController {
         final String paramPhotoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication.config.picasa.maxComments ?: 10)).intValue(), 500)
+                (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
         
@@ -193,7 +193,7 @@ class CommentController {
                                 default: "RSS feed for the photo comment listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
 
-                        if (grailsApplication.config.picasa.rssManagingEditor instanceof String) {
+                        if (grailsApplication.config?.picasa?.rssManagingEditor instanceof String) {
                             managingEditor(grailsApplication.config.picasa.rssManagingEditor ?: "")
                         }
 
@@ -297,7 +297,7 @@ class CommentController {
         final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication.config.picasa.maxComments ?: 10)).intValue(), 500)
+                (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String createView = isAjax ? "_comments" : "comments"
         flash.message = ""
 
