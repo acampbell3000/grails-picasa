@@ -15,7 +15,7 @@ class PhotoDateComparator implements Comparator<Photo> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Photo photo1, Photo photo2) {
+    public int compare(final Photo photo1, final Photo photo2) {
         if (!photo1 && !photo2) { return 0 }
 
         if (!photo1) {
@@ -23,8 +23,8 @@ class PhotoDateComparator implements Comparator<Photo> {
         } else if (!photo2) {
             return 1
         } else {
-            Date date1 = photo1?.dateCreated
-            Date date2 = photo2?.dateCreated
+            final Date date1 = photo1?.dateCreated
+            final Date date2 = photo2?.dateCreated
 
             if (!date1 && !date2) { return 0 }
 

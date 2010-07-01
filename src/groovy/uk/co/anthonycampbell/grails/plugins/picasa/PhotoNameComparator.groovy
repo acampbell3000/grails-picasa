@@ -15,7 +15,7 @@ class PhotoNameComparator implements Comparator<Photo> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Photo photo1, Photo photo2) {
+    public int compare(final Photo photo1, final Photo photo2) {
         if (!photo1 && !photo2) { return 0 }
 
         if (!photo1) {
@@ -23,8 +23,8 @@ class PhotoNameComparator implements Comparator<Photo> {
         } else if (!photo2) {
             return 1
         } else {
-            String name1 = photo1?.name
-            String name2 = photo2?.name
+            final String name1 = photo1?.name
+            final String name2 = photo2?.name
 
             if (!name1 && !name2) { return 0 }
 

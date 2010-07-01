@@ -6,15 +6,16 @@ import javax.servlet.http.HttpSession
 import com.google.gdata.client.Query
 import com.google.gdata.client.photos.*
 import com.google.gdata.client.authn.oauth.*
-import com.google.gdata.data.media.mediarss.MediaKeywords
-import com.google.gdata.data.photos.*
 import com.google.gdata.data.PlainTextConstruct
+import com.google.gdata.data.photos.*
+import com.google.gdata.data.media.mediarss.MediaKeywords
 import com.google.gdata.util.AuthenticationException
 import com.google.gdata.util.RedirectRequiredException
 import com.google.gdata.util.ServiceException
 
 import org.apache.commons.lang.StringUtils
 import org.apache.log4j.Logger
+
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.web.context.request.RequestContextHolder
 
@@ -32,6 +33,9 @@ class PicasaService implements InitializingBean {
     
     // Declare service scope
     static scope = "session"
+
+    // URL to the Google Picasa GDATA API
+    private static final String GOOGLE_GDATA_API_URL = "http://picasaweb.google.com/data/feed/api"
     
     // Declare cache (used to reduce Google API calls)
     private static Map<String, List> tagCache = new HashMap<String, List>()
@@ -96,19 +100,19 @@ class PicasaService implements InitializingBean {
      */
     boolean reset() {
         // Get configuration from Config.groovy
-        this.picasaUsername = grailsApplication.config.picasa.username
-        this.picasaPassword = grailsApplication.config.picasa.password
+        this.picasaUsername = grailsApplication.config?.picasa?.username
+        this.picasaPassword = grailsApplication.config?.picasa?.password
         this.picasaApplicationName = this.getClass().getPackage().getName() +
             "-" + grailsApplication.metadata['app.name'] +
             "-" + grailsApplication.metadata['app.version']
-        this.picasaImgmax = grailsApplication.config.picasa.imgmax
-        this.picasaThumbsize = grailsApplication.config.picasa.thumbsize
-        this.picasaMaxResults = grailsApplication.config.picasa.maxResults
-        this.allowComments = grailsApplication.config.picasa.allowComments
+        this.picasaImgmax = grailsApplication.config?.picasa?.imgmax
+        this.picasaThumbsize = grailsApplication.config?.picasa?.thumbsize
+        this.picasaMaxResults = grailsApplication.config?.picasa?.maxResults
+        this.allowComments = grailsApplication.config?.picasa?.allowComments
 
         // Collect oauth config
-        this.picasaConsumerKey = grailsApplication.config.oauth.picasa.consumer.key
-        this.picasaConsumerSecret = grailsApplication.config.oauth.picasa.consumer.secret
+        this.picasaConsumerKey = grailsApplication.config?.oauth?.picasa?.consumer.key
+        this.picasaConsumerSecret = grailsApplication.config?.oauth?.picasa?.consumer.secret
 
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
@@ -135,21 +139,20 @@ class PicasaService implements InitializingBean {
 
             // Attempt OAuth connection
             try {
-                log.info("Attempting OAuth connection...")
+                log.info "Attempting OAuth connection..."
 
                 // Initialise Picasa Web Service
                 picasaCommentsWebService = new PicasawebService(this.picasaApplicationName)
                 picasaCommentsWebService.setOAuthCredentials(oauthParameters, new OAuthHmacSha1Signer())
                 session?.oAuthLoggedIn = true
 
-                log.info("Successfully connected to the Google Picasa web service.")
-
-                log.info("Update session with user details...")
+                log.info "Successfully connected to the Google Picasa web service."
+                log.info "Update session with user details..."
 
                 // Declare feed
-                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/default")
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/default")
 
-                log.debug("FeedUrl: " + feedUrl)
+                log.debug "FeedUrl: $feedUrl"
 
                 // Get user feed
                 final UserFeed userFeed = picasaCommentsWebService.getFeed(feedUrl, UserFeed.class)
@@ -159,15 +162,16 @@ class PicasaService implements InitializingBean {
                 final String username = userFeed?.getUsername()
                 final String thumbnail = userFeed?.getThumbnail()
 
-                log.debug("User details: nickname = $nickname, username = $username, " +
-                    "thumbnail = $thumbnail")
+                log.debug "User details: nickname=$nickname, username=$username, " +
+                    "thumbnail=$thumbnail"
 
                 // Update session
                 session?.oAuthNickname = nickname
                 session?.oAuthUsername = username
                 session?.oAuthThumbail = thumbnail
 
-                log.info("Successfully updated session with user details from the Google Picasa web service.")
+                log.info "Successfully updated session with user details from the Google Picasa web " +
+                    "service."
 
             } catch (Exception ex) {
                 log.error("Unable to connect to Google Picasa Web Albums. Invalid OAuth access token " +
@@ -175,8 +179,8 @@ class PicasaService implements InitializingBean {
                 session?.oAuthLoggedIn = false
             }
         } else {
-            log.error("Unable to apply acccess token to Google Picasa Web Albums service. " +
-                "Photo comments are disabled.")
+            log.error "Unable to apply acccess token to Google Picasa Web Albums service. " +
+                "Photo comments are disabled."
             session?.oAuthLoggedIn = false
         }
     }
@@ -185,7 +189,7 @@ class PicasaService implements InitializingBean {
      * Reset the picasa comments web service and update session.
      */
     def removeOAuthAccess() {
-        log.info("Attempting to logout...")
+        log.info "Attempting to logout..."
 
         // Get current session
         final HttpSession session = getSession()
@@ -197,7 +201,7 @@ class PicasaService implements InitializingBean {
         session?.oAuthUsername = null
         session?.oAuthThumbail = null
 
-        log.info("Successfully logged out.")
+        log.info "Successfully logged out"
     }
 
     /**
@@ -215,16 +219,16 @@ class PicasaService implements InitializingBean {
                 final List<Album> albumListing = new ArrayList<Album>()
 
                 // Declare feed
-                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "?kind=album&thumbsize=" + this.picasaThumbsize +
-                    "&imgmax=" + this.picasaImgmax)
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}?kind=album&thumbsize=${this.picasaThumbsize}" +
+                    "&imgmax=${this.picasaImgmax}")
 
-                log.debug("FeedUrl: " + feedUrl)
+                log.debug "FeedUrl: $feedUrl"
 
                 // Get user feed
                 final UserFeed userFeed = picasaWebService.getFeed(feedUrl, UserFeed.class)
 
-                for (AlbumEntry entry : userFeed?.getAlbumEntries()) {
+                for (final AlbumEntry entry : userFeed?.getAlbumEntries()) {
                     // Transfer entry into domain class
                     final Album album = convertToAlbumDomain(entry)
 
@@ -240,15 +244,15 @@ class PicasaService implements InitializingBean {
                 return albumListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Albums. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", showAll=" + showAll + ")"
+                final def errorMessage = "Unable to list your Google Picasa Web Albums. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, showAll=$showAll)"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
+            final def errorMessage = "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
                 "configuration is missing. Please refer to the documentation and ensure you have " +
                 "declared all of the required configuration."
 
@@ -270,9 +274,9 @@ class PicasaService implements InitializingBean {
         if (serviceInitialised) {
             try {
                 // Validate ID
-                if (StringUtils.isEmpty(albumId)) {
-                    def errorMessage = "Unable to retrieve your Google Picasa Web Album. The provided " +
-                        "ID was invalid. (albumId=" + albumId + ", showAll=" + showAll + ")"
+                if (!albumId) {
+                    final def errorMessage = "Unable to retrieve your Google Picasa Web Album. " +
+                        "The provided ID was invalid. (albumId=$albumId, showAll=$showAll)"
 
                     log.error(errorMessage, ex)
                     throw new PicasaServiceException(errorMessage, ex)
@@ -281,33 +285,32 @@ class PicasaService implements InitializingBean {
                 // Initialise result
                 Album album = null
 
-                // Declare feed
-                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "/albumid/" + albumId + "?thumbsize=" +
-                    this.picasaThumbsize + "&imgmax=" + this.picasaImgmax)
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}/albumid/$albumId?thumbsize=" +
+                    "${this.picasaThumbsize}&imgmax=${this.picasaImgmax}")
 
-                log.debug("FeedUrl: " + feedUrl)
+                log.debug "FeedUrl: $feedUrl"
 
                 // Get album feed
                 final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
                 // Declare tag feed
-                final URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "/albumid/" + albumId + "?kind=tag")
+                final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}/albumid/$albumId?kind=tag")
 
-                log.debug("TagUrl: " + tagUrl)
+                log.debug "TagUrl: $tagUrl"
 
                 // Get all tags for this album
                 final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
 
                 // Get any existing tags
                 MediaKeywords albumTags = albumFeed?.getMediaKeywords()
-                if (albumTags == null) {
+                if (!albumTags) {
                     albumTags = new MediaKeywords()
                 }
 
                 // Update album feed with results
-                for (TagEntry tag : tagResultsFeed?.getTagEntries()) {
+                for (final TagEntry tag : tagResultsFeed?.getTagEntries()) {
                     albumTags.addKeyword(tag?.getTitle()?.getPlainText())
                 }
                 albumFeed?.setKeywords(albumTags)
@@ -326,17 +329,17 @@ class PicasaService implements InitializingBean {
                 return album
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to retrieve your Google Picasa Web Album. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ", showAll=" + showAll + ")"
+                final def errorMessage = "Unable to retrieve your Google Picasa Web Album. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId, showAll=$showAll)"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to retrieve your Google Picasa Web Album. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+            final def errorMessage = "Unable to retrieve your Google Picasa Web Album. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -357,9 +360,9 @@ class PicasaService implements InitializingBean {
         
         if (serviceInitialised) {
             // Validate ID
-            if (StringUtils.isEmpty(albumId)) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Photos. The " +
-                    "provided ID was invalid. (albumId=" + albumId + ", showAll=" + showAll + ")"
+            if (!albumId) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. The " +
+                    "provided ID was invalid. (albumId=$albumId, showAll=$showAll)"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -370,16 +373,16 @@ class PicasaService implements InitializingBean {
                 final List<Photo> photoListing = new ArrayList<Photo>()
 
                 // Declare feed
-                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "/albumid/" + albumId + "?thumbsize=" +
-                    this.picasaThumbsize + "&imgmax=" + this.picasaImgmax)
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}/albumid/$albumId?thumbsize=" +
+                    "${this.picasaThumbsize}&imgmax=${this.picasaImgmax}")
 
-                log.debug("FeedUrl: " + feedUrl)
+                log.debug "FeedUrl: " + feedUrl
 
                 // Get album feed
                 final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
-                for (PhotoEntry entry : albumFeed?.getPhotoEntries()) {
+                for (final PhotoEntry entry : albumFeed?.getPhotoEntries()) {
                     // Transfer entry into domain class
                     final Photo photo = convertToPhotoDomain(entry)
 
@@ -395,17 +398,17 @@ class PicasaService implements InitializingBean {
                 return photoListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Photos. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ", showAll=" + showAll + ")"
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId, showAll=$showAll)"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of the plug-in " +
-                "configuration is missing. Please refer tUo the documentation and ensure you have " +
-                "declared all of the required configuration."
+            final def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of the " +
+                "plug-in configuration is missing. Please refer tUo the documentation and ensure you " +
+                "have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -426,10 +429,9 @@ class PicasaService implements InitializingBean {
 
         if (serviceInitialised) {
             // Validate ID
-            if (StringUtils.isEmpty(tagKeyword)) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Photos. The " +
-                    "provided tag keyword was invalid. (tagKeyword=" + tagKeyword +
-                    ", showAll=" + showAll + ")"
+            if (!tagKeyword) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
+                    "The provided tag keyword was invalid. (tagKeyword=$tagKeyword, showAll=$showAll)"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -440,22 +442,21 @@ class PicasaService implements InitializingBean {
                 final List<Photo> photoListing = new ArrayList<Photo>()
                 
                 // Declare feed
-                final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername)
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}")
 
-                log.debug("FeedUrl: " + feedUrl)
+                log.debug "FeedUrl: $feedUrl"
 
                 final Query tagQuery = new Query(feedUrl)
                 tagQuery.setStringCustomParameter("kind", "photo")
                 tagQuery.setStringCustomParameter("tag", tagKeyword)
-                tagQuery.setStringCustomParameter("thumbsize", "" + this.picasaThumbsize)
-                tagQuery.setStringCustomParameter("imgmax", "" + this.picasaImgmax)
-                tagQuery.setStringCustomParameter("max-results", "" + this.picasaMaxResults)
+                tagQuery.setStringCustomParameter("thumbsize", "${this.picasaThumbsize}")
+                tagQuery.setStringCustomParameter("imgmax", "${this.picasaImgmax}")
+                tagQuery.setStringCustomParameter("max-results", "${this.picasaMaxResults}")
                 
                 // Get album feed
                 final AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
 
-                for (PhotoEntry entry : tagSearchResultsFeed?.getPhotoEntries()) {
+                for (final PhotoEntry entry : tagSearchResultsFeed?.getPhotoEntries()) {
                     // Transfer entry into domain class
                     final Photo photo = convertToPhotoDomain(entry)
 
@@ -471,17 +472,17 @@ class PicasaService implements InitializingBean {
                 return photoListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Photos. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", tagKeyword=" + tagKeyword + ", showAll=" + showAll + ")"
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, tagKeyword=$tagKeyword, showAll=$showAll)"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+            final def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -499,23 +500,23 @@ class PicasaService implements InitializingBean {
     def List<Tag> listTagsForAlbum(final String albumId) throws PicasaServiceException {
         if (serviceInitialised) {
             // Validate ID
-            if (StringUtils.isEmpty(albumId)) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Tags. The " +
-                    "provided ID was invalid. (albumId=" + albumId + ")"
+            if (!albumId) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
+                    "The provided ID was invalid. (albumId=$albumId)"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
             }
 
             // Check whether cache should be in use
-            final boolean useTagCache = (grailsApplication?.config?.picasa?.useTagCache != null) ? grailsApplication.config.picasa.useTagCache : false
+            final boolean useTagCache = grailsApplication?.config?.picasa?.useTagCache ?: false
 
             // Check whether cache contains required tag listing
             if (useTagCache && tagCache?.containsKey(albumId)) {
-                log.debug("Tag cache enabled...")
+                log.debug "Tag cache enabled..."
                 return tagCache.get(albumId)
             } else {
-                log.debug("Tag cache disabled...")
+                log.debug "Tag cache disabled..."
             }
 
             try {
@@ -525,10 +526,10 @@ class PicasaService implements InitializingBean {
                 int highestWeight = 0
 
                 // Declare tag feed
-                final URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "/albumid/" + albumId + "?kind=tag")
+                final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}/albumid/$albumId?kind=tag")
 
-                log.debug("TagUrl: " + tagUrl)
+                log.debug "TagUrl: $tagUrl"
 
                 // Get all tags for this album
                 final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
@@ -554,8 +555,8 @@ class PicasaService implements InitializingBean {
                 // Calculate weighting splits
                 final double weightSplit = (highestWeight - lowestWeight) / TAG_WEIGHT_SPLIT_TOTAL
 
-                log.debug("Tag weighting: lowestWeight = $lowestWeight, highestWeight = $highestWeight" +
-                    ", split = $weightSplit")
+                log.debug "Tag weighting: lowestWeight=$lowestWeight, highestWeight=$highestWeight" +
+                    ", split=$weightSplit"
                 
                 // Update list with display weight values
                 for (final Tag tag : tagListing) {
@@ -578,17 +579,17 @@ class PicasaService implements InitializingBean {
                 return tagListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Tags. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ")"
+                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId)"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+            final def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -611,16 +612,15 @@ class PicasaService implements InitializingBean {
                 int highestWeight = 0
 
                 // Declare tag feed
-                final URL tagUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "?kind=tag")
+                final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}?kind=tag")
 
-                log.debug("TagUrl: " + tagUrl)
+                log.debug "TagUrl: $tagUrl"
 
                 // Get all tags for this album
                 final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
 
                 // Update list with results
-                for (TagEntry entry : tagResultsFeed?.getTagEntries()) {
+                for (final TagEntry entry : tagResultsFeed?.getTagEntries()) {
                     // Transfer entry into domain class
                     final Tag tag = convertToTagDomain(entry)
 
@@ -640,8 +640,8 @@ class PicasaService implements InitializingBean {
                 // Calculate weighting splits
                 final double weightSplit = (highestWeight - lowestWeight) / TAG_WEIGHT_SPLIT_TOTAL
 
-                log.debug("Tag weighting: lowestWeight = $lowestWeight, highestWeight = $highestWeight" +
-                    ", split = $weightSplit")
+                log.debug "Tag weighting: lowestWeight=$lowestWeight, highestWeight=$highestWeight" +
+                    ", split=$weightSplit"
 
                 // Update list with display weight values
                 for (final Tag tag : tagListing) {
@@ -661,17 +661,19 @@ class PicasaService implements InitializingBean {
                 return tagListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Tags. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ")"
+
+                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername})"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+
+            final def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -692,9 +694,9 @@ class PicasaService implements InitializingBean {
 
         if (serviceInitialised) {
             // Validate IDs
-            if (StringUtils.isEmpty(albumId) || StringUtils.isEmpty(photoId)) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Comments. The " +
-                    "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId + ")"
+            if (!albumId || !photoId) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. The " +
+                    "provided IDs were invalid. (albumId=$albumId, photoId=$photoId)"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -705,16 +707,16 @@ class PicasaService implements InitializingBean {
                 final List<Comment> commentListing = new ArrayList<Comment>()
 
                 // Declare comment feed
-                final URL commentUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "/albumid/" + albumId + "/photoid/" + photoId + "?kind=comment")
+                final URL commentUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}" +
+                    "/albumid/$albumId/photoid/$photoId?kind=comment")
 
-                log.debug("CommentUrl: " + commentUrl)
+                log.debug "CommentUrl: $commentUrl"
 
                 // Get all comments for this photo
-                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class);
+                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class)
 
                 // Update list with results
-                for (CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
+                for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
                     // Transfer entry into domain class
                     final Comment comment = convertToCommentDomain(entry)
 
@@ -728,17 +730,19 @@ class PicasaService implements InitializingBean {
                 return commentListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Comments. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ", photoId=" + photoId + ")"
+
+                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId, photoId=$photoId)"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+
+            final def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -759,16 +763,16 @@ class PicasaService implements InitializingBean {
                 final List<Comment> commentListing = new ArrayList<Comment>()
 
                 // Declare comment feed
-                final URL commentUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "?kind=comment")
+                final URL commentUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}?kind=comment")
                 
-                log.debug("CommentUrl: " + commentUrl)
+                log.debug "CommentUrl: $commentUrl"
 
                 // Get all comments for this user
-                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class);
+                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class)
 
                 // Update list with results
-                for (CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
+                for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
                     // Transfer entry into domain class
                     final Comment comment = convertToCommentDomain(entry)
 
@@ -782,17 +786,19 @@ class PicasaService implements InitializingBean {
                 return commentListing
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to list your Google Picasa Web Album Comments. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ")"
+
+                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername})"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+
+            final def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -814,10 +820,10 @@ class PicasaService implements InitializingBean {
 
         if (serviceInitialised) {
             // Validate IDs
-            if (StringUtils.isEmpty(albumId) || StringUtils.isEmpty(photoId)) {
-                def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. The " +
-                    "provided IDs were invalid. (albumId=" + albumId + ", photoId=" + photoId +
-                    ", showAll=" + showAll + ")"
+            if (!albumId || !photoId) {
+                final def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. " +
+                    "The provided IDs were invalid. (albumId=$albumId, photoId=$photoId, " +
+                    "showAll=$showAll)"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
@@ -828,11 +834,11 @@ class PicasaService implements InitializingBean {
                 Photo photo = null
 
                 // Declare feed
-                URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                    this.picasaUsername + "/albumid/" + albumId + "/photoid/" + photoId +
-                    "?thumbsize=" + this.picasaThumbsize + "&imgmax=" + this.picasaImgmax)
+                URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}/albumid/$albumId/photoid/$photoId" +
+                    "?thumbsize=${this.picasaThumbsize}&imgmax=${this.picasaImgmax}")
 
-                log.debug("FeedUrl: " + feedUrl)
+                log.debug "FeedUrl: $feedUrl"
 
                 // Get album feed
                 final PhotoFeed photoFeed = picasaWebService.getFeed(feedUrl, PhotoFeed.class)
@@ -848,9 +854,10 @@ class PicasaService implements InitializingBean {
                 }
 
                 // Check we have a photo to work with
-                if (photo != null) {
+
+                if (photo) {
                     // First get list of any comments
-                    for (CommentEntry commentEntry : photoFeed?.getCommentEntries()) {
+                    for (final CommentEntry commentEntry : photoFeed?.getCommentEntries()) {
                         // Transfer comment into domain class
                         final Comment comment = convertToCommentDomain(commentEntry)
 
@@ -860,11 +867,11 @@ class PicasaService implements InitializingBean {
                     }
 
                     // Second call to find out navigation based on position in album
-                    feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                        this.picasaUsername + "/albumid/" + albumId + "?thumbsize=" +
-                        this.picasaThumbsize + "&imgmax=" + this.picasaImgmax)
+                    feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                        "${this.picasaUsername}/albumid/$albumId?thumbsize=" +
+                        "${this.picasaThumbsize}&imgmax=${this.picasaImgmax}")
 
-                    log.debug("FeedUrl: " + feedUrl)
+                    log.debug "FeedUrl: $feedUrl"
 
                     // Get album feed
                     final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
@@ -876,7 +883,7 @@ class PicasaService implements InitializingBean {
                     String next = ""
 
                     // Find photo and store previous and subsequent IDs (if available)
-                    for (PhotoEntry entry : albumFeed?.getPhotoEntries()) {
+                    for (final PhotoEntry entry : albumFeed?.getPhotoEntries()) {
                         // Prepare ID
                         current = entry?.getId()?.substring(entry?.getId()?.lastIndexOf('/') + 1,
                             entry?.getId()?.length())
@@ -905,18 +912,20 @@ class PicasaService implements InitializingBean {
                 return photo
 
             } catch (Exception ex) {
-                def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. A problem occurred " +
-                    "when making the request through the Google Data API. (username=" +
-                    this.picasaUsername + ", albumId=" + albumId + ", photoId=" + photoId +
-                    ", showAll=" + showAll + ")"
+
+                final def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId, photoId=$photoId" +
+                    ", showAll=$showAll)"
 
                 log.error(errorMessage, ex)
                 throw new PicasaServiceException(errorMessage, ex)
             }
         } else {
-            def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+
+            final def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -936,9 +945,9 @@ class PicasaService implements InitializingBean {
         if (serviceInitialised) {
             if (allowComments) {
                 // Validate IDs
-                if (comment == null || !comment.validate()) {
-                    def errorMessage = "Unable to post your Google Picasa Web Album Comment. The " +
-                        "provided comment was invalid. (commentId=${comment?.commentId}, " +
+                if (!comment || !comment.validate()) {
+                    final def errorMessage = "Unable to post your Google Picasa Web Album Comment. " +
+                        "The provided comment was invalid. (commentId=${comment?.commentId}, " +
                         "albumId=${comment?.albumId}, photoId=${comment?.photoId}, " +
                         "message=${comment?.message})"
 
@@ -952,37 +961,37 @@ class PicasaService implements InitializingBean {
 
                 try {
                     // Declare feed
-                    final URL feedUrl = new URL("http://picasaweb.google.com/data/feed/api/user/" +
-                        this.picasaUsername + "/albumid/" + albumId + "/photoid/" + photoId)
+                    final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                        "${this.picasaUsername}/albumid/$albumId/photoid/$photoId")
 
-                    log.debug("FeedUrl: " + feedUrl)
+                    log.debug "FeedUrl: $feedUrl"
 
                     // Prepare comment
-                    CommentEntry newComment = new CommentEntry()
+                    final CommentEntry newComment = new CommentEntry()
                     newComment.setContent(new PlainTextConstruct(comment?.message))
 
                     // Post comment
                     picasaCommentsWebService.insert(feedUrl, newComment)
 
                 } catch (Exception ex) {
-                    def errorMessage = "Unable to post your Google Picasa Web Album Comment. A problem " +
-                        "occurred when making the request through the Google Data API. (username=" +
-                        this.picasaUsername + ", albumId=" + albumId + ", photoId=" + photoId + ")"
+                    final def errorMessage = "Unable to post your Google Picasa Web Album Comment. " +
+                        "A problem occurred when making the request through the Google Data API. " +
+                        "(username=${this.picasaUsername}, albumId=$albumId, photoId=$photoId)"
 
                     log.error(errorMessage, ex)
                     throw new PicasaServiceException(errorMessage, ex)
                 }
             } else {
-                def errorMessage = "Unable to post your Google Picasa Web Album Comment. Comments are " +
-                    "currently disabled."
+                final def errorMessage = "Unable to post your Google Picasa Web Album Comment. " +
+                    "Comments are currently disabled."
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
             }
         } else {
-            def errorMessage = "Unable to post your Google Picasa Web Album Comment. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
+            final def errorMessage = "Unable to post your Google Picasa Web Album Comment. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaServiceException(errorMessage)
@@ -998,75 +1007,76 @@ class PicasaService implements InitializingBean {
         // Lets be optimistic
         boolean configValid = true
 
-        logger.info("Begin PicasaService configuration validation.")
+        logger.info "Begin PicasaService configuration validation."
 
         // Validate properties
         if (!isConfigValid(this.picasaUsername)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid username. Please " +
-                "ensure you have declared the property picasa.username in your application's config.")
+            logger.error "Unable to connect to Google Picasa Web Albums - invalid username. Please " +
+                "ensure you have declared the property picasa.username in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaPassword)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid password. Please " +
-                "ensure you have declared the property picasa.password in your application's config.")
+            logger.error "Unable to connect to Google Picasa Web Albums - invalid password. Please " +
+                "ensure you have declared the property picasa.password in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaApplicationName)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid application name. This " +
+            logger.error "Unable to connect to Google Picasa Web Albums - invalid application name. This " +
                 "plug-in's application.properties file may have been tampered with. Please re-install " +
-                "the Grails Picasa plug-in.")
+                "the Grails Picasa plug-in."
             configValid = false
         }
         if (!isConfigValid(this.picasaImgmax)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid max image size. Please " +
-                "ensure you have declared the property picasa.imgmax in your application's config.")
+            logger.error "Unable to connect to Google Picasa Web Albums - invalid max image size. Please " +
+                "ensure you have declared the property picasa.imgmax in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaThumbsize)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid thumbnail size. Please " +
-                "ensure you have declared the property picasa.thumbsize in your application's config.")
+            logger.error "Unable to connect to Google Picasa Web Albums - invalid thumbnail size. Please " +
+                "ensure you have declared the property picasa.thumbsize in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaMaxResults)) {
-            logger.error("Unable to connect to Google Picasa Web Albums - invalid max search results " +
+            logger.error "Unable to connect to Google Picasa Web Albums - invalid max search results " +
                 "value. Please ensure you have declared the property picasa.maxResults in your " +
-                "application's config.")
+                "application's config."
             configValid = false
         }
         
         // Picasa OAuth comments
         if (!isConfigValid(this.allowComments)) {
-            logger.error("Unable to allow users to post comments on your Google Picasa Web Albums photos. " +
-                "Setting allowComments to false.")
+            logger.error "Unable to allow users to post comments on your Google Picasa Web Albums photos. " +
+                "Setting allowComments to false."
             this.allowComments = false
         }
         if (this.allowComments) {
             if (!isConfigValid(this.picasaConsumerKey)) {
-                logger.error("Unable to allow users to post comments on your Google Picasa Web Albums " +
+                logger.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
                     "photos. Ensure you have declared the property oauth.picasa.consumer.key in your " +
-                    "application's config.")
+                    "application's config."
                 allowComments = false
             }
             if (!isConfigValid(this.picasaConsumerSecret)) {
-                logger.error("Unable to allow users to post comments on your Google Picasa Web Albums " +
+                logger.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
                     "photos. Ensure you have declared the property oauth.picasa.consumer.secret in your " +
-                    "application's config.")
+                    "application's config."
                 allowComments = false
             }
         }
 
         // Attempt connection if configuration is valid
         if (configValid) {
-            logger.info("Picasa configuration has been found.")
+            logger.info "Picasa configuration has been found."
 
             try {
-                logger.info("Attempting connection...")
+                logger.info "Attempting connection..."
 
                 // Initialise Picasa Web Service
                 picasaWebService = new PicasawebService(this.picasaApplicationName)
                 picasaWebService.setUserCredentials(this.picasaUsername, this.picasaPassword)
 
-                logger.info("Successfully connected to the Google Picasa web service.")
+
+                logger.info "Successfully connected to the Google Picasa web service."
 
             } catch (Exception ex) {
                 logger.error("Unable to connect to Google Picasa Web Albums. Please ensure the " +
@@ -1093,10 +1103,12 @@ class PicasaService implements InitializingBean {
         boolean result = false
 
         // Validate
-        if (setting != null && !(setting instanceof ConfigObject)) {
-            if (setting instanceof String && !StringUtils.isBlank(setting)) {
+        if (setting && !(setting instanceof ConfigObject)) {
+            if (setting instanceof String && setting) {
+                // Non empty string
                 result = true
             } else if (!(setting instanceof String)) {
+                // Non string, e.g. number
                 result = true
             }
         }
@@ -1116,17 +1128,17 @@ class PicasaService implements InitializingBean {
         final Album album = new Album()
 
         // Process ID
-        String id = item?.getId()
+        final String id = item?.getId()
         album.albumId = id?.substring(id?.lastIndexOf('/') + 1, id?.length())
 
         // Attempt to persist geo location data
-        def geoPoint = new GeoPoint()
+        final def geoPoint = new GeoPoint()
         geoPoint.latitude = item?.getGeoLocation()?.getLatitude()
         geoPoint.longitude = item?.getGeoLocation()?.getLongitude()
         album.geoLocation = (!geoPoint.hasErrors()) ? geoPoint : null
 
         // Check whether album has thumbail
-        def thumbnails = item?.getMediaThumbnails()
+        final def thumbnails = item?.getMediaThumbnails()
         if (thumbnails?.size() > 0) {
             album.image = thumbnails?.get(thumbnails?.size()-1)?.getUrl()
             album.width = thumbnails?.get(thumbnails?.size()-1)?.getWidth()
@@ -1134,10 +1146,10 @@ class PicasaService implements InitializingBean {
         }
 
         // Check whether photo has any tags
-        def keywords = item?.getMediaKeywords()?.getKeywords()
+        final def keywords = item?.getMediaKeywords()?.getKeywords()
         if (keywords?.size() > 0) {
             // Add all tags
-            for (String keyword : keywords) {
+            for (final String keyword : keywords) {
                 final Tag tag = new Tag()
                 tag.keyword = keyword
 
@@ -1199,7 +1211,7 @@ class PicasaService implements InitializingBean {
         final def keywords = item?.getMediaKeywords()?.getKeywords()
         if (keywords?.size() > 0) {
             // Add all tags
-            for (String keyword : keywords) {
+            for (final String keyword : keywords) {
                 final Tag tag = new Tag()
                 tag.keyword = keyword
 
@@ -1233,7 +1245,7 @@ class PicasaService implements InitializingBean {
 
         // Process keyword
         tag.keyword = entry?.getTitle()?.getPlainText()
-        tag.weight = (entry?.getWeight() != null) ? entry?.getWeight()?.intValue() : 0
+        tag.weight = (entry?.getWeight()) ? entry?.getWeight()?.intValue() : 0
 
         // Return updated tag
         return tag

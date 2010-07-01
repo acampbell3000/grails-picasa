@@ -72,25 +72,26 @@ class TagController {
         final List<Tag> displayList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = StringUtils.isNotEmpty(params.feed) ? params.feed : ""
+        final String feed = params.feed ?: ""
 
         // Prepare display values
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(params.int("max") ?: (grailsApplication.config.picasa.maxKeywords ?: 10)).intValue(), 500)
+        final int max = Math.min(new Integer(params.int("max") ?:
+                (grailsApplication?.config?.picasa?.maxKeywords ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
-        log.debug("Attempting to list tags through the Google Picasa web service")
+        log.debug "Attempting to list tags through the Google Picasa web service"
 
         // Get photo list from picasa service
         try {
-            tagList.addAll(picasaService.listAllTags())
+            tagList.addAll(picasaService?.listAllTags())
 
-            log.debug("Success...")
+            log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Tag.list.not.available')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Tag.list.not.available', default: 'The tag listing is currently not available. Please try again later.')}"
         }
 
         // Sort tags
@@ -103,7 +104,7 @@ class TagController {
 
         // Render correct feed
         if (feed == RSS_FEED) {
-            log.debug("Display list with the " + feed + " feed")
+            log.debug "Display list with the $feed feed"
 
             // Last build date
             final Date date = new Date()
@@ -113,29 +114,32 @@ class TagController {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
                         "atom:link"(href: "${createLink(controller: "tag", action: "list", absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
-                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.legend", default: "Tag Listing"))
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.legend",
+                                default: "Tag Listing"))
                         link(createLink(controller: "tag", action: "list", absolute: "true"))
-                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.rss.description", default: "RSS feed for the tag listing"))
+                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.rss.description",
+                                default: "RSS feed for the tag listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
                         lastBuildDate(date.format(DateUtil.RFC_822))
 
-                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
-                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        if (grailsApplication.config?.picasa?.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication.config?.picasa?.rssManagingEditor ?: "")
                         }
 
                         for (t in tagList) {
                             item {
-                                guid(isPermaLink: "false", t.keyword)
-                                title(t.keyword)
-                                description(t.keyword)
-                                link(createLink(controller: "tag", action: "show", id: t.keyword, absolute: "true"))
+                                guid(isPermaLink: "false", t?.keyword)
+                                title(t?.keyword)
+                                description(t?.keyword)
+                                link(createLink(controller: "tag", action: "show", id: t?.keyword,
+                                        absolute: "true"))
                             }
                         }
                     }
                 }
             }
         } else if (feed == XML_FEED || feed == JSON_FEED) {
-            log.debug("Display list with " + feed + " feed")
+            log.debug "Display list with $feed feed"
 
             // Declare possible feed render types
             final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
@@ -157,24 +161,24 @@ class TagController {
                 }
             }
         } else {
-            log.debug("Convert response into display list")
+            log.debug "Convert response into display list"
 
             // Convert to array to allow easy display preparation
             Tag[] tagArray = tagList.toArray()
             if (tagArray) {
                 // Prepare display list
                 tagArray = Arrays.copyOfRange(tagArray, offset,
-                    ((offset + max) > tagArray.length ? tagArray.length : (offset + max)))
+                    ((offset + max) > tagArray?.length ? tagArray?.length : (offset + max)))
                 if (tagArray) {
                     // Update display list
                     displayList.addAll(Arrays.asList(tagArray))
                 }
             }
-
-            log.debug("Display list with " + listView + " view")
+            
+            log.debug "Display list with $listView view"
 
             render(view: listView, model: [tagInstanceList: displayList,
-                    tagInstanceTotal: (tagList?.size() ? tagList.size() : 0)])
+                    tagInstanceTotal: (tagList?.size() ?: 0)])
         }
     }
 
@@ -191,28 +195,29 @@ class TagController {
         final List<Photo> displayList = new ArrayList<Photo>()
 
         // Check type of request
-        final String feed = StringUtils.isNotEmpty(params.feed) ? params.feed : ""
+        final String feed = params.feed ?: ""
 
         // Prepare display values
-        final String paramTagId = StringUtils.isNotEmpty(params.id) ? params.id : ""
-        final boolean showPrivate = (grailsApplication.config.picasa.showPrivatePhotos != null) ? grailsApplication.config.picasa.showPrivatePhotos : false
+        final String paramTagId = params.id ?: ""
+        final boolean showPrivate = grailsApplication.config?.picasa?.showPrivatePhotos ?: false
         final int offset = params.int("offset") ?: 0
-        final int max = Math.min(new Integer(params.int("max") ?: (grailsApplication.config.picasa.max ?: 10)).intValue(), 500)
+        final int max = Math.min(new Integer(params.int("max") ?:
+                (grailsApplication.config?.picasa?.max ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_show" : "show"
         flash.message = ""
 
         log.debug("Attempting to list photos for the selected tag through the Picasa web service " +
-                "(tagKeyword=" + paramTagId + ")")
+                "(tagKeyword=$paramTagId)")
 
         // Get photo list from picasa service
         try {
             photoList.addAll(picasaService.listPhotosForTag(paramTagId, showPrivate))
 
-            log.debug("Success...")
+            log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
             flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available')}"
+                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available', default: 'The photo listing is currently not available. Please try again later.')}"
         }
 
         // If required, sort list
@@ -242,7 +247,7 @@ class TagController {
         
         // Render correct feed
         if (feed == RSS_FEED) {
-            log.debug("Display list with the " + feed + " feed")
+            log.debug "Display list with the $feed feed"
 
             // Keep track of latest album date
             def latestBuildDate
@@ -252,40 +257,43 @@ class TagController {
                 rss(version: "2.0", "xmlns:atom": "http://www.w3.org/2005/Atom") {
                     channel {
                         "atom:link"(href: "${createLink(controller: "tag", action: "show", id: paramTagId, absolute: true)}/feed/rss", rel: "self", type: "application/rss+xml")
-                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.details.legend", default: "Tag Listing", args: [paramTagId]))
+                        title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.details.legend",
+                                default: "Tag Listing", args: [paramTagId]))
                         link(createLink(controller: "tag", action: "show", id: paramTagId, absolute: "true"))
-                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.rss.description", default: "RSS feed for the tag listing"))
+                        description(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.rss.description",
+                                default: "RSS feed for the tag listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
                         
-                        if (!grailsApplication.config.picasa.rssManagingEditor instanceof String) {
-                            managingEditor(StringUtils.isNotEmpty(grailsApplication.config.picasa.rssManagingEditor) ? grailsApplication.config.picasa.rssManagingEditor : "")
+                        if (grailsApplication.config?.picasa?.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication.config.picasa.rssManagingEditor ?: "")
                         }
 
                         for (p in photoList) {
                             item {
-                                guid(isPermaLink: "false", p.photoId)
-                                pubDate(p.dateCreated?.format(DateUtil.RFC_822))
-                                "atom:updated"(DateUtil.formatDateRfc3339(p.dateCreated))
-                                title(p.title)
-                                description(p.description)
-                                link(createLink(controller: "tag", action: "show", id: p.albumId + "/" + p.photoId, absolute: "true"))
+                                guid(isPermaLink: "false", p?.photoId)
+                                pubDate(p?.dateCreated?.format(DateUtil.RFC_822))
+                                "atom:updated"(DateUtil.formatDateRfc3339(p?.dateCreated))
+                                title(p?.title)
+                                description(p?.description)
+                                link(createLink(controller: "tag", action: "show",
+                                        id: p?.albumId + "/" + p?.photoId, absolute: "true"))
 
-                                if (StringUtils.isNotEmpty(p.image)) {
-                                    enclosure(type: "image/jpeg", url: p.image, length: "0")
+                                if (p?.image) {
+                                    enclosure(type: "image/jpeg", url: p?.image, length: "0")
                                 }
                             }
 
-                            if (latestBuildDate == null || latestBuildDate.compareTo(p.dateCreated) < 0) {
-                                latestBuildDate = p.dateCreated
+                            if (!latestBuildDate || latestBuildDate?.compareTo(p?.dateCreated) < 0) {
+                                latestBuildDate = p?.dateCreated
                             }
                         }
 
-                        lastBuildDate(latestBuildDate != null ? latestBuildDate?.format(DateUtil.RFC_822) : "")
+                        lastBuildDate(latestBuildDate?.format(DateUtil.RFC_822) ?: "")
                     }
                 }
             }
         } else if (feed == XML_FEED || feed == JSON_FEED) {
-            log.debug("Display list with " + feed + " feed")
+            log.debug "Display list with $feed feed"
 
             // Declare possible feed render types
             final def xmlType = [contentType: "text/xml", encoding: "UTF-8"]
@@ -300,29 +308,29 @@ class TagController {
                     for (p in photoList) {
                         photo {
                             // Main attributes
-                            photoId(p.photoId)
-                            albumId(p.albumId)
-                            title(p.title)
-                            description(p.description)
-                            cameraModel(p.cameraModel)
+                            photoId(p?.photoId)
+                            albumId(p?.albumId)
+                            title(p?.title)
+                            description(p?.description)
+                            cameraModel(p?.cameraModel)
                             geoLocation {
-                                latitude(p.geoLocation?.latitude)
-                                longitude(p.geoLocation?.longitude)
+                                latitude(p?.geoLocation?.latitude)
+                                longitude(p?.geoLocation?.longitude)
                             }
-                            thumbnailImage(p.thumbnailImage)
-                            thumbnailWidth(p.thumbnailWidth)
-                            thumbnailHeight(p.thumbnailHeight)
-                            image(p.image)
-                            width(p.width)
-                            height(p.height)
-                            previousPhotoId(p.previousPhotoId)
-                            nextPhotoId(p.nextPhotoId)
-                            dateCreated(p.dateCreated?.format(DateUtil.RFC_822))
-                            isPublic(p.isPublic)
+                            thumbnailImage(p?.thumbnailImage)
+                            thumbnailWidth(p?.thumbnailWidth)
+                            thumbnailHeight(p?.thumbnailHeight)
+                            image(p?.image)
+                            width(p?.width)
+                            height(p?.height)
+                            previousPhotoId(p?.previousPhotoId)
+                            nextPhotoId(p?.nextPhotoId)
+                            dateCreated(p?.dateCreated?.format(DateUtil.RFC_822))
+                            isPublic(p?.isPublic)
 
                             // Tags
                             tags {
-                                for(t in p.tags) {
+                                for(t in p?.tags) {
                                     tag {
                                         keyword(t?.keyword)
                                         weight(t?.weight)
@@ -335,24 +343,24 @@ class TagController {
                 }
             }
         } else {
-            log.debug("Convert response into display list")
+            log.debug "Convert response into display list"
 
             // Convert to array to allow easy display preparation
             Photo[] photoArray = photoList.toArray()
             if (photoArray) {
                 // Prepare display list
                 photoArray = Arrays.copyOfRange(photoArray, offset,
-                    ((offset + max) > photoArray.length ? photoArray.length : (offset + max)))
+                    ((offset + max) > photoArray?.length ? photoArray?.length : (offset + max)))
                 if (photoArray) {
                     // Update display list
                     displayList.addAll(Arrays.asList(photoArray))
                 }
             }
 
-            log.debug("Display list with " + listView + " view and keyword " + paramTagId)
+            log.debug "Display list with $listView view and keyword $paramTagId"
 
             render(view: listView, model: [photoInstanceList: displayList,
-                    photoInstanceTotal: (photoList?.size() ? photoList.size() : 0),
+                    photoInstanceTotal: (photoList?.size() ?: 0),
                     tagKeyword: paramTagId])
         }
     }

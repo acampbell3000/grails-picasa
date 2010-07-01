@@ -9,7 +9,6 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class Tag {
-
     // Declare tag properties
     String keyword = ""
     int weight = 0

@@ -20,42 +20,36 @@ class ${className}Controller {
     /**
      * Re-direct index requests to list view
      */
-        def index = {
+    def index = {
         redirect(action: "list", params: params)
 	}
 
     /**
-     * Prepare and render the ${lowerCaseName} list view
+     * Invoke non-ajax list method
      */
     def list = {
-        flash.message = ""
-        params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        [${propertyName}List: ${className}.list(params), ${propertyName}Total: ${className}.count()]
+        return doList(false)
     }
 
     /**
-     * Get selected instance and render show view
+     * Invoke non-ajax list method
+     */
+    def ajaxList = {
+        return doList(true)
+    }
+
+    /**
+     * Invoke non-ajax show method
      */
     def show = {
-        def ${propertyName} = ${className}.get(params.id)
-
-        // Check whether ${lowerCaseName} exists
-        if (!${propertyName}) {
-            flash.message = "\${message(code: 'default.not.found.message', args: [message(code: '${domainClass.propertyName}.label', default: '${className}'), params.id])}"
-            redirect(action: "list")
-		} else {
-            [${propertyName}: ${propertyName}]
-        }
+        return doShow(false)
     }
-    
+
     /**
-     * Initialise form and render view
+     * Invoke non-ajax show method
      */
-    def create = {
-        def ${propertyName} = new ${className}()
-        ${propertyName}.properties = params
-        flash.message = ""
-        return [${propertyName}: ${propertyName}]
+    def ajaxShow = {
+        return doShow(true)
     }
 
     /**
@@ -73,22 +67,6 @@ class ${className}Controller {
     }
 
     /**
-     * Get selected instance and render edit view
-     */
-    def edit = {
-        def ${propertyName} = ${className}.get(params.id)
-
-        // Check whether ${lowerCaseName} exists
-        if (!${propertyName}) {
-            flash.message = "\${message(code: 'default.not.found.message', args: [message(code: '${domainClass.propertyName}.label', default: '${className}'), params.id])}"
-            redirect(action: "list")
-        } else {
-            flash.message = ""
-            return [${propertyName}: ${propertyName}]
-        }
-    }
-
-    /**
      * Invoke non-ajax update method
      */
     def update = {
@@ -103,10 +81,36 @@ class ${className}Controller {
     }
 
     /**
+     * Initialise form and render view
+     */
+    def create = {
+        final def ${propertyName} = new ${className}()
+        ${propertyName}.properties = params
+        flash.message = ""
+        return [${propertyName}: ${propertyName}]
+    }
+
+    /**
+     * Get selected instance and render edit view
+     */
+    def edit = {
+        final def ${propertyName} = ${className}.get(params.id)
+
+        // Check whether ${lowerCaseName} exists
+        if (!${propertyName}) {
+            flash.message = "\${message(code: 'default.not.found.message', args: [message(code: '${domainClass.propertyName}.label', default: '${className}'), params.id])}"
+            redirect(action: "list")
+        } else {
+            flash.message = ""
+            return [${propertyName}: ${propertyName}]
+        }
+    }
+
+    /**
      * Get selected instance and attempt to perform a hard delete
      */
     def delete = {
-        def ${propertyName} = ${className}.get(params.id)
+        final def ${propertyName} = ${className}.get(params.id)
 
         // Check whether ${lowerCaseName} exists
         if (${propertyName}) {
@@ -120,8 +124,7 @@ class ${className}Controller {
                 flash.message = "\${message(code: 'default.not.deleted.message', args: [message(code: '${domainClass.propertyName}.label', default: '${className}'), params.id])}"
                 redirect(action: "show", id: params.id)
             }
-        }
-        else {
+        } else {
             flash.message = "\${message(code: 'default.not.found.message', args: [message(code: '${domainClass.propertyName}.label', default: '${className}'), params.id])}"
             redirect(action: "list")
         }
@@ -132,14 +135,14 @@ class ${className}Controller {
      */
     def validate = {
         // Initialise domain instance and error message
-        def ${propertyName} = new ${className}(params)
+        final def ${propertyName} = new ${className}(params)
         def errorMessage = ""
         def field = ""
 
         // Get selected field
         for (param in params) {
-            if (param.key != null && !param.key.equals("action")
-                    && !param.key.equals("controller")) {
+            if (param.key && !param.key.equals("action")
+                && !param.key.equals("controller")) {
                 field = param.key
                 break
             }
@@ -151,7 +154,7 @@ class ${className}Controller {
         if (!${propertyName}.validate() && ${propertyName}.errors.hasFieldErrors(field)) {
 			// Get error message value
             errorMessage = messageSource.getMessage(
-                contactFormInstance.errors.getFieldError(field),
+                ${propertyName}.errors.getFieldError(field),
                 RCU.getLocale(request)
             )
 
@@ -163,19 +166,57 @@ class ${className}Controller {
     }
 
     /**
+     * Retrieve and render list of ${lowerCaseName}s.
+     *
+     * @param isAjax whether the request is from an Ajax call.
+     */
+    private doList(final boolean isAjax) {
+        def listView = "list"
+        if (isAjax) listView = "_list"
+
+        flash.message = ""
+        params.max = Math.min(params.max ? params.int('max') : 10, 500)
+
+        log.debug("Display list with " + listView + " view")
+
+        render(view: listView, model: [${propertyName}List: ${className}.list(params), ${propertyName}Total: ${className}.count()])
+    }
+
+    /**
+     * Get the selected ${lowerCaseName} and render the view.
+     *
+     * @param isAjax whether the request is from an Ajax call.
+     */
+    private doShow(final boolean isAjax) {
+        final def ${propertyName} = ${className}.get(params.id)
+        def showView = "show"
+        if (isAjax) showView = "_show"
+
+        // Check whether ${lowerCaseName} exists
+        if (!${propertyName}) {
+            flash.message = "\${message(code: 'default.not.found.message', args: [message(code: '${domainClass.propertyName}.label', default: '${className}'), params.id])}"
+            redirect(action: "list")
+		} else {
+            log.debug("Display ${lowerCaseName} with " + showView + " view")
+
+            render(view: showView, model: [${propertyName}: ${propertyName}])
+        }
+    }
+
+    /**
      * Attempt to update the provided ${lowerCaseName} instance.
      * In addition, render the correct view depending on whether the
      * call is Ajax or not.
      *
      * @param isAjax whether the request is from an Ajax call.
      */
-    private doUpdate(boolean isAjax) {
-        def ${propertyName} = ${className}.get(params.id)
+    private doUpdate(final boolean isAjax) {
+        final def ${propertyName} = ${className}.get(params.id)
         def editView = "edit"
         def showView = "show"
-        if(isAjax) {
-            editView = "ajaxEdit"
-            showView = "ajaxShow"
+        if (isAjax) {
+            editView = "_edit"
+            showView = "_show"
         }
 
 		log.debug("Attempting to update an instance of ${className} (isAjax = " + isAjax + ")")
@@ -217,13 +258,13 @@ class ${className}Controller {
      *
      * @param isAjax whether the request is from an Ajax call.
      */
-    private doSave(boolean isAjax) {
-        def ${propertyName} = new ${className}(params)
+    private doSave(final boolean isAjax) {
+        final def ${propertyName} = new ${className}(params)
         def showView = "show"
         def createView = "create"
-        if(isAjax) {
-            showView = "ajaxShow"
-            createView = "ajaxCreate"
+        if (isAjax) {
+            showView = "_show"
+            createView = "_create"
         }
 
 		log.debug("Attempting to save an instance of ${className} (isAjax = " + isAjax + ")")
@@ -231,8 +272,7 @@ class ${className}Controller {
         if (${propertyName}.save(flush: true)) {
             flash.message = "\${message(code: 'default.created.message', args: [message(code: '${domainClass.propertyName}.label', default: '${className}'), ${propertyName}.id])}"
             render(view: showView, model: [${propertyName}: ${propertyName}])
-        }
-        else {
+        } else {
             render(view: createView, model: [${propertyName}: ${propertyName}])
         }
     }

@@ -1,4 +1,3 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
                     <div id="showTag">
 					<g:if test="${flash.message}">
@@ -46,7 +45,7 @@
 
                         <div id="contentFooter">
                             <div id="pagination">
-                                <g:remotePaginate action="ajaxShow" update="showTag" id="${tagKeyword}" max="${(grailsApplication.config.picasa.max) ? grailsApplication.config.picasa.max : 10}" maxsteps="${(grailsApplication.config.picasa.maxSteps) ? grailsApplication.config.picasa.maxSteps : 10}" total="${photoInstanceTotal}" />
+                                <g:remotePaginate action="ajaxShow" update="showTag" id="${tagKeyword}" max="${(grailsApplication.config?.picasa?.max) ? grailsApplication.config?.picasa?.max : 10}" maxsteps="${grailsApplication.config?.picasa?.maxSteps ?: 10}" total="${photoInstanceTotal}" />
                             </div>
                             <div id="feeds">
                                 <a href="${createLink(action: 'show', id: tagKeyword)}/feed/rss">RSS</a> |

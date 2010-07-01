@@ -9,7 +9,6 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class GeoPoint {
-
     // Declare geo point properties
     Double latitude = 0
     Double longitude = 0

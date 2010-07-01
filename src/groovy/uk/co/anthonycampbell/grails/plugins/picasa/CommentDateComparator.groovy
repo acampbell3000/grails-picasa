@@ -15,7 +15,7 @@ class CommentDateComparator implements Comparator<Comment> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Comment comment1, Comment comment2) {
+    public int compare(final Comment comment1, final Comment comment2) {
         if (!comment1 && !comment2) { return 0 }
 
         if (!comment1) {
@@ -23,8 +23,8 @@ class CommentDateComparator implements Comparator<Comment> {
         } else if (!comment2) {
             return 1
         } else {
-            Date date1 = comment1?.dateCreated
-            Date date2 = comment2?.dateCreated
+            final Date date1 = comment1?.dateCreated
+            final Date date2 = comment2?.dateCreated
 
             if (!date1 && !date2) { return 0 }
 

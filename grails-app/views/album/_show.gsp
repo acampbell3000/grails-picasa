@@ -1,4 +1,3 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Album" %>
                     <div id="showAlbum">
 					<g:if test="${flash.message}">
@@ -63,7 +62,7 @@
 									
 								</tr>
 
-                                <g:if test="${albumInstance.tags != null && albumInstance.tags.size() > 0}">
+                                <g:if test="${albumInstance.tags && albumInstance.tags.size() > 0}">
 								<tr class="prop">
 									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.tags.label" default="Tags" /></td>
 
