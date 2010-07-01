@@ -9,7 +9,6 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class Person {
-
     // Declare person properties
     String name = ""
     String email = ""

@@ -15,7 +15,7 @@ class AlbumNameComparator implements Comparator<Album> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Album album1, Album album2) {
+    public int compare(final Album album1, final Album album2) {
         if (!album1 && !album2) { return 0 }
 
         if (!album1) {
@@ -23,8 +23,8 @@ class AlbumNameComparator implements Comparator<Album> {
         } else if (!album2) {
             return 1
         } else {
-            String name1 = album1?.name
-            String name2 = album2?.name
+            final String name1 = album1?.name
+            final String name2 = album2?.name
 
             if (!name1 && !name2) { return 0 }
 

@@ -15,7 +15,7 @@ class AlbumDateComparator implements Comparator<Album> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Album album1, Album album2) {
+    public int compare(final Album album1, final Album album2) {
         if (!album1 && !album2) { return 0 }
 
         if (!album1) {
@@ -23,8 +23,8 @@ class AlbumDateComparator implements Comparator<Album> {
         } else if (!album2) {
             return 1
         } else {
-            Date date1 = album1?.dateCreated
-            Date date2 = album2?.dateCreated
+            final Date date1 = album1?.dateCreated
+            final Date date2 = album2?.dateCreated
 
             if (!date1 && !date2) { return 0 }
 

@@ -9,7 +9,6 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class Photo {
-
     // Declare photo properties
     String photoId = ""
     String albumId = ""

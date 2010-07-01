@@ -15,7 +15,7 @@ class AlbumLocationComparator implements Comparator<Album> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Album album1, Album album2) {
+    public int compare(final Album album1, final Album album2) {
         if (!album1 && !album2) { return 0 }
 
         if (!album1) {
@@ -23,8 +23,8 @@ class AlbumLocationComparator implements Comparator<Album> {
         } else if (!album2) {
             return 1
         } else {
-            String location1 = album1?.location
-            String location2 = album2?.location
+            final String location1 = album1?.location
+            final String location2 = album2?.location
 
             if (!location1 && !location2) { return 0 }
 

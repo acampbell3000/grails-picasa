@@ -15,7 +15,7 @@ class TagKeywordComparator implements Comparator<Tag> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Tag tag1, Tag tag2) {
+    public int compare(final Tag tag1, final Tag tag2) {
         if (!tag1 && !tag2) { return 0 }
 
         if (!tag1) {
@@ -23,8 +23,8 @@ class TagKeywordComparator implements Comparator<Tag> {
         } else if (!tag2) {
             return 1
         } else {
-            String keyword1 = tag1?.keyword
-            String keyword2 = tag2?.keyword
+            final String keyword1 = tag1?.keyword
+            final String keyword2 = tag2?.keyword
 
             if (!keyword1 && !keyword2) { return 0 }
 

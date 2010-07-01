@@ -15,7 +15,7 @@ class AlbumDescriptionComparator implements Comparator<Album> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Album album1, Album album2) {
+    public int compare(final Album album1, final Album album2) {
         if (!album1 && !album2) { return 0 }
 
         if (!album1) {
@@ -23,8 +23,8 @@ class AlbumDescriptionComparator implements Comparator<Album> {
         } else if (!album2) {
             return 1
         } else {
-            String description1 = album1?.description
-            String description2 = album2?.description
+            final String description1 = album1?.description
+            final String description2 = album2?.description
 
             if (!description1 && !description2) { return 0 }
 
