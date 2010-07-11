@@ -309,7 +309,7 @@ class PhotoController {
         final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
         final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
         final boolean showPrivate = grailsApplication.config?.picasa?.showPrivatePhotos ?: false
-        final int offset = params.int("offset") ?: 0
+        int offset = params.int("offset") ?: -1
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String showView = isAjax ? "_show" : "show"
@@ -339,14 +339,26 @@ class PhotoController {
             commentList.addAll(photoInstance.comments)
         }
 
-        log.debug "Prepare comments for display"
-
         // Convert to array to allow easy display preparation
         Comment[] commentArray = commentList.toArray()
         if (commentArray) {
+            log.debug "Prepare comments for display (offset=$offset, max=$max, " +
+                "length=${commentArray?.length})"
+
+            // By default show the last set of comments
+            if (offset < 0) {
+                final def lastOffset = Math.floor(
+                    new Double((commentArray?.length / max) ?: 0.00).doubleValue())
+                if (lastOffset) {
+                    // Reset offset to allow pagination to be updated correctly
+                    offset = params.offset = lastOffset
+                }
+            }
+
             // Prepare display list
             commentArray = Arrays.copyOfRange(commentArray, offset,
                 ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
+            
             if (commentArray) {
                 // Update display list
                 commentDisplayList.addAll(Arrays.asList(commentArray))
@@ -356,11 +368,10 @@ class PhotoController {
         log.debug "Display photo with $showView view"
 
         // Display photo
-        render(view: showView, model: [albumId: params.albumId,
-                photoId: params.photoId,
+        render(view: showView, model: [albumId: albumId,
+                photoId: photoId,
                 photoInstance: photoInstance,
                 commentInstanceList: commentDisplayList,
-
                 commentInstanceTotal: (commentList?.size() ?: 0),
                 commentInstance: commentInstance])
     }

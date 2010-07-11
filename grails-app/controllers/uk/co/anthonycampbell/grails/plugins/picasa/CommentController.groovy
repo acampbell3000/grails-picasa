@@ -203,7 +203,6 @@ class CommentController {
                                 pubDate(c?.dateCreated?.format(DateUtil.RFC_822))
                                 "atom:updated"(DateUtil.formatDateRfc3339(c?.dateCreated))
                                 
-
                                 if (c?.author?.name) {
                                     title(message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.rss.title",
                                             args: [c?.author?.name], default: "New comment"))
@@ -216,12 +215,10 @@ class CommentController {
                                 link(createLink(controller: "comment", action: "list", absolute: "true"))
                             }
 
-
                             if (!latestBuildDate || latestBuildDate?.compareTo(c?.dateCreated) < 0) {
                                 latestBuildDate = c?.dateCreated
                             }
                         }
-
 
                         lastBuildDate(latestBuildDate?.format(DateUtil.RFC_822) ?: "")
                     }
@@ -257,20 +254,21 @@ class CommentController {
                     }
                 }
             }
-        } else {
-            log.debug "Convert response into display list"
-
+        } else {            
             // Convert to array to allow easy display preparation
             Comment[] commentArray = commentList.toArray()
             if (commentArray) {
-                // Prepare display list
+                log.debug "Convert response into display list (offset=$offset, max=$max, " +
+                    "length=${commentArray?.length})"
 
+                // Prepare display list
                 if (offset > -1) {
                     commentArray = Arrays.copyOfRange(commentArray, offset,
                         ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
                 } else {
                     // By default show the last set of comments
-                    commentArray = Arrays.copyOfRange(commentArray, (commentArray?.length - max),
+                    commentArray = Arrays.copyOfRange(commentArray,
+                        ((commentArray?.length - max) < 0 ? 0 : (commentArray?.length - max)),
                         commentArray?.length)
                 }
 
@@ -345,8 +343,8 @@ class CommentController {
         if (commentArray) {
             // Prepare display list
             commentArray = Arrays.copyOfRange(commentArray, offset,
-
                 ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
+            
             if (commentArray) {
                 // Update display list
                 displayList.addAll(Arrays.asList(commentArray))

@@ -485,6 +485,8 @@ class TextTagLib {
         final int firststep = 1
         final int laststep = Math.round(Math.ceil(total / max))
 
+        println "CURRENT STEP: $currentstep"
+
         // Display previous link when not on firststep
         if (currentstep > firststep) {
             linkTagAttrs.class = 'prevLink'

@@ -8,7 +8,7 @@
  */
 class PicasaGrailsPlugin {
     // The plugin version
-    def version = "0.5.0"
+    def version = "0.5.1"
     // The version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.1 > *"
     // The other plugins this plugin depends on
@@ -52,7 +52,8 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     }
 
     def onConfigChange = { event ->
-        // TODO Implement code that is executed when the project configuration changes.
-        // The event is the same as for 'onChange'.
+        // Config change defect, may need to reset the Picasa Service.
+        final def picasaService = event?.ctx?.getBean("picasaService")
+        picasaService?.reset()
     }
 }

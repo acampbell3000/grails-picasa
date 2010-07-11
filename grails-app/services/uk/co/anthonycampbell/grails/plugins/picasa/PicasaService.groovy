@@ -64,6 +64,7 @@ class PicasaService implements InitializingBean {
      */
     @Override
     void afterPropertiesSet() {
+        log?.debug "Initialising the PicasaService..."
         reset()
     }
 
@@ -79,6 +80,8 @@ class PicasaService implements InitializingBean {
             final String picasaConsumerKey = "anonymous",
             final String picasaConsumerSecret = "anonymous",
             final String allowComments = true) {
+        log?.debug "Setting the PicasaService configuration..."
+
         this.picasaUsername = picasaUsername
         this.picasaPassword = picasaPassword
         this.picasaApplicationName = picasaApplicationName
@@ -99,6 +102,8 @@ class PicasaService implements InitializingBean {
      * @return whether a new connection was successfully made.
      */
     boolean reset() {
+        log?.debug "Resetting PicasaService configuration..."
+
         // Get configuration from Config.groovy
         this.picasaUsername = grailsApplication.config?.picasa?.username
         this.picasaPassword = grailsApplication.config?.picasa?.password
