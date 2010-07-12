@@ -309,7 +309,7 @@ class PhotoController {
         final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
         final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
         final boolean showPrivate = grailsApplication.config?.picasa?.showPrivatePhotos ?: false
-        int offset = params.int("offset") ?: -1
+        int offset = (params.int("offset") == null) ? -1 : params.int("offset")
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String showView = isAjax ? "_show" : "show"
@@ -351,7 +351,7 @@ class PhotoController {
                     new Double((commentArray?.length / max) ?: 0.00).doubleValue())
                 if (lastOffset) {
                     // Reset offset to allow pagination to be updated correctly
-                    offset = params.offset = lastOffset
+                    offset = params.offset = (lastOffset * max)
                 }
             }
 

@@ -145,7 +145,7 @@ class CommentController {
         // Prepare display values
         final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
         final String paramPhotoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
-        final int offset = params.int("offset") ?: -1
+        int offset = (params.int("offset") == null) ? -1 : params.int("offset")
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
@@ -261,16 +261,19 @@ class CommentController {
                 log.debug "Convert response into display list (offset=$offset, max=$max, " +
                     "length=${commentArray?.length})"
 
-                // Prepare display list
-                if (offset > -1) {
-                    commentArray = Arrays.copyOfRange(commentArray, offset,
-                        ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
-                } else {
-                    // By default show the last set of comments
-                    commentArray = Arrays.copyOfRange(commentArray,
-                        ((commentArray?.length - max) < 0 ? 0 : (commentArray?.length - max)),
-                        commentArray?.length)
+                // By default show the last set of comments
+            if (offset < 0) {
+                final def lastOffset = Math.floor(
+                    new Double((commentArray?.length / max) ?: 0.00).doubleValue())
+                if (lastOffset) {
+                    // Reset offset to allow pagination to be updated correctly
+                    offset = params.offset = (lastOffset * max)
                 }
+            }
+
+            // Prepare display list
+            commentArray = Arrays.copyOfRange(commentArray, offset,
+                ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
 
                 if (commentArray) {
                     // Update display list
