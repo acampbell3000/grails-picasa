@@ -262,18 +262,18 @@ class CommentController {
                     "length=${commentArray?.length})"
 
                 // By default show the last set of comments
-            if (offset < 0) {
-                final def lastOffset = Math.floor(
-                    new Double((commentArray?.length / max) ?: 0.00).doubleValue())
-                if (lastOffset) {
-                    // Reset offset to allow pagination to be updated correctly
-                    offset = params.offset = (lastOffset * max)
+                if (offset < 0) {
+                    final def lastOffset = Math.floor(
+                        new Double((commentArray?.length / max) ?: 0.00).doubleValue())
+                    if (lastOffset != null) {
+                        // Reset offset to allow pagination to be updated correctly
+                        offset = params.offset = (lastOffset * max)
+                    }
                 }
-            }
 
-            // Prepare display list
-            commentArray = Arrays.copyOfRange(commentArray, offset,
-                ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
+                // Prepare display list
+                commentArray = Arrays.copyOfRange(commentArray, offset,
+                    ((offset + max) > commentArray?.length ? commentArray?.length : (offset + max)))
 
                 if (commentArray) {
                     // Update display list

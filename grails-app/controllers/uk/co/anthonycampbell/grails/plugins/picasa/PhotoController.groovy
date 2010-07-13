@@ -349,7 +349,7 @@ class PhotoController {
             if (offset < 0) {
                 final def lastOffset = Math.floor(
                     new Double((commentArray?.length / max) ?: 0.00).doubleValue())
-                if (lastOffset) {
+                if (lastOffset != null) {
                     // Reset offset to allow pagination to be updated correctly
                     offset = params.offset = (lastOffset * max)
                 }
