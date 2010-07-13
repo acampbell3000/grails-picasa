@@ -5,6 +5,8 @@ Known issues:
 - Poor code coverage of controllers and domain classes.
 
 Potential improvements:
+- Tag library to display UI components.
+- Add onConfigChange for PicasaService.
 - Seperate comment posting to seperate service to allow main service to be stateless.
 - Option for Grid Listing.
 - Wiki details on how to make best use of UI.
