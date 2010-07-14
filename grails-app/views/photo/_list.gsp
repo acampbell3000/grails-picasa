@@ -45,9 +45,7 @@
                       
                         <div id="contentFooter">
                             <div id="pagination">
-
                                 <g:remotePaginate action="ajaxList" update="listPhoto" albumId="${albumId}" max="${(grailsApplication.config?.picasa?.max) ? grailsApplication.config?.picasa?.max : 10}" maxsteps="${(grailsApplication.config?.picasa?.maxSteps) ? grailsApplication.config?.picasa?.maxSteps : 10}" total="${photoInstanceTotal}" />
->>>>>>> 2af7b034941ff97445b9b31174efbd83dd3d9e81
                             </div>
                             <div id="feeds">
                                 <a href="${createLink(action: 'list')}/${albumId}/feed/rss">RSS</a> |
