@@ -1,4 +1,4 @@
-VERSION: 0.5.1
+VERSION: 0.6.0
 
 Known issues:
 - Poor code coverage of the PicasaService.
@@ -7,16 +7,18 @@ Known issues:
 Potential improvements:
 - Tag library to display UI components.
 - Add onConfigChange for PicasaService.
-- Seperate comment posting to seperate service to allow main service to be stateless.
 - Option for Grid Listing.
 - Wiki details on how to make best use of UI.
 - Wiki API reference.
 - Further feed caching.
 - Potential switch to jQuery for UI.
 
-Release notes 0.5.1 (TBA)
+Release notes 0.6.0 (TBA)
 - Grails update to 1.3.3.
 - Comment listing by default shows last page.
+- Seperate comment posting to seperate service to allow main service to be stateless.
+- Better error reporting from the Photo and Comment controllers.
+- Introduction of the PicasaCommentService and PicasaCommentServiceException.
 
 Release notes 0.5.0 (5th July, 2010)
 - Grails update to 1.3.2.
