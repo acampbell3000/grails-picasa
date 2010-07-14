@@ -338,7 +338,7 @@ class CommentController {
             isAjax + ")"
 
         try {
-            // Post comment through the picasa comment service
+            // Post comment through the Picasa comment service
             picasaCommentService.postComment(commentInstance)
 
             log.debug "Success..."

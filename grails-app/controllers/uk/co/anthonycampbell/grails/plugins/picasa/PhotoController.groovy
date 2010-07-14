@@ -318,6 +318,9 @@ class PhotoController {
         final List<Comment> commentList = new ArrayList<Comment>()
         final List<Comment> commentDisplayList = new ArrayList<Comment>()
         final Comment commentInstance = new Comment()
+
+        println picasaService
+        println picasaService.picasaUsername
         
         // Check type of request
         final String feed = params.feed ?: ""

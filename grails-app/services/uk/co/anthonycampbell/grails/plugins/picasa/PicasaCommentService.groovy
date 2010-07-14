@@ -25,6 +25,7 @@ import com.google.gdata.data.PlainTextConstruct
 import com.google.gdata.data.photos.*
 
 import org.springframework.beans.factory.InitializingBean
+import org.springframework.web.context.request.RequestContextHolder
 
 /**
  * Grails service to expose the required Picasa API methods to the
@@ -41,44 +42,24 @@ class PicasaCommentService implements InitializingBean {
     // Declare service scope
     static scope = "session"
 
+    // URL to the Google Picasa GDATA API
+    private static final String GOOGLE_GDATA_API_URL = "http://picasaweb.google.com/data/feed/api"
+
     // Service properties
-    PicasawebService picasaCommentsWebService
-    def grailsApplication
-    def picasaApplicationName
-    def picasaConsumerKey
-    def picasaConsumerSecret
-    def allowComments
+    private PicasawebService picasaCommentsWebService
+    private def grailsApplication
+    private def picasaApplicationName
+    private def picasaConsumerKey
+    private def picasaConsumerSecret
+    private def allowComments
 
     /**
      * Initialise config properties.
      */
     @Override
     void afterPropertiesSet() {
-        log?.debug "Initialising the ${this.getClass().getSimpleName()}..."
+        log?.info "Initialising the ${this.getClass().getSimpleName()}..."
         reset()
-    }
-
-    /*
-     * Attempt to re-connect to the Picasa web service using the provided
-     * connection details available in the grails-app/conf/Config.groovy file.
-     *
-     * @return whether a new connection was successfully made.
-     */
-    boolean reset() {
-        log?.debug "Resetting ${this.getClass().getSimpleName()} configuration..."
-
-        // Get configuration from Config.groovy
-        this.picasaApplicationName = this.getClass().getPackage().getName() +
-            "-" + grailsApplication.metadata['app.name'] +
-            "-" + grailsApplication.metadata['app.version']
-        this.allowComments = grailsApplication.config?.picasa?.allowComments
-
-        // Collect oauth config
-        this.picasaConsumerKey = grailsApplication.config?.oauth?.picasa?.consumer.key
-        this.picasaConsumerSecret = grailsApplication.config?.oauth?.picasa?.consumer.secret
-
-        // Validate properties and attempt to initialise the service
-        return validateAndInitialiseService()
     }
 
     /*
@@ -93,13 +74,37 @@ class PicasaCommentService implements InitializingBean {
      */
     boolean connect(final String picasaApplicationName, final String picasaConsumerKey,
             final String picasaConsumerSecret, final String allowComments) {
-        log?.debug "Setting the ${this.getClass().getSimpleName()} configuration..."
+        log?.info "Setting the ${this.getClass().getSimpleName()} configuration..."
 
         this.picasaApplicationName = picasaApplicationName
         this.picasaConsumerKey = picasaConsumerKey
         this.picasaConsumerSecret = picasaConsumerSecret
         this.allowComments = allowComments
 
+        // Validate properties and attempt to initialise the service
+        return validateAndInitialiseService()
+    }
+
+    /*
+     * Attempt to re-connect to the Picasa web service using the provided
+     * connection details available in the grails-app/conf/Config.groovy file.
+     *
+     * @return whether a new connection was successfully made.
+     */
+    boolean reset() {
+        log?.info "Resetting ${this.getClass().getSimpleName()} configuration..."
+
+        // Get configuration from Config.groovy
+        this.picasaApplicationName = this.getClass().getPackage().getName() +
+            "-" + grailsApplication.metadata['app.name'] +
+            "-" + grailsApplication.metadata['app.version']
+        this.allowComments = grailsApplication.config?.picasa?.allowComments
+
+        // Collect oauth config
+        this.picasaConsumerKey = grailsApplication.config?.oauth?.picasa?.consumer.key
+        this.picasaConsumerSecret = grailsApplication.config?.oauth?.picasa?.consumer.secret
+
+        // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
     }
 
@@ -301,6 +306,8 @@ class PicasaCommentService implements InitializingBean {
                 allowComments = false
             }
         }
+
+        log?.info "${this.getClass().getSimpleName()} configuration valid"
 
         // Only initialise the service if the configuration is valid
         this.serviceInitialised = configValid
