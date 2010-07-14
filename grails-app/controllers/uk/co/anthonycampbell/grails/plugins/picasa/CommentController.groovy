@@ -1,5 +1,21 @@
 package uk.co.anthonycampbell.grails.plugins.picasa
 
+/**
+ * Copyright 2010 Anthony Campbell (anthonycampbell.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import grails.converters.JSON
 import grails.converters.XML
 
@@ -27,6 +43,7 @@ class CommentController {
     // Declare dependencies
     def grailsApplication
     def picasaService
+    def picasaCommentService
     
     // Delete, save and update actions only accept POST requests
 	static allowedMethods = [delete: 'POST', save: 'POST', ajaxSave: 'POST']
@@ -150,6 +167,7 @@ class CommentController {
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
+        flash.oauthError = ""
         
         log.debug "Attempting to get comments through the Google Picasa web service " +
                 "(albumId = $paramAlbumId, photoId = $paramPhotoId)"
@@ -165,8 +183,10 @@ class CommentController {
             log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available', default: 'The comment listing is currently not available. Please try again later.')}"
+            log.error("Unable to get comments through the Google Picasa web service", pse)
+
+            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available',
+                default: 'The comment listing is currently not available. Please try again later.')
         }
 
         // If required, reverse list
@@ -312,26 +332,38 @@ class CommentController {
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String createView = isAjax ? "_comments" : "comments"
         flash.message = ""
+        flash.oauthError = ""
 
-		log.debug "Attempting to post a new comment (message = ${commentInstance?.message}, isAjax = " +
+		log.debug "Attempting to post a new comment (message=${commentInstance?.message}, isAjax=" +
             isAjax + ")"
 
         try {
-            // Post comment through the picasa service
-            picasaService.postComment(commentInstance)
+            // Post comment through the picasa comment service
+            picasaCommentService.postComment(commentInstance)
 
             log.debug "Success..."
 
-            log.debug "Attempting to get comments through the Google Picasa web service " +
-                    "(albumId=$albumId, photoId=$photoId)"
+        } catch (PicasaServiceException pse) {
+            log.error("Unable to post a new comment through the Google Picasa web service", pse)
 
+            flash.oauthError = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.post',
+                default: 'A problem was encountered when trying to post your comment. Please ensure that all the fields are complete and try again.')
+        }
+
+        log.debug "Attempting to get comments through the Google Picasa web service " +
+                "(albumId=$albumId, photoId=$photoId)"
+
+        try {
+            // Get updated comment list
             commentList.addAll(picasaService.listCommentsForPhoto(albumId, photoId))
 
             log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available', default: 'The comment listing is currently not available. Please try again later.')}"
+            log.error("Unable to get comments through the Google Picasa web service ", pse)
+            
+            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available',
+                default: 'The comment listing is currently not available. Please try again later.')
         }
 
         // If required, reverse list
@@ -373,19 +405,23 @@ class CommentController {
         final def ids = params?.id?.tokenize(ID_SEPARATOR)
         final def albumId = ids?.get(0)
         final def photoId = ids?.get(1)
+        flash.message = ""
+        flash.oauthError = ""
 
         log.debug "Updating service to apply OAuth access with [key]$oAuthTokenKey " +
                 "[secret]$oAuthTokenSecret"
         
         try {
             // Update service and session
-            picasaService.applyOAuthAccess(session?.oauthToken?.key, session?.oauthToken?.secret)
+            picasaCommentService.applyOAuthAccess(session?.oauthToken?.key, session?.oauthToken?.secret)
 
             log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login', default: 'A problem was encountered when trying to connect to your Google Picasa Web Albums account. Please try again later.')}"
+            log.error("Unable to update service to apply OAuth access", pse)
+            
+            flash.oauthError = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login',
+                default: 'A problem was encountered when trying to connect to your Google Picasa Web Albums account. Please try again later.')
         }
         
         log.debug "Re-directing to photo $photoId in $albumId"
@@ -407,7 +443,7 @@ class CommentController {
         log.debug "Updating service to remove OAuth access"
 
         // Update service and session
-        picasaService.removeOAuthAccess()
+        picasaCommentService.removeOAuthAccess()
 
         log.debug "Success..."
 

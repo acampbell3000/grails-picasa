@@ -1,5 +1,21 @@
 package uk.co.anthonycampbell.grails.plugins.picasa
 
+/**
+ * Copyright 2010 Anthony Campbell (anthonycampbell.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import grails.converters.JSON
 import grails.converters.XML
 
@@ -124,7 +140,7 @@ class PhotoController {
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
-        log.debug "Attempting to list photos and tags through the Picasa web service " +
+        log.debug "Attempting to list photos and tags through the Google Picasa web service " +
                 "(albumId=$paramAlbumId)"
 
         // Get photo list from picasa service
@@ -135,8 +151,10 @@ class PhotoController {
             log.debug "Success..."
             
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available', default: 'The photo listing is currently not available. Please try again later.')}"
+            log.error("Unable to list photos and tags through the Google Picasa web service", pse)
+            
+            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available',
+                default: 'The photo listing is currently not available. Please try again later.')
         }
 
         // If required, sort list
@@ -173,7 +191,6 @@ class PhotoController {
             final Album album
             try {
                 album = picasaService.getAlbum(paramAlbumId, showPrivate)
-
             } catch (PicasaServiceException pse) { }
 
             // Begin RSS ouput
@@ -318,7 +335,8 @@ class PhotoController {
         // Prepare new comment
         commentInstance.albumId = albumId
         commentInstance.albumId = photoId
-        commentInstance.message = "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.message.default', default: 'Add a comment...')}"
+        commentInstance.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.message.default',
+            default: 'Add a comment...')
 
         log.debug "Attempting to get photo through the Google Picasa web service " +
                 "(albumId=$albumId, photoId=$photoId)"
@@ -330,8 +348,10 @@ class PhotoController {
             log.debug "Success..."
             
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.not.found', default: 'The photo you\'ve selected could not be found. Please ensure the ID is correct and try again.')}"
+            log.error("Unable to get photo through the Google Picasa web service", pse)
+
+            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.not.found',
+                default: 'The photo you\'ve selected could not be found. Please ensure the ID is correct and try again.')
         }
 
         // Get comments from photo

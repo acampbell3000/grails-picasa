@@ -21,16 +21,10 @@ import javax.servlet.http.HttpSession
 
 import com.google.gdata.client.Query
 import com.google.gdata.client.photos.*
-import com.google.gdata.client.authn.oauth.*
-import com.google.gdata.data.PlainTextConstruct
 import com.google.gdata.data.photos.*
 import com.google.gdata.data.media.mediarss.MediaKeywords
-import com.google.gdata.util.AuthenticationException
-import com.google.gdata.util.RedirectRequiredException
-import com.google.gdata.util.ServiceException
 
 import org.apache.commons.lang.StringUtils
-import org.apache.log4j.Logger
 
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.web.context.request.RequestContextHolder
@@ -48,7 +42,7 @@ class PicasaService implements InitializingBean {
     boolean serviceInitialised = false
     
     // Declare service scope
-    static scope = "session"
+    static scope = "singleton"
 
     // URL to the Google Picasa GDATA API
     private static final String GOOGLE_GDATA_API_URL = "http://picasaweb.google.com/data/feed/api"
@@ -67,20 +61,12 @@ class PicasaService implements InitializingBean {
     def picasaThumbsize
     def picasaMaxResults
 
-    PicasawebService picasaCommentsWebService
-    def picasaConsumerKey
-    def picasaConsumerSecret
-    def allowComments
-
-    // Declare logger to be used "after" properties set
-    def logger = Logger.getLogger(this.getClass());
-
     /**
      * Initialise config properties.
      */
     @Override
     void afterPropertiesSet() {
-        log?.debug "Initialising the PicasaService..."
+        log?.debug "Initialising the ${this.getClass().getSimpleName()}..."
         reset()
     }
 
@@ -88,15 +74,18 @@ class PicasaService implements InitializingBean {
      * Attempt to re-connect to the Picasa web service using the new provided
      * configuration details.
      *
+     * @param picasaUsername the Picasa account's username.
+     * @param picasaPassword the Picasa account's password.
+     * @param picasaApplicationName the application's name.
+     * @param picasaImgmax the photo size to provide in requests through the Google GData API.
+     * @param picasaThumbsize the thumbnail size to provide in requests through the Google GData API.
+     * @param picasaMaxResults the maximum number of results to return to the view.
      * @return whether a new connection was successfully made.
      */
     boolean connect(final String picasaUsername, final String picasaPassword,
             final String picasaApplicationName, final String picasaImgmax,
-            final String picasaThumbsize, final String picasaMaxResults,
-            final String picasaConsumerKey = "anonymous",
-            final String picasaConsumerSecret = "anonymous",
-            final String allowComments = true) {
-        log?.debug "Setting the PicasaService configuration..."
+            final String picasaThumbsize, final String picasaMaxResults) {
+        log?.debug "Setting the ${this.getClass().getSimpleName()} configuration..."
 
         this.picasaUsername = picasaUsername
         this.picasaPassword = picasaPassword
@@ -104,9 +93,6 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = picasaImgmax
         this.picasaThumbsize = picasaThumbsize
         this.picasaMaxResults = picasaMaxResults
-        this.picasaConsumerKey = picasaConsumerKey
-        this.picasaConsumerSecret = picasaConsumerSecret
-        this.allowComments = allowComments
 
         return validateAndInitialiseService()
     }
@@ -118,7 +104,7 @@ class PicasaService implements InitializingBean {
      * @return whether a new connection was successfully made.
      */
     boolean reset() {
-        log?.debug "Resetting PicasaService configuration..."
+        log?.debug "Resetting ${this.getClass().getSimpleName()} configuration..."
 
         // Get configuration from Config.groovy
         this.picasaUsername = grailsApplication.config?.picasa?.username
@@ -129,100 +115,9 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = grailsApplication.config?.picasa?.imgmax
         this.picasaThumbsize = grailsApplication.config?.picasa?.thumbsize
         this.picasaMaxResults = grailsApplication.config?.picasa?.maxResults
-        this.allowComments = grailsApplication.config?.picasa?.allowComments
-
-        // Collect oauth config
-        this.picasaConsumerKey = grailsApplication.config?.oauth?.picasa?.consumer.key
-        this.picasaConsumerSecret = grailsApplication.config?.oauth?.picasa?.consumer.secret
 
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
-    }
-
-    /**
-     * Apply the provided access token to the Picasa service.
-     *
-     * @param the access token.
-     * @param the access token secret.
-     */
-    def applyOAuthAccess(final String token, final String secret) {
-        // Check we are allowed to post comments
-        if (this.allowComments) {
-            // Prepare parameters
-            final GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters()
-            oauthParameters.setOAuthConsumerKey(this.picasaConsumerKey)
-            oauthParameters.setOAuthConsumerSecret(this.picasaConsumerSecret)
-            oauthParameters.setOAuthToken(token)
-            oauthParameters.setOAuthTokenSecret(secret)
-
-            // Get current session
-            final HttpSession session = getSession()
-
-            // Attempt OAuth connection
-            try {
-                log.info "Attempting OAuth connection..."
-
-                // Initialise Picasa Web Service
-                picasaCommentsWebService = new PicasawebService(this.picasaApplicationName)
-                picasaCommentsWebService.setOAuthCredentials(oauthParameters, new OAuthHmacSha1Signer())
-                session?.oAuthLoggedIn = true
-
-                log.info "Successfully connected to the Google Picasa web service."
-                log.info "Update session with user details..."
-
-                // Declare feed
-                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/default")
-
-                log.debug "FeedUrl: $feedUrl"
-
-                // Get user feed
-                final UserFeed userFeed = picasaCommentsWebService.getFeed(feedUrl, UserFeed.class)
-
-                // Get details from feed
-                final String nickname = userFeed?.getNickname()
-                final String username = userFeed?.getUsername()
-                final String thumbnail = userFeed?.getThumbnail()
-
-                log.debug "User details: nickname=$nickname, username=$username, " +
-                    "thumbnail=$thumbnail"
-
-                // Update session
-                session?.oAuthNickname = nickname
-                session?.oAuthUsername = username
-                session?.oAuthThumbail = thumbnail
-
-                log.info "Successfully updated session with user details from the Google Picasa web " +
-                    "service."
-
-            } catch (Exception ex) {
-                log.error("Unable to connect to Google Picasa Web Albums. Invalid OAuth access token " +
-                    "and secret!", ex)
-                session?.oAuthLoggedIn = false
-            }
-        } else {
-            log.error "Unable to apply acccess token to Google Picasa Web Albums service. " +
-                "Photo comments are disabled."
-            session?.oAuthLoggedIn = false
-        }
-    }
-
-    /**
-     * Reset the picasa comments web service and update session.
-     */
-    def removeOAuthAccess() {
-        log.info "Attempting to logout..."
-
-        // Get current session
-        final HttpSession session = getSession()
-
-        // Initialise Picasa Web Service
-        picasaCommentsWebService = null
-        session?.oAuthLoggedIn = false
-        session?.oAuthNickname = null
-        session?.oAuthUsername = null
-        session?.oAuthThumbail = null
-
-        log.info "Successfully logged out"
     }
 
     /**
@@ -952,72 +847,6 @@ class PicasaService implements InitializingBean {
             throw new PicasaServiceException(errorMessage)
         }
     }
-
-    /**
-     * Post the provided comment through the Google Picasa web service.
-     *
-     * @param comment the provided comment to post.
-     * @Exception PicasaServiceException when there's been a problem posting
-     *      the provided comment.
-     */
-    def postComment(final Comment comment)
-        throws PicasaServiceException {
-
-        if (serviceInitialised) {
-            if (allowComments) {
-                // Validate IDs
-                if (!comment || !comment.validate()) {
-                    final def errorMessage = "Unable to post your Google Picasa Web Album Comment. " +
-                        "The provided comment was invalid. (commentId=${comment?.commentId}, " +
-                        "albumId=${comment?.albumId}, photoId=${comment?.photoId}, " +
-                        "message=${comment?.message})"
-
-                    log.error(errorMessage)
-                    throw new PicasaServiceException(errorMessage)
-                }
-
-                // Get photo properties
-                final def albumId = comment?.albumId
-                final def photoId = comment?.photoId
-
-                try {
-                    // Declare feed
-                    final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
-                        "${this.picasaUsername}/albumid/$albumId/photoid/$photoId")
-
-                    log.debug "FeedUrl: $feedUrl"
-
-                    // Prepare comment
-                    final CommentEntry newComment = new CommentEntry()
-                    newComment.setContent(new PlainTextConstruct(comment?.message))
-
-                    // Post comment
-                    picasaCommentsWebService.insert(feedUrl, newComment)
-
-                } catch (Exception ex) {
-                    final def errorMessage = "Unable to post your Google Picasa Web Album Comment. " +
-                        "A problem occurred when making the request through the Google Data API. " +
-                        "(username=${this.picasaUsername}, albumId=$albumId, photoId=$photoId)"
-
-                    log.error(errorMessage, ex)
-                    throw new PicasaServiceException(errorMessage, ex)
-                }
-            } else {
-                final def errorMessage = "Unable to post your Google Picasa Web Album Comment. " +
-                    "Comments are currently disabled."
-
-                log.error(errorMessage)
-                throw new PicasaServiceException(errorMessage)
-            }
-        } else {
-            final def errorMessage = "Unable to post your Google Picasa Web Album Comment. Some of " +
-                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
     
     /**
      * Validate the service properties and attempt to initialise.
@@ -1028,79 +857,57 @@ class PicasaService implements InitializingBean {
         // Lets be optimistic
         boolean configValid = true
 
-        logger.info "Begin PicasaService configuration validation."
+        log?.info "Begin ${this.getClass().getSimpleName()} configuration validation..."
 
         // Validate properties
         if (!isConfigValid(this.picasaUsername)) {
-            logger.error "Unable to connect to Google Picasa Web Albums - invalid username. Please " +
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid username. Please " +
                 "ensure you have declared the property picasa.username in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaPassword)) {
-            logger.error "Unable to connect to Google Picasa Web Albums - invalid password. Please " +
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid password. Please " +
                 "ensure you have declared the property picasa.password in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaApplicationName)) {
-            logger.error "Unable to connect to Google Picasa Web Albums - invalid application name. This " +
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid application name. This " +
                 "plug-in's application.properties file may have been tampered with. Please re-install " +
                 "the Grails Picasa plug-in."
             configValid = false
         }
         if (!isConfigValid(this.picasaImgmax)) {
-            logger.error "Unable to connect to Google Picasa Web Albums - invalid max image size. Please " +
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid max image size. Please " +
                 "ensure you have declared the property picasa.imgmax in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaThumbsize)) {
-            logger.error "Unable to connect to Google Picasa Web Albums - invalid thumbnail size. Please " +
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid thumbnail size. Please " +
                 "ensure you have declared the property picasa.thumbsize in your application's config."
             configValid = false
         }
         if (!isConfigValid(this.picasaMaxResults)) {
-            logger.error "Unable to connect to Google Picasa Web Albums - invalid max search results " +
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid max search results " +
                 "value. Please ensure you have declared the property picasa.maxResults in your " +
                 "application's config."
             configValid = false
         }
-        
-        // Picasa OAuth comments
-        if (!isConfigValid(this.allowComments)) {
-            logger.error "Unable to allow users to post comments on your Google Picasa Web Albums photos. " +
-                "Setting allowComments to false."
-            this.allowComments = false
-        }
-        if (this.allowComments) {
-            if (!isConfigValid(this.picasaConsumerKey)) {
-                logger.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
-                    "photos. Ensure you have declared the property oauth.picasa.consumer.key in your " +
-                    "application's config."
-                allowComments = false
-            }
-            if (!isConfigValid(this.picasaConsumerSecret)) {
-                logger.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
-                    "photos. Ensure you have declared the property oauth.picasa.consumer.secret in your " +
-                    "application's config."
-                allowComments = false
-            }
-        }
 
         // Attempt connection if configuration is valid
         if (configValid) {
-            logger.info "Picasa configuration has been found."
+            log?.info "Picasa configuration has been found."
 
             try {
-                logger.info "Attempting connection..."
+                log?.info "Attempting connection..."
 
                 // Initialise Picasa Web Service
                 picasaWebService = new PicasawebService(this.picasaApplicationName)
                 picasaWebService.setUserCredentials(this.picasaUsername, this.picasaPassword)
 
-
-                logger.info "Successfully connected to the Google Picasa web service."
+                log?.info "Successfully connected to the Google Picasa web service."
 
             } catch (Exception ex) {
-                logger.error("Unable to connect to Google Picasa Web Albums. Please ensure the " +
+                log?.error("Unable to connect to Google Picasa Web Albums. Please ensure the " +
                     "provided Google account details are correct and try again.", ex)
                 configValid = false
             }
@@ -1321,14 +1128,5 @@ class PicasaService implements InitializingBean {
 
         // Return updated person
         return person
-    }
-    
-    /**
-     * Return the current HTTP session.
-     *
-     * @result the current HTTP session.
-     */
-    private HttpSession getSession() {
-        return RequestContextHolder.currentRequestAttributes().getSession()
     }
 }

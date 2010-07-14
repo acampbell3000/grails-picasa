@@ -17,7 +17,7 @@ class PicasaServiceException extends Exception {
      *
      * @param message the exception message.
      */
-    public PicasaServiceException(String message) {
+    public PicasaServiceException(final String message) {
         super(message)
         this.message = message
     }
@@ -28,7 +28,7 @@ class PicasaServiceException extends Exception {
      * @param message the exception message.
      * @param exception the wrapped exception.
      */
-    public PicasaServiceException(String message, Exception exception) {
+    public PicasaServiceException(final String message, final Exception exception) {
         super(message, exception)
         this.message = message
     }
@@ -39,6 +39,6 @@ class PicasaServiceException extends Exception {
      * @return the exception error message.
      */
     public String getMessage() {
-       return(this.message)
+       return this.message
     }
 }
