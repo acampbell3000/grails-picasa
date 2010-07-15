@@ -27,7 +27,6 @@ import com.google.gdata.data.media.mediarss.MediaKeywords
 import org.apache.commons.lang.StringUtils
 
 import org.springframework.beans.factory.InitializingBean
-import org.springframework.web.context.request.RequestContextHolder
 
 /**
  * Grails service to expose the required Picasa API methods to the
@@ -48,25 +47,34 @@ class PicasaService implements InitializingBean {
     private static final String GOOGLE_GDATA_API_URL = "http://picasaweb.google.com/data/feed/api"
     
     // Declare cache (used to reduce Google API calls)
+    private static ServiceCache CACHE
     private static Map<String, List> tagCache = new HashMap<String, List>()
     private static final byte TAG_WEIGHT_SPLIT_TOTAL = 7
 
-    // Declare dependencies
-    PicasawebService picasaWebService
+    // Declare picasa properties
+    private PicasawebService picasaWebService
+    private def picasaUsername
+    private def picasaPassword
+    private def picasaApplicationName
+    private def picasaImgmax
+    private def picasaThumbsize
+    private def picasaMaxResults
+
+    // Container properties
     def grailsApplication
-    def picasaUsername
-    def picasaPassword
-    def picasaApplicationName
-    def picasaImgmax
-    def picasaThumbsize
-    def picasaMaxResults
+
+    // Cache keys
+    public static enum PicasaQuery {
+        LIST_ALBUMS
+    }
 
     /**
      * Initialise config properties.
      */
     @Override
     void afterPropertiesSet() {
-        log?.debug "Initialising the ${this.getClass().getSimpleName()}..."
+        log?.info "Initialising the ${this.getClass().getSimpleName()}..."
+        CACHE = PicasaServiceCache.getInstance(grailsApplication.config?.picasa?.cacheTimeout)
         reset()
     }
 
@@ -85,7 +93,7 @@ class PicasaService implements InitializingBean {
     boolean connect(final String picasaUsername, final String picasaPassword,
             final String picasaApplicationName, final String picasaImgmax,
             final String picasaThumbsize, final String picasaMaxResults) {
-        log?.debug "Setting the ${this.getClass().getSimpleName()} configuration..."
+        log?.info "Setting the ${this.getClass().getSimpleName()} configuration..."
 
         this.picasaUsername = picasaUsername
         this.picasaPassword = picasaPassword
@@ -93,7 +101,11 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = picasaImgmax
         this.picasaThumbsize = picasaThumbsize
         this.picasaMaxResults = picasaMaxResults
+        
+        // Empty cache
+        CACHE?.purge()
 
+        // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
     }
 
@@ -104,7 +116,7 @@ class PicasaService implements InitializingBean {
      * @return whether a new connection was successfully made.
      */
     boolean reset() {
-        log?.debug "Resetting ${this.getClass().getSimpleName()} configuration..."
+        log?.info "Resetting ${this.getClass().getSimpleName()} configuration..."
 
         // Get configuration from Config.groovy
         this.picasaUsername = grailsApplication.config?.picasa?.username
@@ -115,6 +127,9 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = grailsApplication.config?.picasa?.imgmax
         this.picasaThumbsize = grailsApplication.config?.picasa?.thumbsize
         this.picasaMaxResults = grailsApplication.config?.picasa?.maxResults
+
+        // Empty cache
+        CACHE?.purge()
 
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
@@ -131,8 +146,18 @@ class PicasaService implements InitializingBean {
     def List<Album> listAlbums(final boolean showAll = false) throws PicasaServiceException {
         if (serviceInitialised) {
             try {
+                log?.debug "Begin ${PicasaQuery.LIST_ALBUMS.name()}"
+
                 // Initialise result
                 final List<Album> albumListing = new ArrayList<Album>()
+
+                // Check cache
+                if (true) {
+                    final List<Album> cachedListing = retrieveCache(PicasaQuery.LIST_ALBUMS.name())
+                    if (cachedListing) {
+                        return cachedListing
+                    }
+                }
 
                 // Declare feed
                 final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
@@ -155,6 +180,14 @@ class PicasaService implements InitializingBean {
                         }
                     }
                 }
+
+                if (true) {
+                    log?.debug "Updating ${PicasaQuery.LIST_ALBUMS.name()} cache"
+
+                    CACHE.put(PicasaQuery.LIST_ALBUMS.name(), albumListing)
+                }
+
+                log?.debug "End ${PicasaQuery.LIST_ALBUMS.name()}\n"
 
                 // Return result
                 return albumListing
@@ -913,6 +946,8 @@ class PicasaService implements InitializingBean {
             }
         }
 
+        log?.info "${this.getClass().getSimpleName()} configuration valid"
+
         // Only initialise the service if the configuration is valid
         this.serviceInitialised = configValid
 
@@ -943,6 +978,39 @@ class PicasaService implements InitializingBean {
 
         // Return result
         return result
+    }
+
+    /**
+     * Retrieve the provided query from the cache.
+     *
+     * @param queryName name of the query to retrieve.
+     * @return result the query result.
+     */
+    private def retrieveCache(final String queryName) {
+        log?.debug "Attempting to retrieve ${queryName} from cache"
+
+        final def result = CACHE.get(queryName)
+
+        if (result) {
+            log?.debug "Success..."
+        } else {
+            log?.debug "Cache not available"
+        }
+
+        return result
+    }
+
+    /**
+     * Updating the Picasa Service cache with the provided query name and
+     * result. In addition, perform any required logging.
+     *
+     * @param queryName name of the query to cache.
+     * @param result the query result.
+     */
+    private void updateCache(final String queryName, final def result) {
+        log?.debug "Updating ${queryName} cache"
+
+        CACHE.put(queryName, result)
     }
 
     /**
