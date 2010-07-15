@@ -37,7 +37,7 @@ interface ServiceCache {
      * @param the provided query.
      * @param the provided result.
      */
-    void put(String key, Collection result)
+    void put(String key, def result)
 
     /**
      * Empty the cache.

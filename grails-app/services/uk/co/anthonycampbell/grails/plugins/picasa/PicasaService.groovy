@@ -146,17 +146,15 @@ class PicasaService implements InitializingBean {
     def List<Album> listAlbums(final boolean showAll = false) throws PicasaServiceException {
         if (serviceInitialised) {
             try {
+                log?.debug "Begin ${PicasaQuery.LIST_ALBUMS.name()}"
+
                 // Initialise result
                 final List<Album> albumListing = new ArrayList<Album>()
 
                 // Check cache
                 if (true) {
-                    log?.debug "Attempting to retrieve ${PicasaQuery.LIST_ALBUMS.name()} cache..."
-
-                    final List<Album> cachedListing = CACHE.get(PicasaQuery.LIST_ALBUMS.name())
-                    
+                    final List<Album> cachedListing = retrieveCache(PicasaQuery.LIST_ALBUMS.name())
                     if (cachedListing) {
-                        log?.debug "Cache entry found"
                         return cachedListing
                     }
                 }
@@ -184,12 +182,12 @@ class PicasaService implements InitializingBean {
                 }
 
                 if (true) {
-                    log?.debug "Updating ${PicasaQuery.LIST_ALBUMS.name()} cache..."
+                    log?.debug "Updating ${PicasaQuery.LIST_ALBUMS.name()} cache"
 
                     CACHE.put(PicasaQuery.LIST_ALBUMS.name(), albumListing)
-
-                    log?.debug "Cache updated"
                 }
+
+                log?.debug "End ${PicasaQuery.LIST_ALBUMS.name()}\n"
 
                 // Return result
                 return albumListing
@@ -980,6 +978,39 @@ class PicasaService implements InitializingBean {
 
         // Return result
         return result
+    }
+
+    /**
+     * Retrieve the provided query from the cache.
+     *
+     * @param queryName name of the query to retrieve.
+     * @return result the query result.
+     */
+    private def retrieveCache(final String queryName) {
+        log?.debug "Attempting to retrieve ${queryName} from cache"
+
+        final def result = CACHE.get(queryName)
+
+        if (result) {
+            log?.debug "Success..."
+        } else {
+            log?.debug "Cache not available"
+        }
+
+        return result
+    }
+
+    /**
+     * Updating the Picasa Service cache with the provided query name and
+     * result. In addition, perform any required logging.
+     *
+     * @param queryName name of the query to cache.
+     * @param result the query result.
+     */
+    private void updateCache(final String queryName, final def result) {
+        log?.debug "Updating ${queryName} cache"
+
+        CACHE.put(queryName, result)
     }
 
     /**

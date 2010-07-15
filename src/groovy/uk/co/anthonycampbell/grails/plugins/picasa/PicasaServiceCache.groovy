@@ -27,7 +27,7 @@ class PicasaServiceCache implements ServiceCache {
 
     // Declare cache data structure
     private static final Map<Long, Map> PICASA_SERVICE_CACHE = new LinkedHashMap<Long, Map>()
-    private static final long DEFAULT_CACHE_TIMEOUT = 10000
+    private static final long DEFAULT_CACHE_TIMEOUT = 60000
 
     // Singleton
     private static PicasaServiceCache picasaServiceCache
@@ -68,7 +68,7 @@ class PicasaServiceCache implements ServiceCache {
             for (final def time in keys) {
                 mostRecentEntry = time
                 // If timed out clear whole cache
-                if ((todayInMillis - this.cacheTimeout) > time) {
+                if ((todayInMillis - this.cacheTimeout) > mostRecentEntry) {
                     purge()
                     clear = true
                     break
@@ -80,8 +80,8 @@ class PicasaServiceCache implements ServiceCache {
                 final Map entry = PICASA_SERVICE_CACHE.get(mostRecentEntry)
 
                 // Retrieve result for selected query
-                if (entry?.containsKey(query)) {
-                    result = entry?.get(query)
+                if (entry?.containsKey("$query")) {
+                    result = entry?.get("$query")
                 }
             }
         }
@@ -92,8 +92,29 @@ class PicasaServiceCache implements ServiceCache {
 
     @Override
     @Synchronized
-    void put(final String key, final Collection result) {
+    void put(final String key, final def result) {
+        // Create record
+        final def record = [ "$key":result ]
 
+        // Cache timestamp entry
+        def timestamp
+
+        // Get most recent entry
+        final def keys = PICASA_SERVICE_CACHE?.keySet()
+        for (final def time in keys) {
+            timestamp = time
+            break
+        }
+
+        // Validate
+        if (!timestamp) {
+            // Get today's timestamp
+            final Calendar today = Calendar.getInstance()
+            timestamp = today?.getTimeInMillis()
+        }
+
+        // Insert into cache
+        PICASA_SERVICE_CACHE?.put(timestamp, record)
     }
 
     @Override
