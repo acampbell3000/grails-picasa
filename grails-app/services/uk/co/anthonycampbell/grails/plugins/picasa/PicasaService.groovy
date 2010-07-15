@@ -16,6 +16,8 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  * limitations under the License.
  */
 
+import uk.co.anthonycampbell.grails.plugins.picasa.cache.*
+
 import java.net.URL
 import javax.servlet.http.HttpSession
 
@@ -59,14 +61,11 @@ class PicasaService implements InitializingBean {
     private def picasaImgmax
     private def picasaThumbsize
     private def picasaMaxResults
+    private def allowCache
+    private def cacheTimeout
 
     // Container properties
     def grailsApplication
-
-    // Cache keys
-    public static enum PicasaQuery {
-        LIST_ALBUMS
-    }
 
     /**
      * Initialise config properties.
@@ -74,6 +73,7 @@ class PicasaService implements InitializingBean {
     @Override
     void afterPropertiesSet() {
         log?.info "Initialising the ${this.getClass().getSimpleName()}..."
+        
         CACHE = PicasaServiceCache.getInstance(grailsApplication.config?.picasa?.cacheTimeout)
         reset()
     }
@@ -88,11 +88,14 @@ class PicasaService implements InitializingBean {
      * @param picasaImgmax the photo size to provide in requests through the Google GData API.
      * @param picasaThumbsize the thumbnail size to provide in requests through the Google GData API.
      * @param picasaMaxResults the maximum number of results to return to the view.
+     * @param allowCache whether the cache is enabled for the Picasa service.
+     * @param cacheTimeout how long the cache is valid before a purge is made.
      * @return whether a new connection was successfully made.
      */
     boolean connect(final String picasaUsername, final String picasaPassword,
             final String picasaApplicationName, final String picasaImgmax,
-            final String picasaThumbsize, final String picasaMaxResults) {
+            final String picasaThumbsize, final String picasaMaxResults,
+            final String allowCache, final String cacheTimeout) {
         log?.info "Setting the ${this.getClass().getSimpleName()} configuration..."
 
         this.picasaUsername = picasaUsername
@@ -101,6 +104,8 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = picasaImgmax
         this.picasaThumbsize = picasaThumbsize
         this.picasaMaxResults = picasaMaxResults
+        this.allowCache = allowCache
+        this.cacheTimeout = cacheTimeout
         
         // Empty cache
         CACHE?.purge()
@@ -127,6 +132,8 @@ class PicasaService implements InitializingBean {
         this.picasaImgmax = grailsApplication.config?.picasa?.imgmax
         this.picasaThumbsize = grailsApplication.config?.picasa?.thumbsize
         this.picasaMaxResults = grailsApplication.config?.picasa?.maxResults
+        this.allowCache = grailsApplication.config?.picasa?.allowCache
+        this.cacheTimeout = grailsApplication.config?.picasa?.cacheTimeout
 
         // Empty cache
         CACHE?.purge()
@@ -146,15 +153,14 @@ class PicasaService implements InitializingBean {
     def List<Album> listAlbums(final boolean showAll = false) throws PicasaServiceException {
         if (serviceInitialised) {
             try {
-                log?.debug "Begin ${PicasaQuery.LIST_ALBUMS.name()}"
-
                 // Initialise result
                 final List<Album> albumListing = new ArrayList<Album>()
 
                 // Check cache
-                if (true) {
-                    final List<Album> cachedListing = retrieveCache(PicasaQuery.LIST_ALBUMS.name())
+                if (this.allowCache) {
+                    final List<Album> cachedListing = retrieveCache(PicasaQuery.LIST_ALBUMS.getMethod())
                     if (cachedListing) {
+                        // Found result in cache so return
                         return cachedListing
                     }
                 }
@@ -171,7 +177,7 @@ class PicasaService implements InitializingBean {
 
                 for (final AlbumEntry entry : userFeed?.getAlbumEntries()) {
                     // Transfer entry into domain class
-                    final Album album = convertToAlbumDomain(entry)
+                    final Album album = Converter.convertToAlbumDomain(entry)
 
                     // If we have a valid public entry add to listing
                     if (!album?.hasErrors()) {
@@ -181,13 +187,10 @@ class PicasaService implements InitializingBean {
                     }
                 }
 
-                if (true) {
-                    log?.debug "Updating ${PicasaQuery.LIST_ALBUMS.name()} cache"
-
-                    CACHE.put(PicasaQuery.LIST_ALBUMS.name(), albumListing)
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(PicasaQuery.LIST_ALBUMS.getMethod(), albumListing)
                 }
-
-                log?.debug "End ${PicasaQuery.LIST_ALBUMS.name()}\n"
 
                 // Return result
                 return albumListing
@@ -265,7 +268,7 @@ class PicasaService implements InitializingBean {
                 albumFeed?.setKeywords(albumTags)
 
                 // Transfer feed into domain class
-                final Album domain = convertToAlbumDomain(albumFeed)
+                final Album domain = Converter.convertToAlbumDomain(albumFeed)
 
                 // If we have a valid public entry add to listing
                 if (!domain?.hasErrors()) {
@@ -333,7 +336,7 @@ class PicasaService implements InitializingBean {
 
                 for (final PhotoEntry entry : albumFeed?.getPhotoEntries()) {
                     // Transfer entry into domain class
-                    final Photo photo = convertToPhotoDomain(entry)
+                    final Photo photo = Converter.convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
                     if (!photo?.hasErrors()) {
@@ -407,7 +410,7 @@ class PicasaService implements InitializingBean {
 
                 for (final PhotoEntry entry : tagSearchResultsFeed?.getPhotoEntries()) {
                     // Transfer entry into domain class
-                    final Photo photo = convertToPhotoDomain(entry)
+                    final Photo photo = Converter.convertToPhotoDomain(entry)
 
                     // If we have a valid public entry add to listing
                     if (!photo?.hasErrors()) {
@@ -486,7 +489,7 @@ class PicasaService implements InitializingBean {
                 // Update list with results
                 for (final TagEntry entry : tagResultsFeed?.getTagEntries()) {
                     // Transfer entry into domain class
-                    final Tag tag = convertToTagDomain(entry)
+                    final Tag tag = Converter.convertToTagDomain(entry)
 
                     // If we have a valid entry add to listing
                     if (!tag?.hasErrors()) {
@@ -560,6 +563,15 @@ class PicasaService implements InitializingBean {
                 int lowestWeight = Integer.MAX_VALUE
                 int highestWeight = 0
 
+                // Check cache
+                if (this.allowCache) {
+                    final List<Album> cachedListing = retrieveCache(PicasaQuery.LIST_ALL_TAGS.getMethod())
+                    if (cachedListing) {
+                        // Found result in cache so return
+                        return cachedListing
+                    }
+                }
+
                 // Declare tag feed
                 final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}?kind=tag")
 
@@ -571,7 +583,7 @@ class PicasaService implements InitializingBean {
                 // Update list with results
                 for (final TagEntry entry : tagResultsFeed?.getTagEntries()) {
                     // Transfer entry into domain class
-                    final Tag tag = convertToTagDomain(entry)
+                    final Tag tag = Converter.convertToTagDomain(entry)
 
                     // If we have a valid entry add to listing
                     if (!tag?.hasErrors()) {
@@ -606,6 +618,11 @@ class PicasaService implements InitializingBean {
                     }
                 }
 
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(PicasaQuery.LIST_ALL_TAGS.getMethod(), tagListing)
+                }
+                
                 // Return result
                 return tagListing
 
@@ -667,7 +684,7 @@ class PicasaService implements InitializingBean {
                 // Update list with results
                 for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
                     // Transfer entry into domain class
-                    final Comment comment = convertToCommentDomain(entry)
+                    final Comment comment = Converter.convertToCommentDomain(entry)
 
                     // If we have a valid entry add to listing
                     if (!comment?.hasErrors()) {
@@ -723,7 +740,7 @@ class PicasaService implements InitializingBean {
                 // Update list with results
                 for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
                     // Transfer entry into domain class
-                    final Comment comment = convertToCommentDomain(entry)
+                    final Comment comment = Converter.convertToCommentDomain(entry)
 
                     // If we have a valid entry add to listing
                     if (!comment?.hasErrors()) {
@@ -764,7 +781,7 @@ class PicasaService implements InitializingBean {
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the selected photo.
      */
-    def Photo getPhoto(final String albumId, final String photoId, boolean showAll = false)
+    def Photo getPhoto(final String albumId, final String photoId, final boolean showAll = false)
         throws PicasaServiceException {
 
         if (serviceInitialised) {
@@ -793,7 +810,7 @@ class PicasaService implements InitializingBean {
                 final PhotoFeed photoFeed = picasaWebService.getFeed(feedUrl, PhotoFeed.class)
 
                 // Transfer feed into domain class
-                final Photo domain = convertToPhotoDomain(photoFeed)
+                final Photo domain = Converter.convertToPhotoDomain(photoFeed)
 
                 // If we have a valid public entry add to listing
                 if (!domain?.hasErrors()) {
@@ -808,7 +825,7 @@ class PicasaService implements InitializingBean {
                     // First get list of any comments
                     for (final CommentEntry commentEntry : photoFeed?.getCommentEntries()) {
                         // Transfer comment into domain class
-                        final Comment comment = convertToCommentDomain(commentEntry)
+                        final Comment comment = Converter.convertToCommentDomain(commentEntry)
 
                         if (!comment?.hasErrors()) {
                             photo.addToComments(comment)
@@ -925,6 +942,18 @@ class PicasaService implements InitializingBean {
                 "application's config."
             configValid = false
         }
+        if (!isConfigValid(this.allowCache)) {
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid cache preference " +
+                "value. Please ensure you have declared the property picasa.allowCache in your " +
+                "application's config."
+            configValid = false
+        }
+        if (!isConfigValid(this.cacheTimeout)) {
+            log?.error "Unable to connect to Google Picasa Web Albums - invalid cache timeout " +
+                "value. Please ensure you have declared the property picasa.cacheTimeout in your " +
+                "application's config."
+            configValid = false
+        }
 
         // Attempt connection if configuration is valid
         if (configValid) {
@@ -1011,190 +1040,5 @@ class PicasaService implements InitializingBean {
         log?.debug "Updating ${queryName} cache"
 
         CACHE.put(queryName, result)
-    }
-
-    /**
-     * Convert the provided AlbumFeed or AlbumEntry object into the Album domain class.
-     *
-     * @param item the AlbumFeed or AlbumEntry to convert.
-     * @result the Album domain class.
-     */
-    private Album convertToAlbumDomain(final def item) {
-        // Initialise result
-        final Album album = new Album()
-
-        // Process ID
-        final String id = item?.getId()
-        album.albumId = id?.substring(id?.lastIndexOf('/') + 1, id?.length())
-
-        // Attempt to persist geo location data
-        final def geoPoint = new GeoPoint()
-        geoPoint.latitude = item?.getGeoLocation()?.getLatitude()
-        geoPoint.longitude = item?.getGeoLocation()?.getLongitude()
-        album.geoLocation = (!geoPoint.hasErrors()) ? geoPoint : null
-
-        // Check whether album has thumbail
-        final def thumbnails = item?.getMediaThumbnails()
-        if (thumbnails?.size() > 0) {
-            album.image = thumbnails?.get(thumbnails?.size()-1)?.getUrl()
-            album.width = thumbnails?.get(thumbnails?.size()-1)?.getWidth()
-            album.height = thumbnails?.get(thumbnails?.size()-1)?.getHeight()
-        }
-
-        // Check whether photo has any tags
-        final def keywords = item?.getMediaKeywords()?.getKeywords()
-        if (keywords?.size() > 0) {
-            // Add all tags
-            for (final String keyword : keywords) {
-                final Tag tag = new Tag()
-                tag.keyword = keyword
-
-                if (!tag.hasErrors()) {
-                    album.addToTags(tag)
-                }
-            }
-        }
-
-        // Transfer remaining properties over to domain class
-        album.name = item?.getTitle()?.getPlainText()
-        album.description = item?.getDescription()?.getPlainText()
-        album.location = item?.getLocation()
-        album.photoCount = item?.getPhotosUsed()
-        album.dateCreated = item?.getDate()
-        album.isPublic = item?.getAccess()?.equals(GphotoAccess.Value.PUBLIC) ? true : false
-
-        // Return update album
-        return album
-    }
-
-    /**
-     * Convert the provided PhotoFeed or PhotoEntry object into the Photo domain class.
-     *
-     * @param item the PhotoFeed or PhotoEntry to convert.
-     * @result the Photo domain class.
-     */
-    private Photo convertToPhotoDomain(final def item) {
-        // Initialise result
-        final Photo photo = new Photo()
-
-        // Process ID
-        final String id = item?.getId()
-        photo.photoId = id?.substring(id?.lastIndexOf('/') + 1, id?.length())
-
-        // Attempt to persist geo location data
-        final def geoPoint = new GeoPoint()
-        geoPoint.latitude = item?.getGeoLocation()?.getLatitude()
-        geoPoint.longitude = item?.getGeoLocation()?.getLongitude()
-        photo.geoLocation = (!geoPoint.hasErrors()) ? geoPoint : null
-
-        // Check whether photo has thumbails
-        final def thumbnails = item?.getMediaThumbnails()
-        if (thumbnails?.size() > 0) {
-            photo.thumbnailImage = thumbnails?.get(thumbnails?.size()-1)?.getUrl()
-            photo.thumbnailWidth = thumbnails?.get(thumbnails?.size()-1)?.getWidth()
-            photo.thumbnailHeight = thumbnails?.get(thumbnails?.size()-1)?.getHeight()
-        }
-
-        // Check whether photo has content
-        final def content = item?.getMediaContents()
-        if (content?.size() > 0) {
-            photo.image = content?.get(content?.size()-1)?.getUrl()
-            photo.width = content?.get(content?.size()-1)?.getWidth()
-            photo.height = content?.get(content?.size()-1)?.getHeight()
-        }
-
-        // Check whether photo has any tags
-        final def keywords = item?.getMediaKeywords()?.getKeywords()
-        if (keywords?.size() > 0) {
-            // Add all tags
-            for (final String keyword : keywords) {
-                final Tag tag = new Tag()
-                tag.keyword = keyword
-
-                if (!tag.hasErrors()) {
-                    photo.addToTags(tag)
-                }
-            }
-        }
-
-        // Transfer remaining properties over to domain class
-        photo.albumId = item?.getAlbumId()
-        photo.title = item?.getTitle()?.getPlainText()
-        photo.description = item?.getDescription()?.getPlainText()
-        photo.cameraModel = item?.getExifTags()?.getCameraModel()
-        photo.dateCreated = item?.getTimestamp()
-        photo.isPublic = item?.getAlbumAccess()?.equals(GphotoAccess.Value.PUBLIC) ? true : false
-
-        // Return updated photo
-        return photo
-    }
-
-    /**
-     * Convert the provided TagEntry object into the Tag domain class.
-     *
-     * @param entry the TagEntry to convert.
-     * @result the Tag domain class.
-     */
-    private Tag convertToTagDomain(final TagEntry entry) {
-        // Initialise result
-        final Tag tag = new Tag()
-
-        // Process keyword
-        tag.keyword = entry?.getTitle()?.getPlainText()
-        tag.weight = (entry?.getWeight()) ? entry?.getWeight()?.intValue() : 0
-
-        // Return updated tag
-        return tag
-    }
-
-    /**
-     * Convert the provided CommentEntry object into the Comment domain class.
-     *
-     * @param entry the CommentEntry to convert.
-     * @result the Comment domain class.
-     */
-    private Comment convertToCommentDomain(final CommentEntry entry) {
-        // Initialise result
-        final Comment comment = new Comment()
-
-        // Process properties
-        comment.commentId = entry?.getId()
-        comment.albumId = entry?.getAlbumId()
-        comment.photoId = entry?.getPhotoId()
-        comment.message = entry?.getPlainTextContent()
-
-        // Convert DateTime to java.util.Date
-        final Date date = new Date()
-        date.setTime(entry?.getUpdated()?.getValue())
-        comment.dateCreated = date
-
-        // Add author
-        final Person person = convertToPersonDomain(entry?.getAuthors()?.get(0))
-        if (!person.hasErrors()) {
-            comment.author = person
-        }
-
-        // Return updated comment
-        return comment
-    }
-    
-    /**
-     * Convert the provided com.google.gdata.data.Person object into the
-     * Person domain class.
-     *
-     * @param entry the com.google.gdata.data.Person to convert.
-     * @result the Person domain class.
-     */
-    private Person convertToPersonDomain(final com.google.gdata.data.Person entry) {
-        // Initalise result
-        final Person person = new Person()
-
-        // Process properties
-        person.name = entry?.getName()
-        person.email = entry?.getEmail()
-        person.uri = entry?.getUri()
-
-        // Return updated person
-        return person
     }
 }

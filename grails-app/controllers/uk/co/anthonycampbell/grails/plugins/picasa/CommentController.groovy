@@ -16,6 +16,8 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  * limitations under the License.
  */
 
+import uk.co.anthonycampbell.grails.plugins.picasa.comparator.*
+
 import grails.converters.JSON
 import grails.converters.XML
 
