@@ -957,7 +957,7 @@ class PicasaService implements InitializingBean {
 
         // Attempt connection if configuration is valid
         if (configValid) {
-            log?.info "Picasa configuration has been found."
+            log?.info "${this.getClass().getSimpleName()} configuration valid"
 
             try {
                 log?.info "Attempting connection..."
@@ -974,8 +974,6 @@ class PicasaService implements InitializingBean {
                 configValid = false
             }
         }
-
-        log?.info "${this.getClass().getSimpleName()} configuration valid"
 
         // Only initialise the service if the configuration is valid
         this.serviceInitialised = configValid

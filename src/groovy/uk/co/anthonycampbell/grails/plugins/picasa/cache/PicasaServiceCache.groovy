@@ -93,10 +93,6 @@ class PicasaServiceCache implements ServiceCache {
     @Override
     @Synchronized
     void put(final String key, final def result) {
-        // Create record
-        final Map record = new HashMap()
-        record.put(key, result)
-
         // Cache timestamp entry
         def timestamp
 
@@ -107,15 +103,20 @@ class PicasaServiceCache implements ServiceCache {
             break
         }
 
-        // Validate
-        if (!timestamp) {
+        // Update existing entry or create new
+        if (timestamp) {
+            // Update existing
+            final Map entry = PICASA_SERVICE_CACHE.get(timestamp)
+            entry?.put(key, result)
+        } else {
             // Get today's timestamp
             final Calendar today = Calendar.getInstance()
             timestamp = today?.getTimeInMillis()
-        }
 
-        // Insert into cache
-        PICASA_SERVICE_CACHE?.put(timestamp, record)
+            // Insert new entry into cache
+            final def record = [ "$key":result ]
+            PICASA_SERVICE_CACHE?.put(timestamp, record)
+        }
     }
 
     @Override

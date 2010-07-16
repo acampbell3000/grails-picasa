@@ -297,17 +297,19 @@ class PicasaCommentService implements InitializingBean {
                 log?.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
                     "photos. Ensure you have declared the property oauth.picasa.consumer.key in your " +
                     "application's config."
-                allowComments = false
+                this.configValid = false
             }
             if (!isConfigValid(this.picasaConsumerSecret)) {
                 log?.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
                     "photos. Ensure you have declared the property oauth.picasa.consumer.secret in your " +
                     "application's config."
-                allowComments = false
+                this.configValid = false
             }
         }
 
-        log?.info "${this.getClass().getSimpleName()} configuration valid"
+        if (this.configValid) {
+            log?.info "${this.getClass().getSimpleName()} configuration valid"
+        }
 
         // Only initialise the service if the configuration is valid
         this.serviceInitialised = configValid

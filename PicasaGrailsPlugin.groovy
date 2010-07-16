@@ -55,5 +55,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
         // Config change defect, may need to reset the Picasa Service.
         final def picasaService = event?.ctx?.getBean("picasaService")
         picasaService?.reset()
+
+        // Need to create proxy for the Picasa Comment Services
     }
 }
