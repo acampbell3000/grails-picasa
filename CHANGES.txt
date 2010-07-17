@@ -15,7 +15,7 @@ Potential improvements:
 - Further license coverage.
 - Ensure services throw expected exceptions which are caught when required by controllers.
 
-Release notes 0.6.0 (TBA)
+Release notes 0.6.0 (17th July, 2010)
 - Grails update to 1.3.3.
 - Comment listing by default shows last page.
 - Separate comment posting to separate service to allow main service to be stateless.
