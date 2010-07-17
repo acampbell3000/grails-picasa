@@ -179,10 +179,11 @@ Configuration properties:
             album requests.
     * showPrivatePhotos - Whether to include private photos in all
             photo requests.
-    * useTagCache - Stores locally the tags associated with each album.
-            Reduces Google web service calls when viewing an album's
-            photo listing.
     * allowComments - Allow users to post photo comments.
+    * allowCache - Stores locally the responses returned from the Google
+            Picasa web service. Reduces web service calls to the Google
+            GData API and increases performance.
+    * cacheTimeout - How long the cache is valid before being purged.
     * useGridListing - By default, display albums and photos using a
             grid layout.
     * rssManagingEditor = Name of author managing the RSS feed.

@@ -167,7 +167,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         // Test configuration
         mockConfig('''
             picasa {
-                useTagCache = true
+
             }
         ''')
         
