@@ -410,8 +410,8 @@ class CommentController {
         flash.message = ""
         flash.oauthError = ""
 
-        log.debug "Updating service to apply OAuth access with [key]$oAuthTokenKey " +
-                "[secret]$oAuthTokenSecret"
+        log.debug "Updating service to apply OAuth access (oAuthTokenKey=$oAuthTokenKey " +
+                ", oAuthTokenSecret=$oAuthTokenSecret)"
         
         try {
             // Update service and session
@@ -426,7 +426,7 @@ class CommentController {
                 default: 'A problem was encountered when trying to connect to your Google Picasa Web Albums account. Please try again later.')
         }
         
-        log.debug "Re-directing to photo $photoId in $albumId"
+        log.debug "Re-directing to photo (albumId=$albumId, photoId=$photoId)"
 
         // Re-direct to photo
         redirect(controller: "photo", action: "show", params: [albumId: albumId, photoId: photoId])
@@ -450,12 +450,12 @@ class CommentController {
         log.debug "Success..."
 
         if (isAjax) {
-            log.debug "Render comment $showView view for photo $photoId in $albumId"
+            log.debug "Render comment $showView view for photo (albumId=$albumId, photoId=$photoId)"
 
             // Just render create comment form
             render(view: showView, model: [albumId: albumId, photoId: photoId])
         } else {
-            log.debug "Re-directing to photo $photoId in $albumId with $showView view"
+            log.debug "Re-directing to photo with $showView view (albumId=$albumId, photoId=$photoId)"
 
             // Re-direct to photo
             redirect(controller: "photo", action: showView, params: [albumId: albumId,
