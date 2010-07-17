@@ -8,11 +8,11 @@
  */
 class PicasaGrailsPlugin {
     // The plugin version
-    def version = "0.6.0"
+    def version = "0.6.1"
     // The version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.1 > *"
     // The other plugins this plugin depends on
-    def dependsOn = [ oauth: 0.4 ]
+    def dependsOn = [ oauth: 0.6 ]
     // Resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp"
@@ -52,10 +52,10 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     }
 
     def onConfigChange = { event ->
-        // Config change defect, may need to reset the Picasa Service.
+        // Config change, need to reset the Picasa service
         final def picasaService = event?.ctx?.getBean("picasaService")
         picasaService?.reset()
 
-        // Need to create proxy for the Picasa Comment Services
+        // Need to create proxy for the Picasa comment services
     }
 }

@@ -1,4 +1,4 @@
-VERSION: 0.6.0
+VERSION: 0.6.1
 
 Known issues:
 - Poor code coverage of the PicasaService.
@@ -14,6 +14,9 @@ Potential improvements:
 - Further usage of cache.
 - Further license coverage.
 - Ensure services throw expected exceptions which are caught when required by controllers.
+
+Release notes 0.6.1 (TBA)
+- Update to OAuth plug-in 0.5.
 
 Release notes 0.6.0 (17th July, 2010)
 - Grails update to 1.3.3.

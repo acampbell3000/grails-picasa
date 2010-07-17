@@ -47,11 +47,13 @@ class PicasaCommentService implements InitializingBean {
 
     // Service properties
     private PicasawebService picasaCommentsWebService
-    private def grailsApplication
     private def picasaApplicationName
     private def picasaConsumerKey
     private def picasaConsumerSecret
     private def allowComments
+
+    // Service dependencies
+    def grailsApplication
 
     /**
      * Initialise config properties.
@@ -118,68 +120,78 @@ class PicasaCommentService implements InitializingBean {
     def applyOAuthAccess(final String token, final String secret)
             throws PicasaCommentServiceException {
 
-        // Check we are allowed to post comments
-        if (this.allowComments) {
-            // Prepare parameters
-            final GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters()
-            oauthParameters.setOAuthConsumerKey(this.picasaConsumerKey)
-            oauthParameters.setOAuthConsumerSecret(this.picasaConsumerSecret)
-            oauthParameters.setOAuthToken(token)
-            oauthParameters.setOAuthTokenSecret(secret)
+        // Check wheher service is initialised
+        if (serviceInitialised) {
+            // Check we are allowed to post comments
+            if (this.allowComments) {
+                // Prepare parameters
+                final GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters()
+                oauthParameters.setOAuthConsumerKey(this.picasaConsumerKey)
+                oauthParameters.setOAuthConsumerSecret(this.picasaConsumerSecret)
+                oauthParameters.setOAuthToken(token)
+                oauthParameters.setOAuthTokenSecret(secret)
 
-            // Get current session
-            final HttpSession session = getSession()
+                // Get current session
+                final HttpSession session = getSession()
 
-            // Attempt OAuth connection
-            try {
-                log.info "Attempting OAuth connection..."
+                // Attempt OAuth connection
+                try {
+                    log.info "Attempting OAuth connection..."
 
-                // Initialise Picasa Web Service
-                picasaCommentsWebService = new PicasawebService(this.picasaApplicationName)
-                picasaCommentsWebService.setOAuthCredentials(oauthParameters, new OAuthHmacSha1Signer())
-                session?.oAuthLoggedIn = true
+                    // Initialise Picasa Web Service
+                    picasaCommentsWebService = new PicasawebService(this.picasaApplicationName)
+                    picasaCommentsWebService.setOAuthCredentials(oauthParameters, new OAuthHmacSha1Signer())
+                    session?.oAuthLoggedIn = true
 
-                log.info "Successfully connected to the Google Picasa web service."
-                log.info "Update session with user details..."
+                    log.info "Successfully connected to the Google Picasa web service."
+                    log.info "Update session with user details..."
 
-                // Declare feed
-                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/default")
+                    // Declare feed
+                    final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/default")
 
-                log.debug "FeedUrl: $feedUrl"
+                    log.debug "FeedUrl: $feedUrl"
 
-                // Get user feed
-                final UserFeed userFeed = picasaCommentsWebService.getFeed(feedUrl, UserFeed.class)
+                    // Get user feed
+                    final UserFeed userFeed = picasaCommentsWebService.getFeed(feedUrl, UserFeed.class)
 
-                // Get details from feed
-                final String nickname = userFeed?.getNickname()
-                final String username = userFeed?.getUsername()
-                final String thumbnail = userFeed?.getThumbnail()
+                    // Get details from feed
+                    final String nickname = userFeed?.getNickname()
+                    final String username = userFeed?.getUsername()
+                    final String thumbnail = userFeed?.getThumbnail()
 
-                log.debug "User details: nickname=$nickname, username=$username, " +
-                    "thumbnail=$thumbnail"
+                    log.debug "User details: nickname=$nickname, username=$username, " +
+                        "thumbnail=$thumbnail"
 
-                // Update session
-                session?.oAuthNickname = nickname
-                session?.oAuthUsername = username
-                session?.oAuthThumbail = thumbnail
+                    // Update session
+                    session?.oAuthNickname = nickname
+                    session?.oAuthUsername = username
+                    session?.oAuthThumbail = thumbnail
 
-                log.info "Successfully updated session with user details from the Google Picasa web " +
-                    "service."
+                    log.info "Successfully updated session with user details from the Google Picasa web " +
+                        "service."
 
-            } catch (Exception ex) {
+                } catch (Exception ex) {
+                    session?.oAuthLoggedIn = false
+
+                    final def errorMessage = "Unable to connect to Google Picasa Web Albums. " +
+                        "Invalid OAuth access token and secret!"
+
+                    log.error(errorMessage, ex)
+                    throw new PicasaCommentServiceException(errorMessage)
+                }
+            } else {
                 session?.oAuthLoggedIn = false
 
-                final def errorMessage = "Unable to connect to Google Picasa Web Albums. " +
-                    "Invalid OAuth access token and secret!"
-                
-                log.error(errorMessage, ex)
+                final def errorMessage = "Unable to apply acccess token to Google Picasa Web " +
+                    "Albums service. Photo comments are disabled."
+
+                log.error(errorMessage)
                 throw new PicasaCommentServiceException(errorMessage)
             }
         } else {
-            session?.oAuthLoggedIn = false
-
-            final def errorMessage = "Unable to apply acccess token to Google Picasa Web " +
-                "Albums service. Photo comments are disabled."
+            final def errorMessage = "Unable to apply access token to Google Picasa Web Albums " +
+                "service. Some of the plug-in configuration is missing. Please refer to the " +
+                "documentation and ensure you have declared all of the required configuration."
 
             log.error(errorMessage)
             throw new PicasaCommentServiceException(errorMessage)
@@ -288,26 +300,25 @@ class PicasaCommentService implements InitializingBean {
             configValid = false
         }
         if (!isConfigValid(this.allowComments)) {
-            log?.error "Unable to allow users to post comments on your Google Picasa Web Albums photos. " +
-                "Setting allowComments to false."
-            this.allowComments = false
+            log?.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
+                "photos. Ensure you have declared the property picasa.allowComments in your " +
+                "application's config."
+            configValid = false
         }
-        if (this.allowComments) {
-            if (!isConfigValid(this.picasaConsumerKey)) {
-                log?.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
-                    "photos. Ensure you have declared the property oauth.picasa.consumer.key in your " +
-                    "application's config."
-                this.configValid = false
-            }
-            if (!isConfigValid(this.picasaConsumerSecret)) {
-                log?.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
-                    "photos. Ensure you have declared the property oauth.picasa.consumer.secret in your " +
-                    "application's config."
-                this.configValid = false
-            }
+        if (!isConfigValid(this.picasaConsumerKey)) {
+            log?.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
+                "photos. Ensure you have declared the property oauth.picasa.consumer.key in your " +
+                "application's config."
+            configValid = false
+        }
+        if (!isConfigValid(this.picasaConsumerSecret)) {
+            log?.error "Unable to allow users to post comments on your Google Picasa Web Albums " +
+                "photos. Ensure you have declared the property oauth.picasa.consumer.secret in your " +
+                "application's config."
+            configValid = false
         }
 
-        if (this.configValid) {
+        if (configValid) {
             log?.info "${this.getClass().getSimpleName()} configuration valid"
         }
 

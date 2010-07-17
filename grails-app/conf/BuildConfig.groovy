@@ -15,7 +15,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        runtime 'org.grails.plugins:oauth:0.4'
+        runtime 'org.grails.plugins:oauth:0.6'
         test 'org.grails.plugins:code-coverage:latest.integration'
     }
 }
