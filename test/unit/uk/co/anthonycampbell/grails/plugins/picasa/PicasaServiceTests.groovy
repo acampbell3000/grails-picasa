@@ -204,7 +204,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     }
 
     /**
-     * Test the PicasaService.listAlbums() method.
+     * Test the PicasaService.listAllAlbums() method.
      */
     void testListAlbums() {
         // Setup dependencies
@@ -220,7 +220,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         when(mockPicasaWebService.getFeed(USER_FEED_URL, UserFeed.class)).thenReturn(mockUserFeed)
 
         // Run test
-        List<Album> albumList = picasaService.listAlbums()
+        List<Album> albumList = picasaService.listAllAlbums()
 
         // Check result
         assertNotNull("Expected an instantiated album list to be returned!", albumList)
@@ -229,7 +229,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     }
 
     /**
-     * Test the PicasaService.listAlbums() method.
+     * Test the PicasaService.listAllAlbums() method.
      */
     void testListAlbums_WithServiceNotInitialised() {        
         // Ensure service is NOT initialised
@@ -237,7 +237,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
 
         // Run test
         try {
-            picasaService.listAlbums()
+            picasaService.listAllAlbums()
             fail("Expected PicasaServiceException to be thrown!")
 
         } catch (PicasaServiceException pse) {
@@ -251,7 +251,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
     }
 
     /**
-     * Test the PicasaService.listAlbums() method.
+     * Test the PicasaService.listAllAlbums() method.
      */
     void testListAlbums_WithEmptyAlbumList() {
         // Setup any dependencies
@@ -267,7 +267,7 @@ class PicasaServiceTests extends GrailsUnitTestCase {
         when(mockPicasaWebService.getFeed(USER_FEED_URL, UserFeed.class)).thenReturn(mockUserFeed)
 
         // Run test
-        List<Album> albumList = picasaService.listAlbums()
+        List<Album> albumList = picasaService.listAllAlbums()
 
         // Check result
         assertNotNull("Expected an instantiated album list to be returned!", albumList)

@@ -50,7 +50,6 @@ class PicasaService implements InitializingBean {
     
     // Declare cache (used to reduce Google API calls)
     private static ServiceCache CACHE
-    private static Map<String, List> tagCache = new HashMap<String, List>()
     private static final byte TAG_WEIGHT_SPLIT_TOTAL = 7
 
     // Declare picasa properties
@@ -143,77 +142,6 @@ class PicasaService implements InitializingBean {
     }
 
     /**
-     * List the available albums for the configured Google Picasa account.
-     *
-     * @param showAll whether to include hidden / private albums in the list.
-     * @return list of albums from the Google Picasa web service.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available albums.
-     */
-    def List<Album> listAlbums(final boolean showAll = false) throws PicasaServiceException {
-        if (serviceInitialised) {
-            try {
-                // Initialise result
-                final List<Album> albumListing = new ArrayList<Album>()
-
-                // Check cache
-                if (this.allowCache) {
-                    final List<Album> cachedListing = retrieveCache(PicasaQuery.LIST_ALBUMS.getMethod())
-                    if (cachedListing) {
-                        // Found result in cache so return
-                        return cachedListing
-                    }
-                }
-
-                // Declare feed
-                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
-                    "${this.picasaUsername}?kind=album&thumbsize=${this.picasaThumbsize}" +
-                    "&imgmax=${this.picasaImgmax}")
-
-                log.debug "FeedUrl: $feedUrl"
-
-                // Get user feed
-                final UserFeed userFeed = picasaWebService.getFeed(feedUrl, UserFeed.class)
-
-                for (final AlbumEntry entry : userFeed?.getAlbumEntries()) {
-                    // Transfer entry into domain class
-                    final Album album = Converter.convertToAlbumDomain(entry)
-
-                    // If we have a valid public entry add to listing
-                    if (!album?.hasErrors()) {
-                        if (showAll || album?.isPublic) {
-                            albumListing.add(album)
-                        }
-                    }
-                }
-
-                // Update cache
-                if (this.allowCache) {
-                    updateCache(PicasaQuery.LIST_ALBUMS.getMethod(), albumListing)
-                }
-
-                // Return result
-                return albumListing
-
-            } catch (Exception ex) {
-                final def errorMessage = "Unable to list your Google Picasa Web Albums. " +
-                    "A problem occurred when making the request through the Google Data API. " +
-                    "(username=${this.picasaUsername}, showAll=$showAll)"
-
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
-            }
-        } else {
-            final def errorMessage = "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
-                "configuration is missing. Please refer to the documentation and ensure you have " +
-                "declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
-
-    /**
      * Get the Album for the provided ID through the Google Picasa web service.
      *
      * @param albumId the provided album ID.
@@ -224,16 +152,28 @@ class PicasaService implements InitializingBean {
      */
     def Album getAlbum(final String albumId, final boolean showAll = false) throws PicasaServiceException {
         if (serviceInitialised) {
-            try {
-                // Validate ID
-                if (!albumId) {
-                    final def errorMessage = "Unable to retrieve your Google Picasa Web Album. " +
-                        "The provided ID was invalid. (albumId=$albumId, showAll=$showAll)"
+            // Validate ID
+            if (!albumId || !StringUtils.isNumeric(albumId)) {
+                final def errorMessage = "Unable to retrieve your Google Picasa Web Album. " +
+                    "The provided ID was invalid. (albumId=$albumId, showAll=$showAll)"
 
-                    log.error(errorMessage, ex)
-                    throw new PicasaServiceException(errorMessage, ex)
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.GET_ALBUM.getMethod()}-$albumId-$showAll"
+
+            // Check cache
+            if (this.allowCache) {
+                final Album cachedItem = retrieveCache(CACHE_KEY)
+                if (cachedListing) {
+                    // Found result in cache so return
+                    return cachedItem
                 }
+            }
 
+            try {
                 // Initialise result
                 Album album = null
 
@@ -277,6 +217,11 @@ class PicasaService implements InitializingBean {
                     }
                 }
 
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, album)
+                }
+
                 // Return result
                 return album
 
@@ -290,479 +235,6 @@ class PicasaService implements InitializingBean {
             }
         } else {
             final def errorMessage = "Unable to retrieve your Google Picasa Web Album. Some of " +
-                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
-
-    /**
-     * List the available photos for the provided Google Picasa web album.
-     *
-     * @param albumId the provided album ID.
-     * @param showAll whether to include hidden / private photos in the list.
-     * @return list of photos for the provided Google Picasa web service album.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available photos.
-     */
-    def List<Photo> listPhotosForAlbum(final String albumId, final boolean showAll = false)
-        throws PicasaServiceException {
-        
-        if (serviceInitialised) {
-            // Validate ID
-            if (!albumId) {
-                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. The " +
-                    "provided ID was invalid. (albumId=$albumId, showAll=$showAll)"
-
-                log.error(errorMessage)
-                throw new PicasaServiceException(errorMessage)
-            }
-
-            try {
-                // Initialise result
-                final List<Photo> photoListing = new ArrayList<Photo>()
-
-                // Declare feed
-                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
-                    "${this.picasaUsername}/albumid/$albumId?thumbsize=" +
-                    "${this.picasaThumbsize}&imgmax=${this.picasaImgmax}")
-
-                log.debug "FeedUrl: " + feedUrl
-
-                // Get album feed
-                final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
-
-                for (final PhotoEntry entry : albumFeed?.getPhotoEntries()) {
-                    // Transfer entry into domain class
-                    final Photo photo = Converter.convertToPhotoDomain(entry)
-
-                    // If we have a valid public entry add to listing
-                    if (!photo?.hasErrors()) {
-                        if (showAll || photo?.isPublic) {
-                            photoListing.add(photo)
-                        }
-                    }
-                }
-
-                // Return result
-                return photoListing
-
-            } catch (Exception ex) {
-                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
-                    "A problem occurred when making the request through the Google Data API. " +
-                    "(username=${this.picasaUsername}, albumId=$albumId, showAll=$showAll)"
-
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
-            }
-        } else {
-            final def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of the " +
-                "plug-in configuration is missing. Please refer tUo the documentation and ensure you " +
-                "have declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
-
-    /**
-     * List the available photos for the provided Google Picasa web album tag keyword.
-     *
-     * @param tagKeyword the provided tag keyword.
-     * @param showAll whether to include hidden / private photos in the list.
-     * @return list of photos for the provided Google Picasa web service album tag.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available photos.
-     */
-    def List<Photo> listPhotosForTag(final String tagKeyword, final boolean showAll = false)
-        throws PicasaServiceException {
-
-        if (serviceInitialised) {
-            // Validate ID
-            if (!tagKeyword) {
-                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
-                    "The provided tag keyword was invalid. (tagKeyword=$tagKeyword, showAll=$showAll)"
-
-                log.error(errorMessage)
-                throw new PicasaServiceException(errorMessage)
-            }
-
-            try {
-                // Initialise result
-                final List<Photo> photoListing = new ArrayList<Photo>()
-                
-                // Declare feed
-                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}")
-
-                log.debug "FeedUrl: $feedUrl"
-
-                final Query tagQuery = new Query(feedUrl)
-                tagQuery.setStringCustomParameter("kind", "photo")
-                tagQuery.setStringCustomParameter("tag", tagKeyword)
-                tagQuery.setStringCustomParameter("thumbsize", "${this.picasaThumbsize}")
-                tagQuery.setStringCustomParameter("imgmax", "${this.picasaImgmax}")
-                tagQuery.setStringCustomParameter("max-results", "${this.picasaMaxResults}")
-                
-                // Get album feed
-                final AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
-
-                for (final PhotoEntry entry : tagSearchResultsFeed?.getPhotoEntries()) {
-                    // Transfer entry into domain class
-                    final Photo photo = Converter.convertToPhotoDomain(entry)
-
-                    // If we have a valid public entry add to listing
-                    if (!photo?.hasErrors()) {
-                        if (showAll || photo?.isPublic) {
-                            photoListing.add(photo)
-                        }
-                    }
-                }
-
-                // Return result
-                return photoListing
-
-            } catch (Exception ex) {
-                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
-                    "A problem occurred when making the request through the Google Data API. " +
-                    "(username=${this.picasaUsername}, tagKeyword=$tagKeyword, showAll=$showAll)"
-
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
-            }
-        } else {
-            final def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of " +
-                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
-
-    /**
-     * List the available tags for the provided Google Picasa web album.
-     *
-     * @param albumId the provided album ID.
-     * @return list of tags for the provided Google Picasa web service album.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available tags.
-     */
-    def List<Tag> listTagsForAlbum(final String albumId) throws PicasaServiceException {
-        if (serviceInitialised) {
-            // Validate ID
-            if (!albumId) {
-                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
-                    "The provided ID was invalid. (albumId=$albumId)"
-
-                log.error(errorMessage)
-                throw new PicasaServiceException(errorMessage)
-            }
-
-            // Check whether cache should be in use
-            final boolean useTagCache = grailsApplication?.config?.picasa?.useTagCache ?: false
-
-            // Check whether cache contains required tag listing
-            if (useTagCache && tagCache?.containsKey(albumId)) {
-                log.debug "Tag cache enabled..."
-                return tagCache.get(albumId)
-            } else {
-                log.debug "Tag cache disabled..."
-            }
-
-            try {
-                // Initialise result
-                final List<Tag> tagListing = new ArrayList<Tag>()
-                int lowestWeight = Integer.MAX_VALUE
-                int highestWeight = 0
-
-                // Declare tag feed
-                final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
-                    "${this.picasaUsername}/albumid/$albumId?kind=tag")
-
-                log.debug "TagUrl: $tagUrl"
-
-                // Get all tags for this album
-                final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
-
-                // Update list with results
-                for (final TagEntry entry : tagResultsFeed?.getTagEntries()) {
-                    // Transfer entry into domain class
-                    final Tag tag = Converter.convertToTagDomain(entry)
-
-                    // If we have a valid entry add to listing
-                    if (!tag?.hasErrors()) {
-                        if (tag?.weight < lowestWeight) {
-                            lowestWeight = tag?.weight
-                        }
-                        if (tag?.weight > highestWeight) {
-                            highestWeight = tag?.weight
-                        }
-
-                        tagListing.add(tag)
-                    }
-                }
-
-                // Calculate weighting splits
-                final double weightSplit = (highestWeight - lowestWeight) / TAG_WEIGHT_SPLIT_TOTAL
-
-                log.debug "Tag weighting: lowestWeight=$lowestWeight, highestWeight=$highestWeight" +
-                    ", split=$weightSplit"
-                
-                // Update list with display weight values
-                for (final Tag tag : tagListing) {
-                    final byte counter = TAG_WEIGHT_SPLIT_TOTAL
-                    for (double split = highestWeight; split > lowestWeight; split -= weightSplit) {
-                        // If required add tag to weight group
-                        if (tag?.weight <= split) {
-                            tag?.displayWeight = counter
-                        }
-
-                        // Update counter
-                        counter--
-                    }
-                }
-                
-                // Update cache
-                tagCache.put(albumId, tagListing)
-
-                // Return result
-                return tagListing
-
-            } catch (Exception ex) {
-                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
-                    "A problem occurred when making the request through the Google Data API. " +
-                    "(username=${this.picasaUsername}, albumId=$albumId)"
-
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
-            }
-        } else {
-            final def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of " +
-                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
-
-    /**
-     * List the available tags used by the Google Picasa web album user.
-     *
-     * @return list of tags for the provided Google Picasa web service user.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available tags.
-     */
-    def List<Tag> listAllTags() throws PicasaServiceException {
-        if (serviceInitialised) {
-            try {
-                // Initialise result
-                final List<Tag> tagListing = new ArrayList<Tag>()
-                int lowestWeight = Integer.MAX_VALUE
-                int highestWeight = 0
-
-                // Check cache
-                if (this.allowCache) {
-                    final List<Album> cachedListing = retrieveCache(PicasaQuery.LIST_ALL_TAGS.getMethod())
-                    if (cachedListing) {
-                        // Found result in cache so return
-                        return cachedListing
-                    }
-                }
-
-                // Declare tag feed
-                final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}?kind=tag")
-
-                log.debug "TagUrl: $tagUrl"
-
-                // Get all tags for this album
-                final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
-
-                // Update list with results
-                for (final TagEntry entry : tagResultsFeed?.getTagEntries()) {
-                    // Transfer entry into domain class
-                    final Tag tag = Converter.convertToTagDomain(entry)
-
-                    // If we have a valid entry add to listing
-                    if (!tag?.hasErrors()) {
-                        if (tag?.weight < lowestWeight) {
-                            lowestWeight = tag?.weight
-                        }
-                        if (tag?.weight > highestWeight) {
-                            highestWeight = tag?.weight
-                        }
-
-                        tagListing.add(tag)
-                    }
-                }
-
-                // Calculate weighting splits
-                final double weightSplit = (highestWeight - lowestWeight) / TAG_WEIGHT_SPLIT_TOTAL
-
-                log.debug "Tag weighting: lowestWeight=$lowestWeight, highestWeight=$highestWeight" +
-                    ", split=$weightSplit"
-
-                // Update list with display weight values
-                for (final Tag tag : tagListing) {
-                    final byte counter = TAG_WEIGHT_SPLIT_TOTAL
-                    for (double split = highestWeight; split > lowestWeight; split -= weightSplit) {
-                        // If required add tag to weight group
-                        if (tag?.weight <= split) {
-                            tag?.displayWeight = counter
-                        }
-
-                        // Update counter
-                        counter--
-                    }
-                }
-
-                // Update cache
-                if (this.allowCache) {
-                    updateCache(PicasaQuery.LIST_ALL_TAGS.getMethod(), tagListing)
-                }
-                
-                // Return result
-                return tagListing
-
-            } catch (Exception ex) {
-
-                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
-                    "A problem occurred when making the request through the Google Data API. " +
-                    "(username=${this.picasaUsername})"
-
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
-            }
-        } else {
-
-            final def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of " +
-                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
-
-    /**
-     * List the available comments for the provided Google Picasa web album photo.
-     *
-     * @param albumId the provided album ID.
-     * @param photoId the provided photo ID.
-     * @return list of comments for the provided Google Picasa web album photo.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available comments.
-     */
-    def List<Comment> listCommentsForPhoto(final String albumId, final String photoId)
-        throws PicasaServiceException {
-
-        if (serviceInitialised) {
-            // Validate IDs
-            if (!albumId || !photoId) {
-                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. The " +
-                    "provided IDs were invalid. (albumId=$albumId, photoId=$photoId)"
-
-                log.error(errorMessage)
-                throw new PicasaServiceException(errorMessage)
-            }
-
-            try {
-                // Initialise result
-                final List<Comment> commentListing = new ArrayList<Comment>()
-
-                // Declare comment feed
-                final URL commentUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}" +
-                    "/albumid/$albumId/photoid/$photoId?kind=comment")
-
-                log.debug "CommentUrl: $commentUrl"
-
-                // Get all comments for this photo
-                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class)
-
-                // Update list with results
-                for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
-                    // Transfer entry into domain class
-                    final Comment comment = Converter.convertToCommentDomain(entry)
-
-                    // If we have a valid entry add to listing
-                    if (!comment?.hasErrors()) {
-                        commentListing.add(comment)
-                    }
-                }
-
-                // Return result
-                return commentListing
-
-            } catch (Exception ex) {
-
-                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. " +
-                    "A problem occurred when making the request through the Google Data API. " +
-                    "(username=${this.picasaUsername}, albumId=$albumId, photoId=$photoId)"
-
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
-            }
-        } else {
-
-            final def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of " +
-                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
-                "you have declared all of the required configuration."
-
-            log.error(errorMessage)
-            throw new PicasaServiceException(errorMessage)
-        }
-    }
-
-    /**
-     * List the most recent comments for the Google Picasa web album user.
-     *
-     * @return list of most recent comments for the Google Picasa web album user.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available comments.
-     */
-    def List<Comment> listAllComments() throws PicasaServiceException {
-        if (serviceInitialised) {
-            try {
-                // Initialise result
-                final List<Comment> commentListing = new ArrayList<Comment>()
-
-                // Declare comment feed
-                final URL commentUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
-                    "${this.picasaUsername}?kind=comment")
-                
-                log.debug "CommentUrl: $commentUrl"
-
-                // Get all comments for this user
-                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class)
-
-                // Update list with results
-                for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
-                    // Transfer entry into domain class
-                    final Comment comment = Converter.convertToCommentDomain(entry)
-
-                    // If we have a valid entry add to listing
-                    if (!comment?.hasErrors()) {
-                        commentListing.add(comment)
-                    }
-                }
-
-                // Return result
-                return commentListing
-
-            } catch (Exception ex) {
-
-                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. " +
-                    "A problem occurred when making the request through the Google Data API. " +
-                    "(username=${this.picasaUsername})"
-
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
-            }
-        } else {
-
-            final def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of " +
                 "the plug-in configuration is missing. Please refer to the documentation and ensure " +
                 "you have declared all of the required configuration."
 
@@ -786,13 +258,26 @@ class PicasaService implements InitializingBean {
 
         if (serviceInitialised) {
             // Validate IDs
-            if (!albumId || !photoId) {
+            if (!albumId || !StringUtils.isNumeric(albumId) ||
+                    !photoId || !StringUtils.isNumeric(photoId)) {
                 final def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. " +
                     "The provided IDs were invalid. (albumId=$albumId, photoId=$photoId, " +
                     "showAll=$showAll)"
 
                 log.error(errorMessage)
                 throw new PicasaServiceException(errorMessage)
+            }
+
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.GET_PHOTO.getMethod()}-$albumId-$photoId"
+
+            // Check cache
+            if (this.allowCache) {
+                final Photo cacheItem = retrieveCache(CACHE_KEY)
+                if (cacheItem) {
+                    // Found result in cache so return
+                    return cacheItem
+                }
             }
 
             try {
@@ -874,6 +359,11 @@ class PicasaService implements InitializingBean {
                     photo.nextPhotoId = next
                 }
 
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, photo)
+                }
+
                 // Return result
                 return photo
 
@@ -890,6 +380,622 @@ class PicasaService implements InitializingBean {
         } else {
 
             final def errorMessage = "Unable to retrieve your Google Picasa Web Album Photo. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the available albums for the configured Google Picasa account.
+     *
+     * @param showAll whether to include hidden / private albums in the list.
+     * @return list of albums from the Google Picasa web service.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available albums.
+     */
+    def List<Album> listAllAlbums(final boolean showAll = false) throws PicasaServiceException {
+        if (serviceInitialised) {
+            try {
+                // Generate cache key
+                final def CACHE_KEY = "${PicasaQuery.LIST_ALL_ALBUMS.getMethod()}-$showAll"
+
+                // Check cache
+                if (this.allowCache) {
+                    final List<Album> cachedListing = retrieveCache(CACHE_KEY)
+                    if (cachedListing) {
+                        // Found result in cache so return
+                        return cachedListing
+                    }
+                }
+
+                // Initialise result
+                final List<Album> albumListing = new ArrayList<Album>()
+
+                // Declare feed
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}?kind=album&thumbsize=${this.picasaThumbsize}" +
+                    "&imgmax=${this.picasaImgmax}")
+
+                log.debug "FeedUrl: $feedUrl"
+
+                // Get user feed
+                final UserFeed userFeed = picasaWebService.getFeed(feedUrl, UserFeed.class)
+
+                for (final AlbumEntry entry : userFeed?.getAlbumEntries()) {
+                    // Transfer entry into domain class
+                    final Album album = Converter.convertToAlbumDomain(entry)
+
+                    // If we have a valid public entry add to listing
+                    if (!album?.hasErrors()) {
+                        if (showAll || album?.isPublic) {
+                            albumListing.add(album)
+                        }
+                    }
+                }
+
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, albumListing)
+                }
+
+                // Return result
+                return albumListing
+
+            } catch (Exception ex) {
+                final def errorMessage = "Unable to list your Google Picasa Web Albums. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, showAll=$showAll)"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            final def errorMessage = "Unable to list your Google Picasa Web Albums. Some of the plug-in " +
+                "configuration is missing. Please refer to the documentation and ensure you have " +
+                "declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the available tags used by the Google Picasa web album user.
+     *
+     * @return list of tags for the provided Google Picasa web service user.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available tags.
+     */
+    def List<Tag> listAllTags() throws PicasaServiceException {
+        if (serviceInitialised) {
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.LIST_ALL_TAGS.getMethod()}"
+
+            // Check cache
+            if (this.allowCache) {
+                final List<Tag> cachedListing = retrieveCache(CACHE_KEY)
+                if (cachedListing) {
+                    // Found result in cache so return
+                    return cachedListing
+                }
+            }
+
+            try {
+                // Initialise result
+                final List<Tag> tagListing = new ArrayList<Tag>()
+                int lowestWeight = Integer.MAX_VALUE
+                int highestWeight = 0
+
+                // Declare tag feed
+                final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}?kind=tag")
+
+                log.debug "TagUrl: $tagUrl"
+
+                // Get all tags for this album
+                final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+
+                // Update list with results
+                for (final TagEntry entry : tagResultsFeed?.getTagEntries()) {
+                    // Transfer entry into domain class
+                    final Tag tag = Converter.convertToTagDomain(entry)
+
+                    // If we have a valid entry add to listing
+                    if (!tag?.hasErrors()) {
+                        if (tag?.weight < lowestWeight) {
+                            lowestWeight = tag?.weight
+                        }
+                        if (tag?.weight > highestWeight) {
+                            highestWeight = tag?.weight
+                        }
+
+                        tagListing.add(tag)
+                    }
+                }
+
+                // Calculate weighting splits
+                final double weightSplit = (highestWeight - lowestWeight) / TAG_WEIGHT_SPLIT_TOTAL
+
+                log.debug "Tag weighting: lowestWeight=$lowestWeight, highestWeight=$highestWeight" +
+                    ", split=$weightSplit"
+
+                // Update list with display weight values
+                for (final Tag tag : tagListing) {
+                    final byte counter = TAG_WEIGHT_SPLIT_TOTAL
+                    for (double split = highestWeight; split > lowestWeight; split -= weightSplit) {
+                        // If required add tag to weight group
+                        if (tag?.weight <= split) {
+                            tag?.displayWeight = counter
+                        }
+
+                        // Update counter
+                        counter--
+                    }
+                }
+
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, tagListing)
+                }
+
+                // Return result
+                return tagListing
+
+            } catch (Exception ex) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername})"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            final def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the most recent comments for the Google Picasa web album user.
+     *
+     * @return list of most recent comments for the Google Picasa web album user.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available comments.
+     */
+    def List<Comment> listAllComments() throws PicasaServiceException {
+        if (serviceInitialised) {
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.LIST_ALL_COMMENTS.getMethod()}"
+
+            // Check cache
+            if (this.allowCache) {
+                final List<Comment> cachedListing = retrieveCache(CACHE_KEY)
+                if (cachedListing) {
+                    // Found result in cache so return
+                    return cachedListing
+                }
+            }
+
+            try {
+                // Initialise result
+                final List<Comment> commentListing = new ArrayList<Comment>()
+
+                // Declare comment feed
+                final URL commentUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}?kind=comment")
+
+                log.debug "CommentUrl: $commentUrl"
+
+                // Get all comments for this user
+                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class)
+
+                // Update list with results
+                for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
+                    // Transfer entry into domain class
+                    final Comment comment = Converter.convertToCommentDomain(entry)
+
+                    // If we have a valid entry add to listing
+                    if (!comment?.hasErrors()) {
+                        commentListing.add(comment)
+                    }
+                }
+
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, commentListing)
+                }
+
+                // Return result
+                return commentListing
+
+            } catch (Exception ex) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername})"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            final def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the available photos for the provided Google Picasa web album.
+     *
+     * @param albumId the provided album ID.
+     * @param showAll whether to include hidden / private photos in the list.
+     * @return list of photos for the provided Google Picasa web service album.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available photos.
+     */
+    def List<Photo> listPhotosForAlbum(final String albumId, final boolean showAll = false)
+            throws PicasaServiceException {
+
+        if (serviceInitialised) {
+            // Validate ID
+            if (!albumId || !StringUtils.isNumeric(albumId)) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. The " +
+                    "provided ID was invalid. (albumId=$albumId, showAll=$showAll)"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.LIST_PHOTOS_FOR_ALBUM.getMethod()}-$albumId-$showAll"
+
+            // Check cache
+            if (this.allowCache) {
+                final List<Photo> cachedListing = retrieveCache(CACHE_KEY)
+                if (cachedListing) {
+                    // Found result in cache so return
+                    return cachedListing
+                }
+            }
+
+            try {
+                // Initialise result
+                final List<Photo> photoListing = new ArrayList<Photo>()
+
+                // Declare feed
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}/albumid/$albumId?thumbsize=" +
+                    "${this.picasaThumbsize}&imgmax=${this.picasaImgmax}")
+
+                log.debug "FeedUrl: " + feedUrl
+
+                // Get album feed
+                final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
+
+                for (final PhotoEntry entry : albumFeed?.getPhotoEntries()) {
+                    // Transfer entry into domain class
+                    final Photo photo = Converter.convertToPhotoDomain(entry)
+
+                    // If we have a valid public entry add to listing
+                    if (!photo?.hasErrors()) {
+                        if (showAll || photo?.isPublic) {
+                            photoListing.add(photo)
+                        }
+                    }
+                }
+
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, photoListing)
+                }
+
+                // Return result
+                return photoListing
+
+            } catch (Exception ex) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId, showAll=$showAll)"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            final def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of the " +
+                "plug-in configuration is missing. Please refer tUo the documentation and ensure you " +
+                "have declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the available photos for the provided Google Picasa web album tag keyword.
+     *
+     * @param tagKeyword the provided tag keyword.
+     * @param showAll whether to include hidden / private photos in the list.
+     * @return list of photos for the provided Google Picasa web service album tag.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available photos.
+     */
+    def List<Photo> listPhotosForTag(final String tagKeyword, final boolean showAll = false)
+            throws PicasaServiceException {
+
+        if (serviceInitialised) {
+            // Validate ID
+            if (!tagKeyword) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
+                    "The provided tag keyword was invalid. (tagKeyword=$tagKeyword, showAll=$showAll)"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.LIST_PHOTOS_FOR_TAG.getMethod()}-$tagKeyword-$showAll"
+
+            // Check cache
+            if (this.allowCache) {
+                final List<Photo> cachedListing = retrieveCache(CACHE_KEY)
+                if (cachedListing) {
+                    // Found result in cache so return
+                    return cachedListing
+                }
+            }
+            
+            try {
+                // Initialise result
+                final List<Photo> photoListing = new ArrayList<Photo>()
+                
+                // Declare feed
+                final URL feedUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}")
+
+                log.debug "FeedUrl: $feedUrl"
+
+                final Query tagQuery = new Query(feedUrl)
+                tagQuery.setStringCustomParameter("kind", "photo")
+                tagQuery.setStringCustomParameter("tag", tagKeyword)
+                tagQuery.setStringCustomParameter("thumbsize", "${this.picasaThumbsize}")
+                tagQuery.setStringCustomParameter("imgmax", "${this.picasaImgmax}")
+                tagQuery.setStringCustomParameter("max-results", "${this.picasaMaxResults}")
+                
+                // Get album feed
+                final AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
+
+                for (final PhotoEntry entry : tagSearchResultsFeed?.getPhotoEntries()) {
+                    // Transfer entry into domain class
+                    final Photo photo = Converter.convertToPhotoDomain(entry)
+
+                    // If we have a valid public entry add to listing
+                    if (!photo?.hasErrors()) {
+                        if (showAll || photo?.isPublic) {
+                            photoListing.add(photo)
+                        }
+                    }
+                }
+
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, photoListing)
+                }
+
+                // Return result
+                return photoListing
+
+            } catch (Exception ex) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Photos. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, tagKeyword=$tagKeyword, showAll=$showAll)"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            final def errorMessage = "Unable to list your Google Picasa Web Album Photos. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the available tags for the provided Google Picasa web album.
+     *
+     * @param albumId the provided album ID.
+     * @return list of tags for the provided Google Picasa web service album.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available tags.
+     */
+    def List<Tag> listTagsForAlbum(final String albumId) throws PicasaServiceException {
+        if (serviceInitialised) {
+            // Validate ID
+            if (!albumId || !StringUtils.isNumeric(albumId)) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
+                    "The provided ID was invalid. (albumId=$albumId)"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.LIST_TAGS_FOR_ALBUM.getMethod()}-$albumId"
+
+            // Check cache
+            if (this.allowCache) {
+                final List<Tag> cachedListing = retrieveCache(CACHE_KEY)
+                if (cachedListing) {
+                    // Found result in cache so return
+                    return cachedListing
+                }
+            }
+
+            try {
+                // Initialise result
+                final List<Tag> tagListing = new ArrayList<Tag>()
+                int lowestWeight = Integer.MAX_VALUE
+                int highestWeight = 0
+
+                // Declare tag feed
+                final URL tagUrl = new URL("$GOOGLE_GDATA_API_URL/user/" +
+                    "${this.picasaUsername}/albumid/$albumId?kind=tag")
+
+                log.debug "TagUrl: $tagUrl"
+
+                // Get all tags for this album
+                final AlbumFeed tagResultsFeed = picasaWebService.query(new Query(tagUrl), AlbumFeed.class)
+
+                // Update list with results
+                for (final TagEntry entry : tagResultsFeed?.getTagEntries()) {
+                    // Transfer entry into domain class
+                    final Tag tag = Converter.convertToTagDomain(entry)
+
+                    // If we have a valid entry add to listing
+                    if (!tag?.hasErrors()) {
+                        if (tag?.weight < lowestWeight) {
+                            lowestWeight = tag?.weight
+                        }
+                        if (tag?.weight > highestWeight) {
+                            highestWeight = tag?.weight
+                        }
+
+                        tagListing.add(tag)
+                    }
+                }
+
+                // Calculate weighting splits
+                final double weightSplit = (highestWeight - lowestWeight) / TAG_WEIGHT_SPLIT_TOTAL
+
+                log.debug "Tag weighting: lowestWeight=$lowestWeight, highestWeight=$highestWeight" +
+                    ", split=$weightSplit"
+                
+                // Update list with display weight values
+                for (final Tag tag : tagListing) {
+                    final byte counter = TAG_WEIGHT_SPLIT_TOTAL
+                    for (double split = highestWeight; split > lowestWeight; split -= weightSplit) {
+                        // If required add tag to weight group
+                        if (tag?.weight <= split) {
+                            tag?.displayWeight = counter
+                        }
+
+                        // Update counter
+                        counter--
+                    }
+                }
+                
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, tagListing)
+                }
+
+                // Return result
+                return tagListing
+
+            } catch (Exception ex) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Tags. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId)"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            final def errorMessage = "Unable to list your Google Picasa Web Album Tags. Some of " +
+                "the plug-in configuration is missing. Please refer to the documentation and ensure " +
+                "you have declared all of the required configuration."
+
+            log.error(errorMessage)
+            throw new PicasaServiceException(errorMessage)
+        }
+    }
+
+    /**
+     * List the available comments for the provided Google Picasa web album photo.
+     *
+     * @param albumId the provided album ID.
+     * @param photoId the provided photo ID.
+     * @return list of comments for the provided Google Picasa web album photo.
+     * @Exception PicasaServiceException when there's been a problem retrieving
+     *      the list of available comments.
+     */
+    def List<Comment> listCommentsForPhoto(final String albumId, final String photoId)
+            throws PicasaServiceException {
+
+        if (serviceInitialised) {
+            // Validate IDs
+            if (!albumId || !StringUtils.isNumeric(albumId) ||
+                    !photoId || !StringUtils.isNumeric(photoId)) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. The " +
+                    "provided IDs were invalid. (albumId=$albumId, photoId=$photoId)"
+
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
+            }
+
+            // Generate cache key
+            final def CACHE_KEY = "${PicasaQuery.LIST_COMMENTS_FOR_PHOTO.getMethod()}-$albumId-$photoId"
+
+            // Check cache
+            if (this.allowCache) {
+                final List<Comment> cachedListing = retrieveCache(CACHE_KEY)
+                if (cachedListing) {
+                    // Found result in cache so return
+                    return cachedListing
+                }
+            }
+            
+            try {
+                // Initialise result
+                final List<Comment> commentListing = new ArrayList<Comment>()
+
+                // Declare comment feed
+                final URL commentUrl = new URL("$GOOGLE_GDATA_API_URL/user/${this.picasaUsername}" +
+                    "/albumid/$albumId/photoid/$photoId?kind=comment")
+
+                log.debug "CommentUrl: $commentUrl"
+
+                // Get all comments for this photo
+                final PhotoFeed commentResultsFeed = picasaWebService.getFeed(commentUrl, PhotoFeed.class)
+
+                // Update list with results
+                for (final CommentEntry entry : commentResultsFeed?.getCommentEntries()) {
+                    // Transfer entry into domain class
+                    final Comment comment = Converter.convertToCommentDomain(entry)
+
+                    // If we have a valid entry add to listing
+                    if (!comment?.hasErrors()) {
+                        commentListing.add(comment)
+                    }
+                }
+
+                // Update cache
+                if (this.allowCache) {
+                    updateCache(CACHE_KEY, commentListing)
+                }
+
+                // Return result
+                return commentListing
+
+            } catch (Exception ex) {
+                final def errorMessage = "Unable to list your Google Picasa Web Album Comments. " +
+                    "A problem occurred when making the request through the Google Data API. " +
+                    "(username=${this.picasaUsername}, albumId=$albumId, photoId=$photoId)"
+
+                log.error(errorMessage, ex)
+                throw new PicasaServiceException(errorMessage, ex)
+            }
+        } else {
+            final def errorMessage = "Unable to list your Google Picasa Web Album Comments. Some of " +
                 "the plug-in configuration is missing. Please refer to the documentation and ensure " +
                 "you have declared all of the required configuration."
 

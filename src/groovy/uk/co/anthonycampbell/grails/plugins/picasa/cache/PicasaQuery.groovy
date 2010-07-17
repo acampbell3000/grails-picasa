@@ -1,4 +1,4 @@
-package uk.co.anthonycampbell.grails.plugins.picasa
+package uk.co.anthonycampbell.grails.plugins.picasa.cache
 
 /**
  * Copyright 2010 Anthony Campbell (anthonycampbell.co.uk)
@@ -24,8 +24,15 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  */
 public enum PicasaQuery {
     // Declare available methods
-    LIST_ALBUMS("listAlbums"),
-    LIST_ALL_TAGS("listAllTags")
+    GET_ALBUM("getAlbum"),
+    GET_PHOTO("getPhoto"),
+    LIST_ALL_ALBUMS("listAllAlbums"),
+    LIST_ALL_TAGS("listAllTags"),
+    LIST_ALL_COMMENTS("listAllComments"),
+    LIST_PHOTOS_FOR_ALBUM("listPhotosForAlbum"),
+    LIST_PHOTOS_FOR_TAG("listPhotosForTag"),
+    LIST_TAGS_FOR_ALBUM("listTagsForAlbum"),
+    LIST_COMMENTS_FOR_PHOTO("listCommentsForPhoto")
 
     private final String method
 

@@ -18,7 +18,7 @@ Potential improvements:
 Release notes 0.6.0 (TBA)
 - Grails update to 1.3.3.
 - Comment listing by default shows last page.
-- Seperate comment posting to seperate service to allow main service to be stateless.
+- Separate comment posting to separate service to allow main service to be stateless.
 - Better error reporting from the Photo and Comment controllers.
 - Introduction of the PicasaCommentService and PicasaCommentServiceException.
 - Introduction of the ServiceCache and PicasaServiceCache.
@@ -26,6 +26,7 @@ Release notes 0.6.0 (TBA)
 - Extended packaging of the src/groovy dir.
 - Exported convert methods to utility class.
 - Config change now updates PicasaService properties at runtime.
+- PicasaService refactoring, including rename of listAlbums to listAllAlbums.
 
 Release notes 0.5.0 (5th July, 2010)
 - Grails update to 1.3.2.

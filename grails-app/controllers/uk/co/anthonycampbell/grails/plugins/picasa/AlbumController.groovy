@@ -112,7 +112,7 @@ class AlbumController {
 
         // Get album list from picasa service
         try {
-            albumList.addAll(picasaService.listAlbums(showPrivate))
+            albumList.addAll(picasaService.listAllAlbums(showPrivate))
             tagList.addAll(picasaService.listAllTags())
 
 
