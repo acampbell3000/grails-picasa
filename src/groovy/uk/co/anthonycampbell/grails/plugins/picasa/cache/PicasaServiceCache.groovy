@@ -75,13 +75,13 @@ class PicasaServiceCache implements ServiceCache {
                 }
             }
 
-            // Post clear do we have any cache left
+            // Post clean up do we have any cache left
             if (!clear && PICASA_SERVICE_CACHE?.containsKey(mostRecentEntry)) {
                 final Map entry = PICASA_SERVICE_CACHE.get(mostRecentEntry)
 
                 // Retrieve result for selected query
-                if (entry?.containsKey(query)) {
-                    result = entry?.get(query)
+                if (entry?.containsKey("$query")) {
+                    result = entry?.get("$query")
                 }
             }
         }
@@ -107,7 +107,7 @@ class PicasaServiceCache implements ServiceCache {
         if (timestamp) {
             // Update existing
             final Map entry = PICASA_SERVICE_CACHE.get(timestamp)
-            entry?.put(key, result)
+            entry?.put("$key", result)
         } else {
             // Get today's timestamp
             final Calendar today = Calendar.getInstance()
