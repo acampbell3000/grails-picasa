@@ -1,12 +1,38 @@
+
+/**
+ * Copyright 2010 Anthony Campbell (anthonycampbell.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import org.slf4j.LoggerFactory
+
+import uk.co.anthonycampbell.grails.plugins.picasa.session.SessionMonitor
+import uk.co.anthonycampbell.grails.plugins.picasa.utils.PicasaUtils
+
 /*
  * Grails Picasa Plug-in
  *
- * A simple plug-in which provides a photo gallery driven from your Google Picasa
- * Web Albums account.
+ * A simple plug-in which provides a photo gallery driven from your
+ * Google Picasa Web Albums account.
  *
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class PicasaGrailsPlugin {
+    /** Logger */
+	private static final log = LoggerFactory.getLogger(
+        "uk.co.anthonycampbell.grails.plugins.picasa.PicasaGrailsPlugin")
+
     // The plugin version
     def version = "0.6.1"
     // The version or versions of Grails the plugin is designed for
@@ -29,9 +55,21 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/picasa"
 
-    def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional), this event occurs before 
-    }
+    def doWithWebDescriptor = { webXml ->
+		if (PicasaUtils.isEnvironmentClassReloadable()) {
+            if (log?.infoEnabled) {
+                log?.info "Registering ${uk.co.anthonycampbell.grails.plugins.picasa.listener.SessionLifecycleListener.class} " +
+                    "in web descriptor for session monitor"
+            }
+
+            final def listeners = webXml.'listener'
+            listeners + {
+                'listener' {
+                    'listener-class'("uk.co.anthonycampbell.grails.plugins.picasa.listener.SessionLifecycleListener")
+                }
+            }
+		}
+	}
 
     def doWithSpring = {
         // TODO Implement runtime spring config (optional)
@@ -42,7 +80,21 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     }
 
     def doWithApplicationContext = { applicationContext ->
-        // TODO Implement post initialization spring config (optional)
+        // Check environment support hot reloading
+        if (PicasaUtils.isEnvironmentClassReloadable()) {
+			if (log?.infoEnabled) {
+				log?.info "Registering ${SessionMonitor.class} in application context"
+			}
+
+            // Register session monitor
+            applicationContext?.registerSingleton("sessionMonitor", SessionMonitor.class)
+            
+		} else {
+			if (log?.debugEnabled) {
+				log?.debug "Unable to register ${SessionMonitor.class} in application context " +
+                    "(Environment.current.reloadEnabled=${Environment.current.reloadEnabled})"
+			}
+		}
     }
 
     def onChange = { event ->
