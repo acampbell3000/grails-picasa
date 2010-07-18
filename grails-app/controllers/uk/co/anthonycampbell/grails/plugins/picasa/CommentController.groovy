@@ -345,7 +345,7 @@ class CommentController {
 
             log.debug "Success..."
 
-        } catch (PicasaServiceException pse) {
+        } catch (PicasaCommentServiceException pse) {
             log.error("Unable to post a new comment through the Google Picasa web service", pse)
 
             flash.oauthError = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.post',
@@ -405,8 +405,8 @@ class CommentController {
         final def oAuthTokenKey = session?.oauthToken?.key
         final def oAuthTokenSecret = session?.oauthToken?.secret
         final def ids = params?.id?.tokenize(ID_SEPARATOR)
-        final def albumId = ids?.get(0)
-        final def photoId = ids?.get(1)
+        final def albumId = "${ids?.get(0)}"
+        final def photoId = "${ids?.get(1)}"
         flash.message = ""
         flash.oauthError = ""
 
@@ -419,7 +419,7 @@ class CommentController {
 
             log.debug "Success..."
 
-        } catch (PicasaServiceException pse) {
+        } catch (PicasaCommentServiceException pse) {
             log.error("Unable to update service to apply OAuth access", pse)
             
             flash.oauthError = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login',

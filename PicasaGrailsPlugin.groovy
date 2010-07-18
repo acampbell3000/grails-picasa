@@ -56,12 +56,14 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     def documentation = "http://grails.org/plugin/picasa"
 
     def doWithWebDescriptor = { webXml ->
+        // Check environment support hot reloading
 		if (PicasaUtils.isEnvironmentClassReloadable()) {
             if (log?.infoEnabled) {
                 log?.info "Registering ${uk.co.anthonycampbell.grails.plugins.picasa.listener.SessionLifecycleListener.class} " +
                     "in web descriptor for session monitor"
             }
 
+            // Register Session lifecycle listener
             final def listeners = webXml.'listener'
             listeners + {
                 'listener' {
@@ -108,6 +110,13 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
         final def picasaService = event?.ctx?.getBean("picasaService")
         picasaService?.reset()
 
-        // Need to create proxy for the Picasa comment services
+        // Get sessions from monitor
+        final def monitor = event?.ctx?.getBean("sessionMonitor")
+        final def sessions = monitor.getSessions()
+
+        // Update Picasa comment service for each session
+        for (final def session in sessions) {
+            session?.picasaCommentService?.reset()
+        }
     }
 }

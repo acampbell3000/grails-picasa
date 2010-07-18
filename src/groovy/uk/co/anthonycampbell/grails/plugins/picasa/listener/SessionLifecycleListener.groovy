@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory
 
 import org.springframework.web.context.support.WebApplicationContextUtils
 
+import uk.co.anthonycampbell.grails.plugins.picasa.session.SessionLifecycle
+
 /**
  * Simply delegates to the 'sessionMonitor' bean in the
  * application context.
@@ -48,13 +50,25 @@ class SessionLifecycleListener implements HttpSessionListener {
     @Override
 	void sessionCreated(final HttpSessionEvent httpSessionEvent) {
 		final def session = httpSessionEvent.session
-		getMonitor(session).sessionCreated(session)
+		final def monitors = getMonitors(session)
+        
+        // Iterate through registered monitors
+        final Iterator<Map.Entry> iterator = monitors?.entrySet()?.iterator()
+        while (iterator?.hasNext()) {
+            iterator?.next()?.getValue()?.sessionCreated(session)
+        }
 	}
 
     @Override
 	void sessionDestroyed(final HttpSessionEvent httpSessionEvent) {
 		final def session = httpSessionEvent.session
-		getMonitor(session).sessionDestroyed(session)
+		final def monitors = getMonitors(session)
+
+        // Iterate through registered monitors
+        final Iterator<Map.Entry> iterator = monitors?.entrySet()?.iterator()
+        while (iterator?.hasNext()) {
+            iterator?.next()?.getValue()?.sessionDestroyed(session)
+        }
 	}
 
     /**
@@ -63,10 +77,10 @@ class SessionLifecycleListener implements HttpSessionListener {
      * @param the current session.
      * @return the session monitor.
      */
-	protected getMonitor(final def session) {
+	protected getMonitors(final def session) {
 		final def rootContext = WebApplicationContextUtils.getWebApplicationContext(
             session.servletContext)
-		final def grailsApplication = rootContext.getBean('grailsApplication')
-		grailsApplication.mainContext.getBean('sessionMonitor')
+		final def grailsApplication = rootContext?.getBean('grailsApplication')
+        grailsApplication?.mainContext?.getBeansOfType(SessionLifecycle.class)
 	}
 }

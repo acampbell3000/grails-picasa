@@ -18,6 +18,8 @@ package uk.co.anthonycampbell.grails.plugins.picasa.session
 
 import javax.servlet.http.HttpSession
 
+import org.slf4j.LoggerFactory
+
 /**
  * Registered as a bean in the application context and used to monitor
  * all registered sessions.
@@ -26,16 +28,38 @@ import javax.servlet.http.HttpSession
  */
 class SessionMonitor implements SessionLifecycle {
 
+    /** Logger */
+	private static final log = LoggerFactory.getLogger(SessionMonitor.class)
+
     /** List to hold all the registered sessions */
-	private sessions = [].asSynchronized()
+	private def sessions = [].asSynchronized()
 
     @Override
     void sessionCreated(final HttpSession session) {
+		if (log.debugEnabled) {
+			log.debug "Registering session ${session.getId()}"
+		}
 
+        // Add session to list
+		sessions << session
     }
 
     @Override
     void sessionDestroyed(final HttpSession session) {
+		if (log.debugEnabled) {
+			log.debug "Registering session ${session.getId()}"
+		}
 
+        // Remove session from list
+		sessions.remove(session)
+    }
+
+    /**
+     * Return the current list of sessions.
+     *
+     * @return current list of sessions.
+     */
+    def getSessions() {
+        sessions
     }
 }

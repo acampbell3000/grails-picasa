@@ -3,6 +3,7 @@ VERSION: 0.6.1
 Known issues:
 - Poor code coverage of the PicasaService.
 - Poor code coverage of controllers and domain classes.
+- Tag listing seems to have a few problems.
 
 Potential improvements:
 - Tag library to display UI components.

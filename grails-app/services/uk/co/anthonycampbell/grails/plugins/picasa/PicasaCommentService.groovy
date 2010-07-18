@@ -106,6 +106,9 @@ class PicasaCommentService implements InitializingBean {
         this.picasaConsumerKey = grailsApplication.config?.oauth?.picasa?.consumer.key
         this.picasaConsumerSecret = grailsApplication.config?.oauth?.picasa?.consumer.secret
 
+        // Remove any existing OAuth access
+        removeOAuthAccess()
+        
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
     }
@@ -202,7 +205,7 @@ class PicasaCommentService implements InitializingBean {
      * Reset the picasa comments web service and update session.
      */
     def removeOAuthAccess() {
-        log.info "Attempting to logout..."
+        log.info "Attempting to remove any existing OAuth access..."
 
         // Get current session
         final HttpSession session = getSession()
@@ -214,7 +217,7 @@ class PicasaCommentService implements InitializingBean {
         session?.oAuthUsername = null
         session?.oAuthThumbail = null
 
-        log.info "Successfully logged out"
+        log.info "OAuth access successfully removed"
     }
 
     /**
