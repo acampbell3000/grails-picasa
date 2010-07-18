@@ -1,4 +1,4 @@
-<plugin name='picasa' version='0.6.0' grailsVersion='1.2.1 &gt; *'>
+<plugin name='picasa' version='0.6.1' grailsVersion='1.2.1 &gt; *'>
   <author>Anthony Campbell</author>
   <authorEmail>acampbell3000 [[at] googlemail [dot]] com</authorEmail>
   <title>Grails Picasa Plug-in</title>
@@ -28,7 +28,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     <resource>uk.co.anthonycampbell.grails.plugins.picasa.DateUtil</resource>
   </resources>
   <dependencies>
-    <plugin name='oauth' version='0.4' />
+    <plugin name='oauth' version='0.6' />
   </dependencies>
   <behavior />
 </plugin>
