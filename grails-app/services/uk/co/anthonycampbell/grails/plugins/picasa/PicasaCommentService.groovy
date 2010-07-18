@@ -243,8 +243,8 @@ class PicasaCommentService implements InitializingBean {
                 }
 
                 // Get photo properties
-                final def albumId = comment?.albumId
-                final def photoId = comment?.photoId
+                final def albumId = "${comment?.albumId}"
+                final def photoId = "${comment?.photoId}"
 
                 try {
                     // Declare feed

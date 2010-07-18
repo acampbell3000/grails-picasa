@@ -13,6 +13,7 @@ Potential improvements:
 - Potential switch to jQuery for UI.
 - Further license coverage.
 - Ensure services throw expected exceptions which are caught when required by controllers.
+- Also create new strings for any ID parameters used.
 
 Release notes 0.6.1 (18th Julu, 2010)
 - Update to OAuth plug-in 0.6.
