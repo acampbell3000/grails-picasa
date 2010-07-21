@@ -131,10 +131,10 @@ class PhotoController {
         final List<Tag> tagList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = params.feed ?: ""
+        final String feed = "${params.feed}" ?: ""
         
         // Prepare display values
-        final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params?.albumId)) ? params.albumId : ""
+        final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params?.albumId)) ? "${params.albumId}" : ""
         final boolean showPrivate = grailsApplication.config?.picasa?.showPrivatePhotos ?: false
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
@@ -153,10 +153,11 @@ class PhotoController {
             log.debug "Success..."
             
         } catch (PicasaServiceException pse) {
-            log.error("Unable to list photos and tags through the Google Picasa web service", pse)
+            log.error("Unable to list photos and tags through the Google Picasa web service " +
+                "(albumId=$paramAlbumId)", pse)
             
-            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available',
-                default: 'The photo listing is currently not available. Please try again later.')
+            flash.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available",
+                default: "The photo listing is currently not available. Please try again later.")
         }
 
         // If required, sort list
@@ -322,11 +323,11 @@ class PhotoController {
         final Comment commentInstance = new Comment()
         
         // Check type of request
-        final String feed = params.feed ?: ""
+        final String feed = "${params.feed}" ?: ""
 
         // Prepare display values
-        final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
-        final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
+        final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? "${params.albumId}" : ""
+        final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? "${params.photoId}" : ""
         final boolean showPrivate = grailsApplication.config?.picasa?.showPrivatePhotos ?: false
         int offset = (params.int("offset") == null) ? -1 : params.int("offset")
         final int max = Math.min(new Integer(params.int("max") ?:
@@ -337,8 +338,8 @@ class PhotoController {
         // Prepare new comment
         commentInstance.albumId = albumId
         commentInstance.albumId = photoId
-        commentInstance.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.message.default',
-            default: 'Add a comment...')
+        commentInstance.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.message.default",
+            default: "Add a comment...")
 
         log.debug "Attempting to get photo through the Google Picasa web service " +
                 "(albumId=$albumId, photoId=$photoId)"
@@ -350,10 +351,11 @@ class PhotoController {
             log.debug "Success..."
             
         } catch (PicasaServiceException pse) {
-            log.error("Unable to get photo through the Google Picasa web service", pse)
+            log.error("Unable to get photo through the Google Picasa web service " +
+                "(albumId=$albumId, photoId=$photoId)", pse)
 
-            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.not.found',
-                default: 'The photo you\'ve selected could not be found. Please ensure the ID is correct and try again.')
+            flash.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Photo.not.found",
+                default: "The photo you\'ve selected could not be found. Please ensure the ID is correct and try again.")
         }
 
         // Get comments from photo

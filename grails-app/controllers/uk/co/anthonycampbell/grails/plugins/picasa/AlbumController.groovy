@@ -97,7 +97,7 @@ class AlbumController {
         final List<Tag> tagList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = params.feed ?: ""
+        final String feed = "${params.feed}" ?: ""
 
         // Prepare display values
         final boolean showPrivate = grailsApplication.config?.picasa?.showPrivateAlbums ?: false
@@ -107,20 +107,22 @@ class AlbumController {
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
-        log.debug "Attempting to list albums (showPrivateAlbums=$showPrivate" +
-            ") and tags through the Picasa web service"
+        log.debug "Attempting to list albums and tags through the Google Picasa web service " +
+            "(showPrivateAlbums=$showPrivate)"
 
         // Get album list from picasa service
         try {
             albumList.addAll(picasaService.listAllAlbums(showPrivate))
             tagList.addAll(picasaService.listAllTags())
 
-
             log.debug "Success..."
             
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.list.not.available', default: 'The photo album listing is currently not available. Please try again later.')}"
+            log.error("Unable to list albums and tags through the Google Picasa web service " +
+                "(showPrivateAlbums=$showPrivate)", pse)
+
+            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.list.not.available',
+                default: 'The photo album listing is currently not available. Please try again later.')
         }
 
         // If required, sort list
@@ -272,13 +274,13 @@ class AlbumController {
         Album albumInstance = new Album()
 
         // Prepare display values
-        final String albumId = params?.id ?: ""
+        final String albumId = "${params?.id}" ?: ""
         final boolean showPrivate = grailsApplication.config?.picasa?.showPrivateAlbums ?: false
         final String showView = isAjax ? "_show" : "show"
         flash.message = ""
 
-        log.debug "Attempting to get album ID $albumId" +
-            " (showPrivateAlbums=$showPrivate) through the Google Picasa web service"
+        log.debug "Attempting to get album through the Google Picasa web service " +
+            "(albumId=$albumId, showPrivateAlbums=$showPrivate)"
 
         // Get album from picasa service
         try {
@@ -287,8 +289,11 @@ class AlbumController {
             log.debug "Success..."
             
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.not.found', default: 'The photo album you\'ve selected could not be found. Please ensure the ID is correct and try again.')}"
+            log.error("Unable to get album through the Google Picasa web service " +
+                "(albumId=$albumId, showPrivateAlbums=$showPrivate)", pse)
+
+            flash.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Album.not.found",
+                default: "The photo album you\'ve selected could not be found. Please ensure the ID is correct and try again.")
         }
 
         log.debug "Display album with $showView view"

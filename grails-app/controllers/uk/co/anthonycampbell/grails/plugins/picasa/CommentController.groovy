@@ -159,11 +159,11 @@ class CommentController {
         final List<Comment> displayList = new ArrayList<Comment>()
 
         // Check type of request
-        final String feed = params.feed ?: ""
+        final String feed = "${params.feed}" ?: ""
 
         // Prepare display values
-        final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
-        final String paramPhotoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
+        final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? "${params.albumId}" : ""
+        final String paramPhotoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? "${params.photoId}" : ""
         int offset = (params.int("offset") == null) ? -1 : params.int("offset")
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
@@ -172,7 +172,7 @@ class CommentController {
         flash.oauthError = ""
         
         log.debug "Attempting to get comments through the Google Picasa web service " +
-                "(albumId = $paramAlbumId, photoId = $paramPhotoId)"
+            "(albumId = $paramAlbumId, photoId = $paramPhotoId)"
 
         // Get comment list from picasa service
         try {
@@ -185,7 +185,8 @@ class CommentController {
             log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
-            log.error("Unable to get comments through the Google Picasa web service", pse)
+            log.error("Unable to get comments through the Google Picasa web service " +
+                "(albumId = $paramAlbumId, photoId = $paramPhotoId)", pse)
 
             flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available',
                 default: 'The comment listing is currently not available. Please try again later.')
@@ -327,8 +328,8 @@ class CommentController {
         final List<Comment> displayList = new ArrayList<Comment>()
 
         // Prepare display values
-        final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? params.albumId : ""
-        final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? params.photoId : ""
+        final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? "${params.albumId}" : ""
+        final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? "${params.photoId}" : ""
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
@@ -346,10 +347,11 @@ class CommentController {
             log.debug "Success..."
 
         } catch (PicasaCommentServiceException pse) {
-            log.error("Unable to post a new comment through the Google Picasa web service", pse)
+            log.error("Unable to post a new comment through the Google Picasa web service " +
+                "(message=${commentInstance?.message}, isAjax=$isAjax)", pse)
 
-            flash.oauthError = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.post',
-                default: 'A problem was encountered when trying to post your comment. Please ensure that all the fields are complete and try again.')
+            flash.oauthError = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.post",
+                default: "A problem was encountered when trying to post your comment. Please ensure that all the fields are complete and try again.")
         }
 
         log.debug "Attempting to get comments through the Google Picasa web service " +
@@ -362,10 +364,11 @@ class CommentController {
             log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
-            log.error("Unable to get comments through the Google Picasa web service ", pse)
+            log.error("Unable to get comments through the Google Picasa web service " +
+                "(albumId=$albumId, photoId=$photoId)", pse)
             
-            flash.message = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available',
-                default: 'The comment listing is currently not available. Please try again later.')
+            flash.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.list.not.available",
+                default: "The comment listing is currently not available. Please try again later.")
         }
 
         // If required, reverse list
@@ -411,7 +414,7 @@ class CommentController {
         flash.oauthError = ""
 
         log.debug "Updating service to apply OAuth access (oAuthTokenKey=$oAuthTokenKey " +
-                ", oAuthTokenSecret=$oAuthTokenSecret)"
+            ", oAuthTokenSecret=$oAuthTokenSecret)"
         
         try {
             // Update service and session
@@ -420,10 +423,11 @@ class CommentController {
             log.debug "Success..."
 
         } catch (PicasaCommentServiceException pse) {
-            log.error("Unable to update service to apply OAuth access", pse)
+            log.error("Unable to update service to apply OAuth access (oAuthTokenKey=$oAuthTokenKey " +
+                ", oAuthTokenSecret=$oAuthTokenSecret)", pse)
             
-            flash.oauthError = message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login',
-                default: 'A problem was encountered when trying to connect to your Google Picasa Web Albums account. Please try again later.')
+            flash.oauthError = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Comment.error.login",
+                default: "A problem was encountered when trying to connect to your Google Picasa Web Albums account. Please try again later.")
         }
         
         log.debug "Re-directing to photo (albumId=$albumId, photoId=$photoId)"

@@ -166,10 +166,10 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final Album cachedItem = retrieveCache(CACHE_KEY)
-                if (cachedListing) {
+                final Album cacheItem = retrieveCache(CACHE_KEY)
+                if (cacheItem) {
                     // Found result in cache so return
-                    return cachedItem
+                    return cacheItem
                 }
             }
 
@@ -770,7 +770,7 @@ class PicasaService implements InitializingBean {
                 
                 // Get album feed
                 final AlbumFeed tagSearchResultsFeed = picasaWebService.query(tagQuery, AlbumFeed.class)
-
+                
                 for (final PhotoEntry entry : tagSearchResultsFeed?.getPhotoEntries()) {
                     // Transfer entry into domain class
                     final Photo photo = Converter.convertToPhotoDomain(entry)

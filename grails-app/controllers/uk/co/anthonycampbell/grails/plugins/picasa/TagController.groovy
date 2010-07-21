@@ -90,7 +90,7 @@ class TagController {
         final List<Tag> displayList = new ArrayList<Tag>()
 
         // Check type of request
-        final String feed = params.feed ?: ""
+        final String feed = "${params.feed}" ?: ""
 
         // Prepare display values
         final int offset = params.int("offset") ?: 0
@@ -108,8 +108,10 @@ class TagController {
             log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Tag.list.not.available', default: 'The tag listing is currently not available. Please try again later.')}"
+            log.error("Unable to list tags through the Google Picasa web service", pse)
+
+            flash.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Tag.list.not.available",
+                default: "The tag listing is currently not available. Please try again later.")
         }
 
         // Sort tags
@@ -213,10 +215,10 @@ class TagController {
         final List<Photo> displayList = new ArrayList<Photo>()
 
         // Check type of request
-        final String feed = params.feed ?: ""
+        final String feed = "${params.feed}" ?: ""
 
         // Prepare display values
-        final String paramTagId = params.id ?: ""
+        final String paramTagId = "${params.id}" ?: ""
         final boolean showPrivate = grailsApplication.config?.picasa?.showPrivatePhotos ?: false
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
@@ -224,8 +226,8 @@ class TagController {
         final String listView = isAjax ? "_show" : "show"
         flash.message = ""
 
-        log.debug("Attempting to list photos for the selected tag through the Picasa web service " +
-                "(tagKeyword=$paramTagId)")
+        log.debug "Attempting to list photos for the selected tag through the Picasa web service " +
+                "(tagKeyword=$paramTagId)"
 
         // Get photo list from picasa service
         try {
@@ -234,8 +236,17 @@ class TagController {
             log.debug "Success..."
 
         } catch (PicasaServiceException pse) {
-            flash.message =
-                "${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available', default: 'The photo listing is currently not available. Please try again later.')}"
+            log.error("Unable to list photos for the selected tag through the Google Picasa web service " +
+                "(tagKeyword=$paramTagId)", pse)
+
+            flash.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Photo.list.not.available",
+                default: "The photo listing is currently not available. Please try again later.")
+        }
+
+        // Check whether tag contains any photos
+        if (photoList.isEmpty()) {
+            flash.message = message(code: "uk.co.anthonycampbell.grails.plugins.picasa.Photo.tag.list.not.available",
+                default: "There are no photos available for this tag. Please ensure the keyword is correct and try again.")
         }
 
         // If required, sort list
