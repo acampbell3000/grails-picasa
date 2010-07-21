@@ -73,7 +73,7 @@ class PicasaService implements InitializingBean {
     void afterPropertiesSet() {
         log?.info "Initialising the ${this.getClass().getSimpleName()}..."
         
-        CACHE = PicasaServiceCache.getInstance(grailsApplication.config?.picasa?.cacheTimeout)
+        CACHE = PicasaServiceCache.getInstance(grailsApplication?.config?..picasa?.cacheTimeout)
         reset()
     }
 
@@ -123,16 +123,16 @@ class PicasaService implements InitializingBean {
         log?.info "Resetting ${this.getClass().getSimpleName()} configuration..."
 
         // Get configuration from Config.groovy
-        this.picasaUsername = grailsApplication.config?.picasa?.username
-        this.picasaPassword = grailsApplication.config?.picasa?.password
+        this.picasaUsername = grailsApplication?.config?..picasa?.username
+        this.picasaPassword = grailsApplication?.config?..picasa?.password
         this.picasaApplicationName = this.getClass().getPackage().getName() +
             "-" + grailsApplication.metadata['app.name'] +
             "-" + grailsApplication.metadata['app.version']
-        this.picasaImgmax = grailsApplication.config?.picasa?.imgmax
-        this.picasaThumbsize = grailsApplication.config?.picasa?.thumbsize
-        this.picasaMaxResults = grailsApplication.config?.picasa?.maxResults
-        this.allowCache = grailsApplication.config?.picasa?.allowCache
-        this.cacheTimeout = grailsApplication.config?.picasa?.cacheTimeout
+        this.picasaImgmax = grailsApplication?.config?..picasa?.imgmax
+        this.picasaThumbsize = grailsApplication?.config?..picasa?.thumbsize
+        this.picasaMaxResults = grailsApplication?.config?..picasa?.maxResults
+        this.allowCache = grailsApplication?.config?..picasa?.allowCache
+        this.cacheTimeout = grailsApplication?.config?..picasa?.cacheTimeout
 
         // Empty cache
         CACHE?.purge()

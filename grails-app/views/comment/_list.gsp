@@ -18,7 +18,7 @@
 
                               <div id="contentFooter">
                                   <div id="pagination">
-                                      <g:remotePaginate controller="comment" action="ajaxList" update="listComment" albumId="${albumId}" photoId="${photoId}" max="${grailsApplication.config?.picasa?.maxComments ?: 10}" maxsteps="${grailsApplication.config?.picasa?.maxCommentSteps ?: 10}" total="${commentInstanceTotal}" />
+                                      <g:remotePaginate controller="comment" action="ajaxList" update="listComment" albumId="${albumId}" photoId="${photoId}" max="${grailsApplication?.config?..picasa?.maxComments ?: 10}" maxsteps="${grailsApplication?.config?..picasa?.maxCommentSteps ?: 10}" total="${commentInstanceTotal}" />
                                   </div>
                                   <div id="feeds">
                                       <a href="${createLink(controller: 'comment', action: 'list')}/${(StringUtils.isNotEmpty(albumId) && StringUtils.isNotEmpty(photoId)) ? "/$albumId/$photoId/" : "" }feed/rss">RSS</a> |

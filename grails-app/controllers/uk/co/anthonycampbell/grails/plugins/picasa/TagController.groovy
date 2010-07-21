@@ -142,8 +142,8 @@ class TagController {
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
                         lastBuildDate(date.format(DateUtil.RFC_822))
 
-                        if (grailsApplication.config?.picasa?.rssManagingEditor instanceof String) {
-                            managingEditor(grailsApplication.config?.picasa?.rssManagingEditor ?: "")
+                        if (grailsApplication?.config?..picasa?.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication?.config?..picasa?.rssManagingEditor ?: "")
                         }
 
                         for (t in tagList) {
@@ -219,10 +219,10 @@ class TagController {
 
         // Prepare display values
         final String paramTagId = "${params.id}" ?: ""
-        final boolean showPrivate = grailsApplication.config?.picasa?.showPrivatePhotos ?: false
+        final boolean showPrivate = grailsApplication?.config?..picasa?.showPrivatePhotos ?: false
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication.config?.picasa?.max ?: 10)).intValue(), 500)
+                (grailsApplication?.config?..picasa?.max ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_show" : "show"
         flash.message = ""
 
@@ -293,8 +293,8 @@ class TagController {
                                 default: "RSS feed for the tag listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
                         
-                        if (grailsApplication.config?.picasa?.rssManagingEditor instanceof String) {
-                            managingEditor(grailsApplication.config.picasa.rssManagingEditor ?: "")
+                        if (grailsApplication?.config?..picasa?.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication?.config?.picasa.rssManagingEditor ?: "")
                         }
 
                         for (p in photoList) {

@@ -9,6 +9,8 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ *
+ * @author Anthony Campbell (anthonycampbell.co.uk)
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,8 +31,6 @@ import org.apache.commons.lang.StringUtils
  * Controller which handles all of the common actions for the Comment
  * domain class. In addition, the class also provides support for ajax
  * requests.
- *
- * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class CommentController {
 
@@ -166,7 +166,7 @@ class CommentController {
         final String paramPhotoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? "${params.photoId}" : ""
         int offset = (params.int("offset") == null) ? -1 : params.int("offset")
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
+                (grailsApplication?.config?..picasa?.maxComments ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
         flash.oauthError = ""
@@ -216,8 +216,8 @@ class CommentController {
                                 default: "RSS feed for the photo comment listing"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
 
-                        if (grailsApplication.config?.picasa?.rssManagingEditor instanceof String) {
-                            managingEditor(grailsApplication.config.picasa.rssManagingEditor ?: "")
+                        if (grailsApplication?.config?..picasa?.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication?.config?.picasa.rssManagingEditor ?: "")
                         }
 
                         for (c in commentList) {
@@ -332,7 +332,7 @@ class CommentController {
         final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? "${params.photoId}" : ""
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication.config?.picasa?.maxComments ?: 10)).intValue(), 500)
+                (grailsApplication?.config?..picasa?.maxComments ?: 10)).intValue(), 500)
         final String createView = isAjax ? "_comments" : "comments"
         flash.message = ""
         flash.oauthError = ""

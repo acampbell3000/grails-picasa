@@ -100,10 +100,10 @@ class AlbumController {
         final String feed = "${params.feed}" ?: ""
 
         // Prepare display values
-        final boolean showPrivate = grailsApplication.config?.picasa?.showPrivateAlbums ?: false
+        final boolean showPrivate = grailsApplication?.config?..picasa?.showPrivateAlbums ?: false
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication.config?.picasa?.max ?: 10)).intValue(), 500)
+                (grailsApplication?.config?..picasa?.max ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
@@ -170,8 +170,8 @@ class AlbumController {
                                 default: "Photo Albums"))
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
 
-                        if (grailsApplication.config?.picasa?.rssManagingEditor instanceof String) {
-                            managingEditor(grailsApplication.config.picasa.rssManagingEditor ?: "")
+                        if (grailsApplication?.config?..picasa?.rssManagingEditor instanceof String) {
+                            managingEditor(grailsApplication?.config?.picasa.rssManagingEditor ?: "")
                         }
                         
                         for (a in albumList) {
@@ -275,7 +275,7 @@ class AlbumController {
 
         // Prepare display values
         final String albumId = "${params?.id}" ?: ""
-        final boolean showPrivate = grailsApplication.config?.picasa?.showPrivateAlbums ?: false
+        final boolean showPrivate = grailsApplication?.config?..picasa?.showPrivateAlbums ?: false
         final String showView = isAjax ? "_show" : "show"
         flash.message = ""
 
