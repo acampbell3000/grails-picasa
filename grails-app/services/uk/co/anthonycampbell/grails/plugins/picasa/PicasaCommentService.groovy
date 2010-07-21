@@ -100,11 +100,11 @@ class PicasaCommentService implements InitializingBean {
         this.picasaApplicationName = this.getClass().getPackage().getName() +
             "-" + grailsApplication.metadata['app.name'] +
             "-" + grailsApplication.metadata['app.version']
-        this.allowComments = grailsApplication?.config?..picasa?.allowComments
+        this.allowComments = grailsApplication?.config?.picasa?.allowComments
 
         // Collect oauth config
-        this.picasaConsumerKey = grailsApplication?.config?..oauth?.picasa?.consumer.key
-        this.picasaConsumerSecret = grailsApplication?.config?..oauth?.picasa?.consumer.secret
+        this.picasaConsumerKey = grailsApplication?.config?.oauth?.picasa?.consumer.key
+        this.picasaConsumerSecret = grailsApplication?.config?.oauth?.picasa?.consumer.secret
 
         // Remove any existing OAuth access
         removeOAuthAccess()

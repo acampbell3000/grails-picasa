@@ -135,10 +135,10 @@ class PhotoController {
         
         // Prepare display values
         final String paramAlbumId = (params.albumId && StringUtils.isNumeric(params?.albumId)) ? "${params.albumId}" : ""
-        final boolean showPrivate = grailsApplication?.config?..picasa?.showPrivatePhotos ?: false
+        final boolean showPrivate = grailsApplication?.config?.picasa?.showPrivatePhotos ?: false
         final int offset = params.int("offset") ?: 0
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication?.config?..picasa?.max ?: 10)).intValue(), 500)
+                (grailsApplication?.config?.picasa?.max ?: 10)).intValue(), 500)
         final String listView = isAjax ? "_list" : "list"
         flash.message = ""
 
@@ -208,7 +208,7 @@ class PhotoController {
                         generator("Grails Picasa Plug-in " + grailsApplication.metadata['app.version'])
                         lastBuildDate(album?.dateCreated?.format(DateUtil.RFC_822) ?: "")
 
-                        if (grailsApplication?.config?..picasa?.rssManagingEditor instanceof String) {
+                        if (grailsApplication?.config?.picasa?.rssManagingEditor instanceof String) {
                             managingEditor(grailsApplication?.config?.picasa.rssManagingEditor ?: "")
                         }
 
@@ -328,10 +328,10 @@ class PhotoController {
         // Prepare display values
         final String albumId = (params.albumId && StringUtils.isNumeric(params.albumId)) ? "${params.albumId}" : ""
         final String photoId = (params.photoId && StringUtils.isNumeric(params.photoId)) ? "${params.photoId}" : ""
-        final boolean showPrivate = grailsApplication?.config?..picasa?.showPrivatePhotos ?: false
+        final boolean showPrivate = grailsApplication?.config?.picasa?.showPrivatePhotos ?: false
         int offset = (params.int("offset") == null) ? -1 : params.int("offset")
         final int max = Math.min(new Integer(params.int("max") ?:
-                (grailsApplication?.config?..picasa?.maxComments ?: 10)).intValue(), 500)
+                (grailsApplication?.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String showView = isAjax ? "_show" : "show"
         flash.message = ""
 
