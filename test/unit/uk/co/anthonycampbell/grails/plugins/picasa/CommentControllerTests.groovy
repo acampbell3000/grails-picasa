@@ -17,6 +17,9 @@ package uk.co.anthonycampbell.grails.plugins.picasa
  */
 
 import grails.test.*
+import org.junit.*
+import org.mockito.*
+import static org.mockito.Mockito.*
 
 /**
  * Set of unit tests for the comment controller.
@@ -27,6 +30,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
 
     // Declare test dependencies
     def grailsApplication
+    @Mock PicasaService mockPicasaService
     
     /**
      * Set up the test suite.
@@ -34,11 +38,17 @@ class CommentControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
 
+        // Initialise logging
+        mockLogging(CommentController.class, true)
+
+        // Initialise all mocks
+        MockitoAnnotations.initMocks(this)
+
         // Setup config
-        grailsApplication?.config?.picasa.maxComments
+        //grailsApplication?.config?.picasa.maxComments
 
         // Apply properties
-        controller.grailsApplication = grailsApplication
+        //controller.grailsApplication = grailsApplication
     }
 
     /**
