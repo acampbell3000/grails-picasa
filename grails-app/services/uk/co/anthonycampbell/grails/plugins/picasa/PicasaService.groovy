@@ -36,7 +36,7 @@ import org.springframework.beans.factory.InitializingBean
  *
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
-class PicasaService implements InitializingBean {
+class PicasaService implements InitializingBean, PicasaServiceInterface {
 
     // Declare service properties
     boolean transactional = false
@@ -77,20 +77,7 @@ class PicasaService implements InitializingBean {
         reset()
     }
 
-    /*
-     * Attempt to re-connect to the Picasa web service using the new provided
-     * configuration details.
-     *
-     * @param picasaUsername the Picasa account's username.
-     * @param picasaPassword the Picasa account's password.
-     * @param picasaApplicationName the application's name.
-     * @param picasaImgmax the photo size to provide in requests through the Google GData API.
-     * @param picasaThumbsize the thumbnail size to provide in requests through the Google GData API.
-     * @param picasaMaxResults the maximum number of results to return to the view.
-     * @param allowCache whether the cache is enabled for the Picasa service.
-     * @param cacheTimeout how long the cache is valid before a purge is made.
-     * @return whether a new connection was successfully made.
-     */
+    @Override
     boolean connect(final String picasaUsername, final String picasaPassword,
             final String picasaApplicationName, final String picasaImgmax,
             final String picasaThumbsize, final String picasaMaxResults,
@@ -113,12 +100,7 @@ class PicasaService implements InitializingBean {
         return validateAndInitialiseService()
     }
 
-    /*
-     * Attempt to re-connect to the Picasa web service using the provided
-     * connection details available in the grails-app/conf/Config.groovy file.
-     *
-     * @return whether a new connection was successfully made.
-     */
+    @Override
     boolean reset() {
         log?.info "Resetting ${this.getClass().getSimpleName()} configuration..."
 
@@ -141,15 +123,7 @@ class PicasaService implements InitializingBean {
         return validateAndInitialiseService()
     }
 
-    /**
-     * Get the Album for the provided ID through the Google Picasa web service.
-     *
-     * @param albumId the provided album ID.
-     * @param showAll whether to include hidden / private albums.
-     * @return the retrieved album from the Google Picasa web service.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the selected album album.
-     */
+    @Override
     def Album getAlbum(final String albumId, final boolean showAll = false) throws PicasaServiceException {
         if (serviceInitialised) {
             // Validate ID
@@ -243,16 +217,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * Get the Photo for the provided IDs through the Google Picasa web service.
-     *
-     * @param albumId the provided album ID.
-     * @param photoId the provided photo ID.
-     * @param showAll whether to include hidden / private photo.
-     * @return the retrieved photo from the Google Picasa web service.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the selected photo.
-     */
+    @Override
     def Photo getPhoto(final String albumId, final String photoId, final boolean showAll = false)
         throws PicasaServiceException {
 
@@ -388,14 +353,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * List the available albums for the configured Google Picasa account.
-     *
-     * @param showAll whether to include hidden / private albums in the list.
-     * @return list of albums from the Google Picasa web service.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available albums.
-     */
+    @Override
     def List<Album> listAllAlbums(final boolean showAll = false) throws PicasaServiceException {
         if (serviceInitialised) {
             try {
@@ -462,13 +420,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * List the available tags used by the Google Picasa web album user.
-     *
-     * @return list of tags for the provided Google Picasa web service user.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available tags.
-     */
+    @Override
     def List<Tag> listAllTags() throws PicasaServiceException {
         if (serviceInitialised) {
             // Generate cache key
@@ -561,13 +513,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * List the most recent comments for the Google Picasa web album user.
-     *
-     * @return list of most recent comments for the Google Picasa web album user.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available comments.
-     */
+    @Override
     def List<Comment> listAllComments() throws PicasaServiceException {
         if (serviceInitialised) {
             // Generate cache key
@@ -632,15 +578,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * List the available photos for the provided Google Picasa web album.
-     *
-     * @param albumId the provided album ID.
-     * @param showAll whether to include hidden / private photos in the list.
-     * @return list of photos for the provided Google Picasa web service album.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available photos.
-     */
+    @Override
     def List<Photo> listPhotosForAlbum(final String albumId, final boolean showAll = false)
             throws PicasaServiceException {
 
@@ -718,15 +656,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * List the available photos for the provided Google Picasa web album tag keyword.
-     *
-     * @param tagKeyword the provided tag keyword.
-     * @param showAll whether to include hidden / private photos in the list.
-     * @return list of photos for the provided Google Picasa web service album tag.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available photos.
-     */
+    @Override
     def List<Photo> listPhotosForTag(final String tagKeyword, final boolean showAll = false)
             throws PicasaServiceException {
 
@@ -809,14 +739,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * List the available tags for the provided Google Picasa web album.
-     *
-     * @param albumId the provided album ID.
-     * @return list of tags for the provided Google Picasa web service album.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available tags.
-     */
+    @Override
     def List<Tag> listTagsForAlbum(final String albumId) throws PicasaServiceException {
         if (serviceInitialised) {
             // Validate ID
@@ -919,15 +842,7 @@ class PicasaService implements InitializingBean {
         }
     }
 
-    /**
-     * List the available comments for the provided Google Picasa web album photo.
-     *
-     * @param albumId the provided album ID.
-     * @param photoId the provided photo ID.
-     * @return list of comments for the provided Google Picasa web album photo.
-     * @Exception PicasaServiceException when there's been a problem retrieving
-     *      the list of available comments.
-     */
+    @Override
     def List<Comment> listCommentsForPhoto(final String albumId, final String photoId)
             throws PicasaServiceException {
 
