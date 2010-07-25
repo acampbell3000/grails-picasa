@@ -1,4 +1,4 @@
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Comment" %>
+<%@ page import="uk.co.anthonycampbell.grails.picasa.Comment" %>
                         <div id="comments">
                         <g:render template="../comment/list" model="'commentInstanceList': commentInstanceList,
                                   'commentInstanceTotal': commentInstanceTotal]" />

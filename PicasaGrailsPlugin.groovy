@@ -17,8 +17,8 @@
 
 import org.slf4j.LoggerFactory
 
-import uk.co.anthonycampbell.grails.plugins.picasa.session.SessionMonitor
-import uk.co.anthonycampbell.grails.plugins.picasa.utils.PicasaUtils
+import uk.co.anthonycampbell.grails.picasa.session.SessionMonitor
+import uk.co.anthonycampbell.grails.picasa.utils.PicasaUtils
 
 /*
  * Grails Picasa Plug-in
@@ -31,7 +31,7 @@ import uk.co.anthonycampbell.grails.plugins.picasa.utils.PicasaUtils
 class PicasaGrailsPlugin {
     /** Logger */
 	private static final log = LoggerFactory.getLogger(
-        "uk.co.anthonycampbell.grails.plugins.picasa.PicasaGrailsPlugin")
+        "uk.co.anthonycampbell.grails.picasa.PicasaGrailsPlugin")
 
     // The plugin version
     def version = "0.6.1"
@@ -59,7 +59,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
         // Check environment support hot reloading
 		if (PicasaUtils.isEnvironmentClassReloadable()) {
             if (log?.infoEnabled) {
-                log?.info "Registering ${uk.co.anthonycampbell.grails.plugins.picasa.listener.SessionLifecycleListener.class} " +
+                log?.info "Registering ${uk.co.anthonycampbell.grails.picasa.listener.SessionLifecycleListener.class} " +
                     "in web descriptor for session monitor"
             }
 
@@ -67,7 +67,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
             final def listeners = webXml.'listener'
             listeners + {
                 'listener' {
-                    'listener-class'("uk.co.anthonycampbell.grails.plugins.picasa.listener.SessionLifecycleListener")
+                    'listener-class'("uk.co.anthonycampbell.grails.picasa.listener.SessionLifecycleListener")
                 }
             }
 		}

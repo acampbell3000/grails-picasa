@@ -1,4 +1,4 @@
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Photo" %>
+<%@ page import="uk.co.anthonycampbell.grails.picasa.Photo" %>
                     <div id="showTag">
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>
@@ -6,19 +6,19 @@
 						<table>
 							<thead>
 								<tr>
-                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.photoId.label" default="Photo Id" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.picasa.Photo.photoId.label" default="Photo Id" /></th>
 
-                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="title" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.title.label', default: 'Title')}" />
+                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="title" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Photo.title.label', default: 'Title')}" />
 
-                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="description" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.description.label', default: 'Description')}" />
+                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="description" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Photo.description.label', default: 'Description')}" />
 
-                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.image.label" default="Image" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.picasa.Photo.image.label" default="Image" /></th>
 
-                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="cameraModel" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.cameraModel.label', default: 'Camera Model')}" />
+                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="cameraModel" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Photo.cameraModel.label', default: 'Camera Model')}" />
 
-                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Photo.geoLocation.label" default="Geo Location" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.picasa.Photo.geoLocation.label" default="Geo Location" /></th>
 
-                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Photo.dateCreated.label', default: 'Date Created')}" />
+                                    <g:remoteSortableColumn action="ajaxShow" update="showTag" id="${tagKeyword}" property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Photo.dateCreated.label', default: 'Date Created')}" />
 								</tr>
 							</thead>
 							<tbody>

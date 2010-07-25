@@ -1,4 +1,4 @@
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Comment"
+<%@ page import="uk.co.anthonycampbell.grails.picasa.Comment"
          import="org.apache.commons.lang.StringUtils" %>
                           <div id="listComment">
                           <g:if test="${commentInstanceList && commentInstanceList?.size() > 0}">

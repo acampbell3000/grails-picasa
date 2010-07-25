@@ -1,4 +1,4 @@
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Album" %>
+<%@ page import="uk.co.anthonycampbell.grails.picasa.Album" %>
                     <div id="listAlbum">
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>
@@ -6,19 +6,19 @@
 						<table>
 							<thead>
 								<tr>
-                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.albumId.label" default="Album ID" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.picasa.Album.albumId.label" default="Album ID" /></th>
 								
-									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="name" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.name.label', default: 'Name')}" />
+									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="name" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Album.name.label', default: 'Name')}" />
 								
-									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="description" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.description.label', default: 'Description')}" />
+									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="description" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Album.description.label', default: 'Description')}" />
                                     
-                                    <th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.image.label" default="Image" /></th>
+                                    <th><g:message code="uk.co.anthonycampbell.grails.picasa.Album.image.label" default="Image" /></th>
 
-									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="location" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.location.label', default: 'Location')}" />
+									<g:remoteSortableColumn action="ajaxList" update="listAlbum" property="location" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Album.location.label', default: 'Location')}" />
 
-									<th><g:message code="uk.co.anthonycampbell.grails.plugins.picasa.Album.geoLocation.label" default="Geo Location" /></th>
+									<th><g:message code="uk.co.anthonycampbell.grails.picasa.Album.geoLocation.label" default="Geo Location" /></th>
 
-									<g:sortableColumn action="ajaxList" update="listAlbum" property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.plugins.picasa.Album.dateCareated.label', default: 'Date Created')}" />
+									<g:sortableColumn action="ajaxList" update="listAlbum" property="dateCreated" title="${message(code: 'uk.co.anthonycampbell.grails.picasa.Album.dateCareated.label', default: 'Date Created')}" />
 								</tr>
 							</thead>
 							<tbody>

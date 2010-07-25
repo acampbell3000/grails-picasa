@@ -1,4 +1,4 @@
-<%@ page import="uk.co.anthonycampbell.grails.plugins.picasa.Tag" %>
+<%@ page import="uk.co.anthonycampbell.grails.picasa.Tag" %>
                     <div id="listTag">
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>
