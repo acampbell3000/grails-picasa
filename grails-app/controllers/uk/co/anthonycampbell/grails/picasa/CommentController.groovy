@@ -9,7 +9,6 @@ package uk.co.anthonycampbell.grails.picasa
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *
  * @author Anthony Campbell (anthonycampbell.co.uk)
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -286,12 +285,23 @@ class CommentController {
 
                 // By default show the last set of comments
                 if (offset < 0) {
-                    final def lastOffset = Math.floor(
-                        new Double((commentArray?.length / max) ?: 0.00).doubleValue())
-                    if (lastOffset != null) {
-                        // Reset offset to allow pagination to be updated correctly
-                        offset = params.offset = (lastOffset * max)
+                    def lastOffset
+
+                    if (commentArray?.length <= max) {
+                        // If list if smaller than max then start from begining
+                        lastOffset = 0
+                    } else {
+                        // Find last set
+                        lastOffset = Math.floor(
+                            new Double((commentArray?.length / max) ?: 0.00).doubleValue())
+                        
+                        if (lastOffset != null) {
+                            lastOffset = (lastOffset * max) - 1
+                        }
                     }
+
+                    // Reset offset to allow pagination to be updated correctly
+                    offset = params.offset = lastOffset
                 }
 
                 // Prepare display list
