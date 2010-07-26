@@ -17,6 +17,7 @@ Potential improvements:
 Release notes 0.6.2 (TBA)
 - Improved error logging and parameter handling.
 - Comment Controller unit testing.
+- Comment listing fix.
 - Plug-in package rename.
 
 Release notes 0.6.1 (18th Julu, 2010)
