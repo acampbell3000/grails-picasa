@@ -20,8 +20,10 @@ import java.util.Collections;
 
 import groovy.util.ConfigObject
 import org.codehaus.groovy.grails.commons.GrailsApplication
-
+import grails.converters.JSON
+import grails.converters.XML
 import grails.test.*
+
 import org.junit.*
 import org.mockito.*
 import static org.mockito.Mockito.*
@@ -135,6 +137,33 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "", flashOAuthError
     }
 
+    /**
+     * Unit test for the list controller method.
+     */
+    void testAjaxList() {
+        // Set the controller to use the mock service
+        controller.picasaService = mockPicasaService
+
+        // Run test
+        controller.ajaxList()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_list", viewName
+        assertEquals "Unexpected response returned!", "", model?.albumId
+        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+    
     /**
      * Unit test for the list controller method.
      */
@@ -383,6 +412,63 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", "", flashMessage
         assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the list controller method.
+     */
+    void testList_FeedRss() {
+        // Set the controller to use the mock service
+        controller.picasaService = mockPicasaService
+
+        // Test parameters
+        controller.params.feed = CommentController.RSS_FEED
+
+        // Run test
+        controller.list()
+
+        // Retrieve responses
+        final def response = controller.response.contentAsString
+        final def xmlResult = (response) ? XML.parse(response) : ""
+
+        // Check responses
+        assertNotNull "Unexpected response returned!", response
+        assertNotNull "Unexpected response returned!", xmlResult
+        assertEquals "Unexpected response returned!", "application/rss+xml", xmlResult.contentType
+        assertEquals "Unexpected response returned!", "UTF-8", xmlResult.encoding
+        assertNotNull "Unexpected response returned!", xmlResult.rss
+        assertNotNull "Unexpected response returned!", xmlResult.rss.version
+        assertEquals "Unexpected response returned!", "2.0", xmlResult.rss.version
+        assertNotNull "Unexpected response returned!", xmlResult.rss.channel
+        assertNotNull "Unexpected response returned!", xmlResult.rss.channel.item
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.message,
+            xmlResult.rss.channel.item[0].description
+    }
+
+    /**
+     * Unit test for the list controller method.
+     */
+    void testList_FeedJson() {
+        // Set the controller to use the mock service
+        controller.picasaService = mockPicasaService
+
+        // Test parameters
+        controller.params.feed = CommentController.JSON_FEED
+
+        // Run test
+        controller.list()
+
+        // Retrieve responses
+        final def response = controller.response.contentAsString
+        final def jsonResult = (response) ? JSON.parse(response) : ""
+
+        // Check responses
+        assertNotNull "Unexpected response returned!", response
+        assertNotNull "Unexpected response returned!", jsonResult
+        assertNotNull "Unexpected response returned!", jsonResult.comments
+        assertNotNull "Unexpected response returned!", jsonResult.comments.comment
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.message,
+            jsonResult.comments.comment[0].description
     }
 
     /**
