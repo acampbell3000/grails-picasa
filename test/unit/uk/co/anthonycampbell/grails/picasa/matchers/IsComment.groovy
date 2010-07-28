@@ -1,4 +1,4 @@
-package uk.co.anthonycampbell.grails.picasa
+package uk.co.anthonycampbell.grails.picasa.matchers
 
 /**
  * Copyright 2010 Anthony Campbell (anthonycampbell.co.uk)
@@ -16,29 +16,19 @@ package uk.co.anthonycampbell.grails.picasa
  * limitations under the License.
  */
 
+import org.mockito.ArgumentMatcher
+
+import uk.co.anthonycampbell.grails.picasa.Comment
+
 /**
- * Picasa plug-in Comment domain class.
- *
- * This class is used to persist the main properties of a comment
- * entry returned through the Google API.
+ * Matcher used by the Mockito framework to allow comments to be
+ * used more easily as arguments for mocked methods.
  *
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
-class Comment {
-    // Declare comment properties
-    String commentId = ""
-    String albumId = ""
-    String photoId = ""
-    String message = ""
-    Date dateCreated = new Date()
-    Person author = null
-
-    // Declare constraints
-    static constraints = {
-        commentId(blank: false)
-        albumId(blank: false, matches: "[0-9]+")
-        photoId(blank: false, matches: "[0-9]+")
-        message(blank: false, size: 2..1000)
-        author(nullable: true)
+class IsComment extends ArgumentMatcher<Comment> {
+    @Override
+    public boolean matches(final Object comment) {
+        return (comment instanceof Comment)
     }
 }

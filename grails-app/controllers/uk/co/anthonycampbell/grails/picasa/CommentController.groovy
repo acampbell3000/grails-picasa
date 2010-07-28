@@ -332,8 +332,7 @@ class CommentController {
      * @param isAjax whether the request is from an Ajax call.
      */
     private doSave(final boolean isAjax) {
-        // Initialise lists and prepare comment
-        final Comment commentInstance = new Comment(params)
+        // Initialise lists
         final List<Comment> commentList = new ArrayList<Comment>()
         final List<Comment> displayList = new ArrayList<Comment>()
 
@@ -344,10 +343,19 @@ class CommentController {
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication?.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String createView = isAjax ? "_comments" : "comments"
+        final boolean reverse = (params.order == "asc") ? true : false
         flash.message = ""
         flash.oauthError = ""
 
-		log.debug "Attempting to post a new comment (message=${commentInstance?.message}, isAjax=" +
+        // Clean up params in time for comment initialisation
+        params.remove("offset")
+        params.remove("max")
+        params.remove("order")
+
+        // Prepare comment
+        final Comment commentInstance = new Comment(params)
+
+        log.debug "Attempting to post a new comment (message=${commentInstance?.message}, isAjax=" +
             isAjax + ")"
 
         try {
@@ -382,7 +390,7 @@ class CommentController {
         }
 
         // If required, reverse list
-        if (params.order == "asc") {
+        if (reverse) {
             Collections.reverse(commentList)
         }
 

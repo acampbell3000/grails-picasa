@@ -27,7 +27,7 @@ grails.project.dependency.resolution = {
 
     dependencies {
         runtime 'javax.mail:mail:1.4.3'
-        test 'org.mockito:mockito-all:1.8.4'
+        test 'org.mockito:mockito-all:1.8.5'
     }
 
     plugins {
