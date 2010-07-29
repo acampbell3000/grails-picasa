@@ -28,24 +28,12 @@ import org.junit.*
 import org.mockito.*
 import static org.mockito.Mockito.*
 
-import uk.co.anthonycampbell.grails.picasa.matchers.IsComment
-
 /**
  * Set of unit tests for the comment controller.
  * 
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
 class CommentControllerTests extends ControllerUnitTestCase {
-
-    // Declare test dependencies
-    def grailsApplication
-
-    // Declare mock dependencies
-    @Mock PicasaServiceInterface mockPicasaService
-    @Mock PicasaServiceInterface mockPicasaServiceEmpty
-    @Mock PicasaServiceInterface mockPicasaServiceException
-    @Mock PicasaCommentServiceInterface mockPicasaCommentService
-    @Mock PicasaCommentServiceInterface mockPicasaCommentServiceException
 
     // Test comments
     final Comment TEST_COMMENT_1 = new Comment()
@@ -100,26 +88,6 @@ class CommentControllerTests extends ControllerUnitTestCase {
         TEST_COMMENT_3.albumId = TEST_ALBUM_ID
         TEST_COMMENT_3.photoId = TEST_PHOTO_ID
         TEST_COMMENT_3.message = TEST_MESSAGE_3
-
-        // Return populated list
-        when(mockPicasaService.listAllComments()).thenReturn(TEST_LIST)
-        when(mockPicasaService.listCommentsForPhoto(TEST_ALBUM_ID, TEST_PHOTO_ID)).thenReturn(
-            TEST_LIST)
-        when(mockPicasaService.listCommentsForPhoto("", "")).thenReturn(TEST_EMPTY_LIST)
-
-        // Return empty list
-        when(mockPicasaServiceEmpty.listAllComments()).thenReturn(TEST_EMPTY_LIST)
-        when(mockPicasaServiceEmpty.listCommentsForPhoto(TEST_ALBUM_ID, TEST_PHOTO_ID)).thenReturn(
-            TEST_EMPTY_LIST)
-
-        // Throw exception
-        when(mockPicasaServiceException.listAllComments()).thenThrow(TEST_PICASA_SERVICE_EXCEPTION)
-        when(mockPicasaServiceException.listCommentsForPhoto(TEST_ALBUM_ID, TEST_PHOTO_ID)).thenThrow(
-            TEST_PICASA_SERVICE_EXCEPTION)
-
-        // Throw exception
-        when(mockPicasaCommentServiceException.postComment(argThat(new IsComment()))).thenThrow(
-            TEST_PICASA_COMMENT_SERVICE_EXCEPTION)
     }
 
     /**
@@ -128,13 +96,13 @@ class CommentControllerTests extends ControllerUnitTestCase {
     protected void tearDown() {
         super.tearDown()
     }
-
+    
     /**
      * Unit test for the index controller method.
      */
     void testIndex() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Run test
         controller.index()
@@ -153,7 +121,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testIndex_Params() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Apply param
         controller.params.albumId = TEST_ALBUM_ID
@@ -178,7 +146,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Run test
         controller.list()
@@ -205,7 +173,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_Reverse() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.order = "asc"
@@ -236,7 +204,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_Offset() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.offset = 1
@@ -268,7 +236,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_Max() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.max = 1
@@ -299,7 +267,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_MaxOffset() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.offset = 1
@@ -331,7 +299,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_AlbumPhotoIds() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -362,7 +330,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_InvalidAlbumId() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -393,7 +361,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_InvalidPhotoId() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -424,7 +392,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_InvalidAlbumPhotoIds() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -455,7 +423,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_FeedRss() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = CommentController.RSS_FEED
@@ -486,7 +454,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_FeedXml() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = CommentController.XML_FEED
@@ -512,7 +480,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_FeedJson() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = CommentController.JSON_FEED
@@ -538,7 +506,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testList_InvalidFeed() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = "test"
@@ -568,7 +536,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testListEmptyList() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Run test
         controller.list()
@@ -596,7 +564,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testListEmptyList_MaxOffset() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.offset = TEST_OFFSET
@@ -628,7 +596,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testListEmptyList_AlbumPhotoIds() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -660,7 +628,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testListEmptyList_InvalidAlbumId() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -692,7 +660,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testListEmptyList_InvalidPhotoId() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -724,7 +692,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testListEmptyList_InvalidAlbumPhotoIds() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -756,7 +724,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testListException() {
         // Apply exception mock service
-        controller.picasaService = mockPicasaServiceException
+        controller.picasaService = exceptionService()
 
         // Run test
         controller.list()
@@ -784,7 +752,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Run test
         controller.ajaxList()
@@ -812,7 +780,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_Reverse() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.order = "asc"
@@ -843,7 +811,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_Offset() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.offset = 1
@@ -875,7 +843,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_Max() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.max = 1
@@ -906,7 +874,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_MaxOffset() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.offset = 1
@@ -938,7 +906,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_AlbumPhotoIds() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -969,7 +937,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_InvalidAlbumId() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -1000,7 +968,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_InvalidPhotoId() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -1031,7 +999,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_InvalidAlbumPhotoIds() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -1062,7 +1030,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_FeedRss() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = CommentController.RSS_FEED
@@ -1093,7 +1061,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_FeedXml() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = CommentController.JSON_FEED
@@ -1119,7 +1087,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_FeedJson() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = CommentController.JSON_FEED
@@ -1145,7 +1113,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxList_InvalidFeed() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
+        controller.picasaService = populatedService()
 
         // Test parameters
         controller.params.feed = "test"
@@ -1175,7 +1143,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxListEmptyList() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Run test
         controller.ajaxList()
@@ -1203,7 +1171,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxListEmptyList_MaxOffset() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.offset = TEST_OFFSET
@@ -1235,7 +1203,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxListEmptyList_AlbumPhotoIds() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -1267,7 +1235,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxListEmptyList_InvalidAlbumId() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -1299,7 +1267,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxListEmptyList_InvalidPhotoId() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_ALBUM_ID
@@ -1331,7 +1299,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxListEmptyList_InvalidAlbumPhotoIds() {
         // Set the controller to use the empty mock service
-        controller.picasaService = mockPicasaServiceEmpty
+        controller.picasaService = emptyService()
 
         // Test parameters
         controller.params.albumId = TEST_INVALID_ALBUM_ID
@@ -1363,7 +1331,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testAjaxListException() {
         // Apply exception mock service
-        controller.picasaService = mockPicasaServiceException
+        controller.picasaService = exceptionService()
 
         // Run test
         controller.ajaxList()
@@ -1391,8 +1359,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testSave() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
-        controller.picasaCommentService = mockPicasaCommentService
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
 
         // Test parameters
         controller.params.message = TEST_MESSAGE_1
@@ -1427,8 +1395,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testSave_InvalidAlbumPhotoIds() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
-        controller.picasaCommentService = mockPicasaCommentService
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
 
         // Test parameters
         controller.params.message = TEST_MESSAGE_1
@@ -1467,8 +1435,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testSave_MaxOffset() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
-        controller.picasaCommentService = mockPicasaCommentService
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
 
         // Test parameters
         controller.params.message = TEST_MESSAGE_1
@@ -1506,8 +1474,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testSave_Reverse() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
-        controller.picasaCommentService = mockPicasaCommentService
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
 
         // Test parameters
         controller.params.message = TEST_MESSAGE_1
@@ -1544,8 +1512,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testSave_postCommentException() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaService
-        controller.picasaCommentService = mockPicasaCommentServiceException
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = exceptionCommentService()
 
         // Test parameters
         controller.params.message = TEST_MESSAGE_1
@@ -1580,8 +1548,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
      */
     void testSave_listCommentsException() {
         // Set the controller to use the mock service
-        controller.picasaService = mockPicasaServiceException
-        controller.picasaCommentService = mockPicasaCommentService
+        controller.picasaService = exceptionService()
+        controller.picasaCommentService = commentService()
 
         // Test parameters
         controller.params.message = TEST_MESSAGE_1
@@ -1611,5 +1579,320 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
         assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax save controller method.
+     */
+    void testAjaxSave() {
+        // Set the controller to use the mock service
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+        controller.params.albumId = TEST_ALBUM_ID
+        controller.params.photoId = TEST_PHOTO_ID
+
+        // Run test
+        controller.ajaxSave()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
+        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax save controller method.
+     */
+    void testAjaxSave_InvalidAlbumPhotoIds() {
+        // Set the controller to use the mock service
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+        controller.params.albumId = TEST_INVALID_ALBUM_ID
+        controller.params.photoId = TEST_INVALID_PHOTO_ID
+
+        // Run test
+        controller.ajaxSave()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected response returned!", "", model?.albumId
+        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
+        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
+            model?.commentInstanceList?.size()
+        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
+            model?.commentInstanceTotal
+        assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
+        assertEquals "Unexpected response returned!", TEST_INVALID_ALBUM_ID,
+            model?.commentInstance?.albumId
+        assertEquals "Unexpected response returned!", TEST_INVALID_PHOTO_ID,
+            model?.commentInstance?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax save controller method.
+     */
+    void testAjaxSave_MaxOffset() {
+        // Set the controller to use the mock service
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+        controller.params.albumId = TEST_ALBUM_ID
+        controller.params.photoId = TEST_PHOTO_ID
+        controller.params.offset = 1
+        controller.params.max = 1
+
+        // Run test
+        controller.ajaxSave()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
+        assertEquals "Unexpected response returned!", TEST_LIST.get(1)?.message,
+            model?.commentInstanceList?.get(0)?.message
+        assertEquals "Unexpected response returned!", 1, model?.commentInstanceList?.size()
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax save controller method.
+     */
+    void testAjaxSave_Reverse() {
+        // Set the controller to use the mock service
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+        controller.params.albumId = TEST_ALBUM_ID
+        controller.params.photoId = TEST_PHOTO_ID
+        controller.params.order = "asc"
+
+        // Run test
+        controller.ajaxSave()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
+        assertEquals "Unexpected response returned!", TEST_LIST.get(TEST_LIST.size()-1)?.message,
+            model?.commentInstanceList?.get(0)?.message
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax save controller method.
+     */
+    void testAjaxSave_postCommentException() {
+        // Set the controller to use the mock service
+        controller.picasaService = populatedService()
+        controller.picasaCommentService = exceptionCommentService()
+
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+        controller.params.albumId = TEST_ALBUM_ID
+        controller.params.photoId = TEST_PHOTO_ID
+
+        // Run test
+        controller.ajaxSave()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
+        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax save controller method.
+     */
+    void testAjaxSave_listCommentsException() {
+        // Set the controller to use the mock service
+        controller.picasaService = exceptionService()
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+        controller.params.albumId = TEST_ALBUM_ID
+        controller.params.photoId = TEST_PHOTO_ID
+
+        // Run test
+        controller.ajaxSave()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
+        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
+        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
+            model?.commentInstanceList?.size()
+        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
+            model?.commentInstanceTotal
+        assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
+        assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Apply populated test lists to the PicasaService metaClass methods.
+     *
+     * @return GrailsMock with the metaClass for the service updated to
+     *      provide populated lists.
+     */
+    private populatedService() {
+        // Return populated list
+        final def serviceFactory = mockFor(PicasaService.class, true)
+        serviceFactory.demand.listAllComments(0..1) { -> TEST_LIST }
+        serviceFactory.demand.listCommentsForPhoto(0..1) { def albumId, def photoId ->
+            return (!albumId || !photoId) ? TEST_EMPTY_LIST : TEST_LIST
+        }
+
+        // Initialise mock
+        serviceFactory.createMock()
+    }
+
+    /**
+     * Apply empty test lists to the PicasaService metaClass methods.
+     *
+     * @return GrailsMock with the metaClass for the service updated to
+     *      provide empty lists.
+     */
+    private emptyService() {
+        // Return empty list
+        final def serviceEmptyFactory = mockFor(PicasaService, true)
+        serviceEmptyFactory.demand.listAllComments(0..1) { -> TEST_EMPTY_LIST }
+        serviceEmptyFactory.demand.listCommentsForPhoto(0..1) { def albumId, def photoId ->
+            TEST_EMPTY_LIST
+        }
+
+        // Initialise mock
+        serviceEmptyFactory.createMock()
+    }
+
+    /**
+     * Apply exception test lists to the PicasaService metaClass methods.
+     *
+     * @return GrailsMock with the metaClass for the service updated to
+     *      provide exception lists.
+     */
+    private exceptionService() {
+        // Throw exception
+        final def serviceExceptionFactory = mockFor(PicasaService, true)
+        serviceExceptionFactory.demand.listAllComments(0..1) { ->
+            throw TEST_PICASA_SERVICE_EXCEPTION
+        }
+        serviceExceptionFactory.demand.listCommentsForPhoto(0..1) { def albumId, def photoId ->
+            throw TEST_PICASA_SERVICE_EXCEPTION
+        }
+
+        // Initialise mock
+        serviceExceptionFactory.createMock()
+    }
+
+    /**
+     * Apply test behaviour to the PicasaCommentService metaClass.
+     *
+     * @return GrailsMock with the metaClass for the service updated to
+     *      provide standard behaviour.
+     */
+    private commentService() {
+        // Save message
+        final def commentServiceFactory = mockFor(PicasaCommentService, true)
+        commentServiceFactory.demand.postComment(0..1) { def comment -> }
+        
+        // Initialise mock
+        commentServiceFactory.createMock()
+    }
+
+    /**
+     * Apply exception behaviour to the PicasaCommentService metaClass.
+     *
+     * @return GrailsMock with the metaClass for the service updated to
+     *      provide exception lists.
+     */
+    private exceptionCommentService() {
+        // Throw exception
+        final def commentExceptionServiceFactory = mockFor(PicasaCommentService, true)
+        commentExceptionServiceFactory.demand.postComment(0..1) { def comment ->
+            throw TEST_PICASA_COMMENT_SERVICE_EXCEPTION
+        }
+
+        // Initialise mock
+        commentExceptionServiceFactory.createMock()
     }
 }
