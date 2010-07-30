@@ -43,11 +43,12 @@ class CommentController {
 
     // Declare dependencies
     def grailsApplication
+    def messageSource
     def picasaService
     def picasaCommentService
     
     // Delete, save and update actions only accept POST requests
-	static allowedMethods = [delete: 'POST', save: 'POST', ajaxSave: 'POST']
+	static allowedMethods = [save: 'POST', ajaxSave: 'POST']
     
     // Check user authorisation before adding any new comments
     def beforeInterceptor = [action: this.&checkUser,
@@ -121,9 +122,9 @@ class CommentController {
 
         // Get selected field
         for (param in params) {
-            if (param?.key && !param.key.equals("action")
-                    && !param.key.equals("controller")) {
-                field = param.key
+            if (param?.key && !param?.key?.equals("action")
+                    && !param?.key?.equals("controller")) {
+                field = param?.key
                 break
             }
         }
@@ -131,10 +132,10 @@ class CommentController {
 		log.debug "Validating field: $field"
 
         // Check whether provided field has errors
-        if (!commentInstance.validate() && commentInstance.errors.hasFieldErrors(field)) {
+        if (!commentInstance?.validate() && commentInstance?.errors?.hasFieldErrors(field)) {
 			// Get error message value
-            errorMessage = messageSource.getMessage(
-                commentInstance.errors.getFieldError(field),
+            errorMessage = messageSource?.getMessage(
+                commentInstance?.errors?.getFieldError(field),
                 RCU.getLocale(request)
             )
 
@@ -426,17 +427,27 @@ class CommentController {
         final def oAuthTokenKey = session?.oauthToken?.key
         final def oAuthTokenSecret = session?.oauthToken?.secret
         final def ids = params?.id?.tokenize(ID_SEPARATOR)
-        final def albumId = "${ids?.get(0)}"
-        final def photoId = "${ids?.get(1)}"
+        final def albumId = ids ? "${ids?.get(0)}" : ""
+        final def photoId = ids ? "${ids?.get(1)}" : ""
+        String showController = "photo"
+        String showView = "show"
         flash.message = ""
         flash.oauthError = ""
+
+        // Validate album and photo IDs
+        albumId = (albumId && StringUtils.isNumeric(albumId)) ? albumId : ""
+        photoId = (photoId && StringUtils.isNumeric(photoId)) ? photoId : ""
+        if (!albumId || !photoId) {
+            showController = "album"
+            showView = "index"
+        }
 
         log.debug "Updating service to apply OAuth access (oAuthTokenKey=$oAuthTokenKey " +
             ", oAuthTokenSecret=$oAuthTokenSecret)"
         
         try {
             // Update service and session
-            picasaCommentService.applyOAuthAccess(session?.oauthToken?.key, session?.oauthToken?.secret)
+            picasaCommentService.applyOAuthAccess(oAuthTokenKey, oAuthTokenSecret)
 
             log.debug "Success..."
 
@@ -444,43 +455,69 @@ class CommentController {
             log.error("Unable to update service to apply OAuth access (oAuthTokenKey=$oAuthTokenKey " +
                 ", oAuthTokenSecret=$oAuthTokenSecret)", pse)
             
-            flash.oauthError = message(code: "uk.co.anthonycampbell.grails.picasa.Comment.error.login",
+            flash.message = message(code: "uk.co.anthonycampbell.grails.picasa.Comment.error.login",
                 default: "A problem was encountered when trying to connect to your Google Picasa Web Albums account. Please try again later.")
         }
         
         log.debug "Re-directing to photo (albumId=$albumId, photoId=$photoId)"
 
         // Re-direct to photo
-        redirect(controller: "photo", action: "show", params: [albumId: albumId, photoId: photoId])
+        redirect(controller: showController, action: showView, params: [albumId: albumId, photoId: photoId])
     }
 
     /**
      * Update picasa service with OAuth token and re-direct to photo.
      */
-    private doLogout(final boolean isAjax) {
+    private doLogout(boolean isAjax) {
         // Get request parameters
         final def ids = params?.id?.tokenize(ID_SEPARATOR)
-        final def albumId = ids?.get(0)
-        final def photoId = ids?.get(1)
-        final String showView = isAjax ? "_create" : "show"
+        final def albumId = ids ? "${ids?.get(0)}" : ""
+        final def photoId = ids ? "${ids?.get(1)}" : ""
+        String showController = isAjax ? "comment" : "photo"
+        String showView = isAjax ? "_create" : "show"
+        flash.message = ""
+        flash.oauthError = ""
+
+        // Validate album and photo IDs
+        albumId = (albumId && StringUtils.isNumeric(albumId)) ? albumId : ""
+        photoId = (photoId && StringUtils.isNumeric(photoId)) ? photoId : ""
+        if (!albumId || !photoId) {
+            isAjax = false
+            showController = "album"
+            showView = "index"
+        }
 
         log.debug "Updating service to remove OAuth access"
 
-        // Update service and session
-        picasaCommentService.removeOAuthAccess()
+        try {
+            // Update service and session
+            picasaCommentService.removeOAuthAccess()
 
-        log.debug "Success..."
+            log.debug "Success..."
+
+        } catch (PicasaCommentServiceException pse) {
+            log.error("Unable to update service to remove OAuth access!", pse)
+
+            final def errorMessage = message(code: "uk.co.anthonycampbell.grails.picasa.Comment.error.logout",
+                default: "A problem was encountered when trying to log out from your Google Picasa Web Albums account. Please try again.")
+            
+            if (isAjax) {
+                flash.oauthError = errorMessage
+            } else {
+                flash.message = errorMessage
+            }
+        }
 
         if (isAjax) {
             log.debug "Render comment $showView view for photo (albumId=$albumId, photoId=$photoId)"
 
             // Just render create comment form
-            render(view: showView, model: [albumId: albumId, photoId: photoId])
+            render(controller: showController, view: showView, model: [albumId: albumId, photoId: photoId])
         } else {
             log.debug "Re-directing to photo with $showView view (albumId=$albumId, photoId=$photoId)"
 
             // Re-direct to photo
-            redirect(controller: "photo", action: showView, params: [albumId: albumId,
+            redirect(controller: showController, action: showView, params: [albumId: albumId,
                     photoId: photoId])
         }
     }

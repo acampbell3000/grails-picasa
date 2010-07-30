@@ -64,11 +64,10 @@ class CommentControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
         super.setUp()
 
-        // Initialise logging
+        // Initialise logging and comment instance
         mockLogging(CommentController.class, true)
-
-        // Initialise all mocks
-        MockitoAnnotations.initMocks(this)
+        mockForConstraintsTests(Comment)
+        mockDomain(Comment, [])
         
         // Setup config
         final def mockedConfig = new ConfigObject()
@@ -76,7 +75,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         GrailsApplication.metaClass.getConfig = { -> mockedConfig }
 
         // Mock i18n
-        controller.metaClass.message = { def map -> return TEST_I18N_MESSAGE }
+        controller.metaClass.message = { def map -> TEST_I18N_MESSAGE }
+        controller.messageSource = [getMessage: { def map -> TEST_I18N_MESSAGE }]
         
         // Prepare test comments
         TEST_COMMENT_1.albumId = TEST_ALBUM_ID
@@ -466,13 +466,19 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def response = controller.response.contentAsString
         final def xmlResult = (response) ? XML.parse(response) : ""
 
+        def a = xmlResult.comments
+        def b = xmlResult.comments.comment
+        def c = xmlResult.comments.comment[0]
+
         // Check responses
         assertNotNull "Unexpected response returned!", response
         assertNotNull "Unexpected response returned!", xmlResult
         assertNotNull "Unexpected response returned!", xmlResult.comments
         assertNotNull "Unexpected response returned!", xmlResult.comments.comment
-        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.message,
-            xmlResult.comments.comment[0].description
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.albumId,
+            xmlResult.comments[0].comment[0].albumId
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.photoId,
+            xmlResult.comments[0].comment[0].photoId
     }
 
     /**
@@ -497,8 +503,10 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertNotNull "Unexpected response returned!", jsonResult
         assertNotNull "Unexpected response returned!", jsonResult.comments
         assertNotNull "Unexpected response returned!", jsonResult.comments.comment
-        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.message,
-            jsonResult.comments.comment[0].description
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.albumId,
+            jsonResult.comments.comment[0].albumId
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.photoId,
+            jsonResult.comments.comment[0].photoId
     }
 
     /**
@@ -1078,8 +1086,10 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertNotNull "Unexpected response returned!", xmlResult
         assertNotNull "Unexpected response returned!", xmlResult.comments
         assertNotNull "Unexpected response returned!", xmlResult.comments.comment
-        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.message,
-            xmlResult.comments.comment[0].description
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.albumId,
+            xmlResult.comments.comment[0].albumId
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.photoId,
+            xmlResult.comments.comment[0].photoId
     }
 
     /**
@@ -1104,8 +1114,10 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertNotNull "Unexpected response returned!", jsonResult
         assertNotNull "Unexpected response returned!", jsonResult.comments
         assertNotNull "Unexpected response returned!", jsonResult.comments.comment
-        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.message,
-            jsonResult.comments.comment[0].description
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.albumId,
+            jsonResult.comments.comment[0].albumId
+        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.photoId,
+            jsonResult.comments.comment[0].photoId
     }
 
     /**
@@ -1809,6 +1821,370 @@ class CommentControllerTests extends ControllerUnitTestCase {
     }
 
     /**
+     * Unit test for the login controller method.
+     */
+    void testLogin() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.session.oauthToken = [key: "", secret: ""]
+        controller.params.id = TEST_ALBUM_ID + CommentController.ID_SEPARATOR + TEST_PHOTO_ID
+
+        // Run test
+        controller.login()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "photo", redirectController
+        assertEquals "Unexpected response returned!", "show", redirectAction
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, redirectParams?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the login controller method.
+     */
+    void testLogin_NoIds() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.session.oauthToken = [key: "", secret: ""]
+        controller.params.id = ""
+
+        // Run test
+        controller.login()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "album", redirectController
+        assertEquals "Unexpected response returned!", "index", redirectAction
+        assertEquals "Unexpected response returned!", "", redirectParams?.albumId
+        assertEquals "Unexpected response returned!", "", redirectParams?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+    }
+
+    /**
+     * Unit test for the login controller method.
+     */
+    void testLogin_OnlySeparator() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.session.oauthToken = [key: "", secret: ""]
+        controller.params.id = CommentController.ID_SEPARATOR
+
+        // Run test
+        controller.login()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "album", redirectController
+        assertEquals "Unexpected response returned!", "index", redirectAction
+        assertEquals "Unexpected response returned!", "", redirectParams?.albumId
+        assertEquals "Unexpected response returned!", "", redirectParams?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the login controller method.
+     */
+    void testLogin_ApplyException() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = exceptionCommentService()
+
+        // Test parameters
+        controller.session.oauthToken = [key: "", secret: ""]
+        controller.params.id = TEST_ALBUM_ID + CommentController.ID_SEPARATOR + TEST_PHOTO_ID
+
+        // Run test
+        controller.login()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "photo", redirectController
+        assertEquals "Unexpected response returned!", "show", redirectAction
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, redirectParams?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
+        assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the logout controller method.
+     */
+    void testLogout() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.id = TEST_ALBUM_ID + CommentController.ID_SEPARATOR + TEST_PHOTO_ID
+
+        // Run test
+        controller.logout()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "photo", redirectController
+        assertEquals "Unexpected response returned!", "show", redirectAction
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, redirectParams?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the logout controller method.
+     */
+    void testLogout_NoIds() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.id = ""
+
+        // Run test
+        controller.logout()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "album", redirectController
+        assertEquals "Unexpected response returned!", "index", redirectAction
+        assertEquals "Unexpected response returned!", "", redirectParams?.albumId
+        assertEquals "Unexpected response returned!", "", redirectParams?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the logout controller method.
+     */
+    void testLogout_RemoveException() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = exceptionCommentService()
+
+        // Test parameters
+        controller.params.id = TEST_ALBUM_ID + CommentController.ID_SEPARATOR + TEST_PHOTO_ID
+
+        // Run test
+        controller.logout()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "photo", redirectController
+        assertEquals "Unexpected response returned!", "show", redirectAction
+        assertEquals "Unexpected 1response returned!", TEST_ALBUM_ID, redirectParams?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
+        assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax logout controller method.
+     */
+    void testAjaxLogout() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.id = TEST_ALBUM_ID + CommentController.ID_SEPARATOR + TEST_PHOTO_ID
+
+        // Run test
+        controller.ajaxLogout()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_create", viewName
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax logout controller method.
+     */
+    void testAjaxLogout_NoIds() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = commentService()
+
+        // Test parameters
+        controller.params.id = ""
+
+        // Run test
+        controller.ajaxLogout()
+
+        // Retrieve responses
+        final def redirectController = controller.redirectArgs.controller
+        final def redirectAction = controller.redirectArgs.action
+        final def redirectParams = controller.redirectArgs.params
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "album", redirectController
+        assertEquals "Unexpected response returned!", "index", redirectAction
+        assertEquals "Unexpected 1response returned!", "", redirectParams?.albumId
+        assertEquals "Unexpected response returned!", "", redirectParams?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", "", flashOAuthError
+    }
+
+    /**
+     * Unit test for the ajax logout controller method.
+     */
+    void testAjaxLogout_RemoveException() {
+        // Set the controller to use the mock service
+        controller.picasaCommentService = exceptionCommentService()
+
+        // Test parameters
+        controller.params.id = TEST_ALBUM_ID + CommentController.ID_SEPARATOR + TEST_PHOTO_ID
+
+        // Run test
+        controller.ajaxLogout()
+
+        // Retrieve responses
+        final def model = controller.modelAndView.model?.linkedHashMap
+        final def viewName = controller.modelAndView.viewName
+        final def flashMessage = controller.flash.message
+        final def flashOAuthError = controller.flash.oauthError
+
+        // Check responses
+        assertEquals "Unexpected response returned!", "_create", viewName
+        assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
+        assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
+        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashOAuthError
+    }
+
+    /**
+     * Unit test for the validate ajax controller method.
+     */
+    void testValidate() {
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+        controller.params.albumId = TEST_ALBUM_ID
+        controller.params.photoId = TEST_PHOTO_ID
+
+        // Run test
+        controller.validate()
+
+        // Retrieve response
+        final def response = controller.response.contentAsString
+
+        // Check response
+        assertEquals "Unexpected response returned!", "", response
+    }
+
+    /**
+     * Unit test for the validate ajax controller method.
+     */
+    void testValidate_InvalidComment() {
+        // Test parameters
+        controller.params.message = TEST_MESSAGE_1
+
+        // Run test
+        controller.validate()
+
+        // Retrieve response
+        final def response = controller.response.contentAsString
+
+        // Check response
+        assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, response
+    }
+
+    /**
+     * Unit test for the ajax logout controller method.
+     */
+    void testCheckUser() {
+        // Logged in
+        controller.session?.oAuthLoggedIn = true
+
+        // Run test
+        def loggedIn = controller.checkUser()
+
+        // Check response
+        assertEquals "Unexpected response returned!", true, loggedIn
+    }
+
+    /**
+     * Unit test for the ajax logout controller method.
+     */
+    void testCheckUser_LoggedOut() {
+        // Logged in
+        controller.session?.oAuthLoggedIn = false
+
+        // Run test
+        def loggedIn = controller.checkUser()
+
+        // Check response
+        assertEquals "Unexpected response returned!", false, loggedIn
+    }
+
+    /**
+     * Unit test for the ajax logout controller method.
+     */
+    void testCheckUser_Null() {
+        // Run test
+        def loggedIn = controller.checkUser()
+
+        // Check response
+        assertEquals "Unexpected response returned!", false, loggedIn
+    }
+
+    /**
      * Apply populated test lists to the PicasaService metaClass methods.
      *
      * @return GrailsMock with the metaClass for the service updated to
@@ -1874,6 +2250,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         // Save message
         final def commentServiceFactory = mockFor(PicasaCommentService, true)
         commentServiceFactory.demand.postComment(0..1) { def comment -> }
+        commentServiceFactory.demand.applyOAuthAccess(0..1) { def key, def secret -> }
+        commentServiceFactory.demand.removeOAuthAccess(0..1) { -> }
         
         // Initialise mock
         commentServiceFactory.createMock()
@@ -1889,6 +2267,12 @@ class CommentControllerTests extends ControllerUnitTestCase {
         // Throw exception
         final def commentExceptionServiceFactory = mockFor(PicasaCommentService, true)
         commentExceptionServiceFactory.demand.postComment(0..1) { def comment ->
+            throw TEST_PICASA_COMMENT_SERVICE_EXCEPTION
+        }
+        commentExceptionServiceFactory.demand.applyOAuthAccess(0..1) { def key, def secret ->
+            throw TEST_PICASA_COMMENT_SERVICE_EXCEPTION
+        }
+        commentExceptionServiceFactory.demand.removeOAuthAccess(0..1) { ->
             throw TEST_PICASA_COMMENT_SERVICE_EXCEPTION
         }
 

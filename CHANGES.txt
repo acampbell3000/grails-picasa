@@ -3,6 +3,7 @@ VERSION: 0.6.2
 Known issues:
 - Poor code coverage of the PicasaService.
 - Poor code coverage of controllers and domain classes.
+- View photo comment RSS / XML / JSON links are broken.
 
 Potential improvements:
 - Tag library to display UI components.
@@ -12,7 +13,8 @@ Potential improvements:
 - Wiki details on how to make best use of UI.
 - Wiki API reference.
 - Potential switch to jQuery for UI.
-- Further license coverage.
+- Google Map widget introduction.
+- Maybe make use of Google Data Grails plug-in?
 
 Release notes 0.6.2 (TBA)
 - Improved error logging and parameter handling.
