@@ -466,19 +466,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def response = controller.response.contentAsString
         final def xmlResult = (response) ? XML.parse(response) : ""
 
-        def a = xmlResult.comments
-        def b = xmlResult.comments.comment
-        def c = xmlResult.comments.comment[0]
-
         // Check responses
         assertNotNull "Unexpected response returned!", response
         assertNotNull "Unexpected response returned!", xmlResult
         assertNotNull "Unexpected response returned!", xmlResult.comments
         assertNotNull "Unexpected response returned!", xmlResult.comments.comment
         assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.albumId,
-            xmlResult.comments[0].comment[0].albumId
+            xmlResult.comments.comment[0].albumId
         assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.photoId,
-            xmlResult.comments[0].comment[0].photoId
+            xmlResult.comments.comment[0].photoId
     }
 
     /**
