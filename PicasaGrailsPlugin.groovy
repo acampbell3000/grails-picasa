@@ -34,7 +34,7 @@ class PicasaGrailsPlugin {
         "uk.co.anthonycampbell.grails.picasa.PicasaGrailsPlugin")
 
     // The plugin version
-    def version = "0.6.2"
+    def version = "0.6.3"
     // The version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.1 > *"
     // The other plugins this plugin depends on
