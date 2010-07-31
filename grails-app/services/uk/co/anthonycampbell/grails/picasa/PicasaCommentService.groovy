@@ -63,8 +63,17 @@ class PicasaCommentService implements InitializingBean {
         log?.info "Initialising the ${this.getClass().getSimpleName()}..."
         reset()
     }
-    
-    @Override
+
+    /**
+     * Attempt to re-connect to the Picasa web service using the new provided
+     * configuration details.
+     *
+     * @param picasaApplicationName the application's name.
+     * @param picasaConsumerKey the picasa OAuth consumer key.
+     * @param picasaConsumerSecret the picasa OAuth consumer secret.
+     * @param allowComments whether to allow comments to be posted.
+     * @return whether a new connection was successfully made.
+     */
     boolean connect(final String picasaApplicationName, final String picasaConsumerKey,
             final String picasaConsumerSecret, final String allowComments) {
         log?.info "Setting the ${this.getClass().getSimpleName()} configuration..."
@@ -77,8 +86,13 @@ class PicasaCommentService implements InitializingBean {
         // Validate properties and attempt to initialise the service
         return validateAndInitialiseService()
     }
-    
-    @Override
+
+    /**
+     * Attempt to re-connect to the Picasa web service using the provided
+     * connection details available in the grails-app/conf/Config.groovy file.
+     *
+     * @return whether a new connection was successfully made.
+     */
     boolean reset() {
         log?.info "Resetting ${this.getClass().getSimpleName()} configuration..."
 
@@ -99,7 +113,13 @@ class PicasaCommentService implements InitializingBean {
         return validateAndInitialiseService()
     }
     
-    @Override
+    /**
+     * Apply the provided access token to the Picasa service.
+     *
+     * @param the access token.
+     * @param the access token secret.
+     * @throw PicasaCommentServiceException Unable to apply OAuth access.
+     */
     def applyOAuthAccess(final String token, final String secret)
             throws PicasaCommentServiceException {
 
@@ -181,7 +201,9 @@ class PicasaCommentService implements InitializingBean {
         }
     }
     
-    @Override
+    /**
+     * Reset the picasa comments web service and update session.
+     */
     def removeOAuthAccess() {
         log.info "Attempting to remove any existing OAuth access..."
 
@@ -197,8 +219,14 @@ class PicasaCommentService implements InitializingBean {
 
         log.info "OAuth access successfully removed"
     }
-    
-    @Override
+
+    /**
+     * Post the provided comment through the Google Picasa web service.
+     *
+     * @param comment the provided comment to post.
+     * @throw PicasaCommentServiceException when there's been a problem posting
+     *      the provided comment.
+     */
     def postComment(final Comment comment) throws PicasaCommentServiceException {
         // Check whether service is initialised
         if (serviceInitialised) {

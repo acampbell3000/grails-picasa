@@ -66,8 +66,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
 
         // Initialise logging and comment instance
         mockLogging(CommentController.class, true)
-        mockForConstraintsTests(Comment)
-        mockDomain(Comment, [])
+        mockForConstraintsTests(Comment.class)
         
         // Setup config
         final def mockedConfig = new ConfigObject()
@@ -464,7 +463,12 @@ class CommentControllerTests extends ControllerUnitTestCase {
 
         // Retrieve responses
         final def response = controller.response.contentAsString
-        final def xmlResult = (response) ? XML.parse(response) : ""
+        final def xmlResult = XML.parse(response ?: "") ?: ""
+
+        def size = xmlResult.size()
+        def children = xmlResult.children()
+        def a = xmlResult.comment[0].albumId
+        def b = xmlResult.comment[0].albumId.text()
 
         // Check responses
         assertNotNull "Unexpected response returned!", response
