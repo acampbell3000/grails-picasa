@@ -157,14 +157,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -187,15 +187,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(TEST_LIST.size()-1)?.message,
             model?.commentInstanceList?.get(0)?.message
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -218,16 +218,16 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(1)?.message,
             model?.commentInstanceList?.get(0)?.message
-        assertEquals "Unexpected response returned!", TEST_LIST.size()-1,
+        assertEquals "Unexpected list size response returned!", TEST_LIST.size()-1,
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -250,15 +250,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(TEST_LIST.size()-1)?.message,
             model?.commentInstanceList?.get(0)?.message
         assertEquals "Unexpected response returned!", 1, model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -282,15 +282,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(1)?.message,
             model?.commentInstanceList?.get(0)?.message
         assertEquals "Unexpected response returned!", 1, model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -314,14 +314,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
+        assertEquals "Unexpected view name returned!", "list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -345,14 +345,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -376,14 +376,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
+        assertEquals "Unexpected view name returned!", "list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -407,14 +407,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -432,7 +432,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
 
         // Retrieve responses
         final def response = controller.response.contentAsString
-        final def xmlResult = (response) ? XML.parse(response) : ""
+        final def xmlResult = XML.parse(response ?: "") ?: ""
 
         // Check responses
         assertNotNull "Unexpected response returned!", response
@@ -465,20 +465,18 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def response = controller.response.contentAsString
         final def xmlResult = XML.parse(response ?: "") ?: ""
 
-        def size = xmlResult.size()
-        def children = xmlResult.children()
-        def a = xmlResult.comment[0].albumId
-        def b = xmlResult.comment[0].albumId.text()
-
         // Check responses
         assertNotNull "Unexpected response returned!", response
         assertNotNull "Unexpected response returned!", xmlResult
-        assertNotNull "Unexpected response returned!", xmlResult.comments
-        assertNotNull "Unexpected response returned!", xmlResult.comments.comment
-        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.albumId,
-            xmlResult.comments.comment[0].albumId
-        assertEquals "Unexpected response returned!", TEST_LIST.get(0)?.photoId,
-            xmlResult.comments.comment[0].photoId
+        assertNotNull "Unexpected response returned!", xmlResult.comment
+        assertEquals "Unexpected list size response returned!", TEST_LIST.size(),
+            xmlResult.comment.size()
+        assertEquals "Unexpected album ID response returned!", TEST_LIST.get(0)?.albumId,
+            xmlResult.comment[0].albumId.text()
+        assertEquals "Unexpected photo ID response returned!", TEST_LIST.get(0)?.photoId,
+            xmlResult.comment[0].photoId.text()
+        assertEquals "Unexpected message response returned!", TEST_LIST.get(0)?.message,
+            xmlResult.comment[0].message.text()
     }
 
     /**
@@ -529,14 +527,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(),
+            model?.commentInstanceList?.size()
+        assertEquals "Unexpected total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -556,15 +555,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -588,15 +587,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -620,15 +619,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
+        assertEquals "Unexpected view name returned!", "list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -652,15 +651,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -684,15 +683,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
+        assertEquals "Unexpected view name returned!", "list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -716,15 +715,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -744,15 +743,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -772,14 +771,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
 
@@ -803,15 +802,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(TEST_LIST.size()-1)?.message,
             model?.commentInstanceList?.get(0)?.message
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -834,16 +833,16 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(1)?.message,
             model?.commentInstanceList?.get(0)?.message
-        assertEquals "Unexpected response returned!", TEST_LIST.size()-1,
+        assertEquals "Unexpected list size response returned!", TEST_LIST.size()-1,
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -866,15 +865,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(TEST_LIST.size()-1)?.message,
             model?.commentInstanceList?.get(0)?.message
         assertEquals "Unexpected response returned!", 1, model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -898,15 +897,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(1)?.message,
             model?.commentInstanceList?.get(0)?.message
         assertEquals "Unexpected response returned!", 1, model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -930,14 +929,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
+        assertEquals "Unexpected view name returned!", "_list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -961,14 +960,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -992,14 +991,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
+        assertEquals "Unexpected view name returned!", "_list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1023,14 +1022,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1048,7 +1047,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
 
         // Retrieve responses
         final def response = controller.response.contentAsString
-        final def xmlResult = (response) ? XML.parse(response) : ""
+        final def xmlResult = XML.parse(response ?: "") ?: ""
 
         // Check responses
         assertNotNull "Unexpected response returned!", response
@@ -1079,7 +1078,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
 
         // Retrieve responses
         final def response = controller.response.contentAsString
-        final def xmlResult = (response) ? XML.parse(response) : ""
+        final def xmlResult = XML.parse(response ?: "") ?: ""
 
         // Check responses
         assertNotNull "Unexpected response returned!", response
@@ -1140,14 +1139,14 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1167,15 +1166,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1199,15 +1198,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1231,15 +1230,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
+        assertEquals "Unexpected view name returned!", "_list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1263,15 +1262,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1295,15 +1294,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
+        assertEquals "Unexpected view name returned!", "_list", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1327,15 +1326,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1355,15 +1354,15 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_list", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_list", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected total returned!", TEST_EMPTY_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1389,17 +1388,17 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "comments", viewName
+        assertEquals "Unexpected view name returned!", "comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1425,9 +1424,9 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "comments", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "comments", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
@@ -1438,8 +1437,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
             model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_INVALID_PHOTO_ID,
             model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1467,18 +1466,18 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "comments", viewName
+        assertEquals "Unexpected view name returned!", "comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(1)?.message,
             model?.commentInstanceList?.get(0)?.message
         assertEquals "Unexpected response returned!", 1, model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1505,18 +1504,18 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "comments", viewName
+        assertEquals "Unexpected view name returned!", "comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(TEST_LIST.size()-1)?.message,
             model?.commentInstanceList?.get(0)?.message
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1542,16 +1541,16 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "comments", viewName
+        assertEquals "Unexpected view name returned!", "comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected flash message returned!", "", flashMessage
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashOAuthError
     }
 
@@ -1578,7 +1577,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "comments", viewName
+        assertEquals "Unexpected view name returned!", "comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
@@ -1590,7 +1589,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1616,17 +1615,17 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected view name returned!", "_comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1652,9 +1651,9 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_comments", viewName
-        assertEquals "Unexpected response returned!", "", model?.albumId
-        assertEquals "Unexpected response returned!", "", model?.photoId
+        assertEquals "Unexpected view name returned!", "_comments", viewName
+        assertEquals "Unexpected album ID returned!", "", model?.albumId
+        assertEquals "Unexpected photo ID returned!", "", model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST.size(),
             model?.commentInstanceList?.size()
@@ -1665,8 +1664,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
             model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_INVALID_PHOTO_ID,
             model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1694,18 +1693,18 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected view name returned!", "_comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(1)?.message,
             model?.commentInstanceList?.get(0)?.message
         assertEquals "Unexpected response returned!", 1, model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1732,18 +1731,18 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected view name returned!", "_comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_LIST.get(TEST_LIST.size()-1)?.message,
             model?.commentInstanceList?.get(0)?.message
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1769,16 +1768,16 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected view name returned!", "_comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", TEST_LIST, model?.commentInstanceList
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
-        assertEquals "Unexpected response returned!", TEST_LIST.size(), model?.commentInstanceTotal
+        assertEquals "Unexpected comment list returned!", TEST_LIST, model?.commentInstanceList
+        assertEquals "Unexpected display list size response returned!", TEST_LIST.size(), model?.commentInstanceList?.size()
+        assertEquals "Unexpected list total returned!", TEST_LIST.size(), model?.commentInstanceTotal
         assertEquals "Unexpected response returned!", TEST_MESSAGE_1, model?.commentInstance?.message
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected flash message returned!", "", flashMessage
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashOAuthError
     }
 
@@ -1805,7 +1804,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         final def flashOAuthError = controller.flash.oauthError
 
         // Check responses
-        assertEquals "Unexpected response returned!", "_comments", viewName
+        assertEquals "Unexpected view name returned!", "_comments", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
         assertEquals "Unexpected response returned!", TEST_EMPTY_LIST, model?.commentInstanceList
@@ -1817,7 +1816,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.commentInstance?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.commentInstance?.photoId
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1846,8 +1845,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "show", redirectAction
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, redirectParams?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1876,7 +1875,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "index", redirectAction
         assertEquals "Unexpected response returned!", "", redirectParams?.albumId
         assertEquals "Unexpected response returned!", "", redirectParams?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected flash message returned!", "", flashMessage
     }
 
     /**
@@ -1905,8 +1904,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "index", redirectAction
         assertEquals "Unexpected response returned!", "", redirectParams?.albumId
         assertEquals "Unexpected response returned!", "", redirectParams?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1936,7 +1935,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, redirectParams?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1964,8 +1963,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "show", redirectAction
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, redirectParams?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -1993,8 +1992,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "index", redirectAction
         assertEquals "Unexpected response returned!", "", redirectParams?.albumId
         assertEquals "Unexpected response returned!", "", redirectParams?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -2023,7 +2022,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected 1response returned!", TEST_ALBUM_ID, redirectParams?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, redirectParams?.photoId
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -2049,8 +2048,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "_create", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -2078,8 +2077,8 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "index", redirectAction
         assertEquals "Unexpected 1response returned!", "", redirectParams?.albumId
         assertEquals "Unexpected response returned!", "", redirectParams?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
-        assertEquals "Unexpected response returned!", "", flashOAuthError
+        assertEquals "Unexpected flash message returned!", "", flashMessage
+        assertEquals "Unexpected flash OAuth message returned!", "", flashOAuthError
     }
 
     /**
@@ -2105,7 +2104,7 @@ class CommentControllerTests extends ControllerUnitTestCase {
         assertEquals "Unexpected response returned!", "_create", viewName
         assertEquals "Unexpected response returned!", TEST_ALBUM_ID, model?.albumId
         assertEquals "Unexpected response returned!", TEST_PHOTO_ID, model?.photoId
-        assertEquals "Unexpected response returned!", "", flashMessage
+        assertEquals "Unexpected flash message returned!", "", flashMessage
         assertEquals "Unexpected response returned!", TEST_I18N_MESSAGE, flashOAuthError
     }
 
