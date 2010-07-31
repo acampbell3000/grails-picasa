@@ -15,6 +15,7 @@ Potential improvements:
 - Potential switch to jQuery for UI.
 - Google Map widget introduction.
 - Maybe make use of Google Data Grails plug-in?
+- Depend on GDATA plug-in.
 
 Release notes 0.6.3 (TBA)
 

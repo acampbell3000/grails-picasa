@@ -11,7 +11,8 @@
         <g:layoutHead />
         <g:javascript library="prototype" />
         <g:javascript library="scriptaculous" />
-        <g:javascript library="application" />				
+        <g:javascript library="application" />
+        <resource:map key="ABQIAAAA3yQx29uKg-gW8uSQ7UIUWxQgtWBfj3Ey6DKe-UJBP8jTKOFWThQiC3oWv1J1FLCRGIhhN0mbsjF9SA" zoomLevel="14" />
     </head>
     <body>
         <div id="header">

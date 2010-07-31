@@ -38,7 +38,7 @@ class PicasaGrailsPlugin {
     // The version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.1 > *"
     // The other plugins this plugin depends on
-    def dependsOn = [ oauth: 0.6 ]
+    def dependsOn = [ oauth: 0.6, richui: 0.8 ]
     // Resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp"
@@ -73,14 +73,6 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
 		}
 	}
 
-    def doWithSpring = {
-        // TODO Implement runtime spring config (optional)
-    }
-
-    def doWithDynamicMethods = { ctx ->
-        // TODO Implement registering dynamic methods to classes (optional)
-    }
-
     def doWithApplicationContext = { applicationContext ->
         // Check environment support hot reloading
         if (PicasaUtils.isEnvironmentClassReloadable()) {
@@ -97,12 +89,6 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
                     "(Environment.current.reloadEnabled=${Environment.current.reloadEnabled})"
 			}
 		}
-    }
-
-    def onChange = { event ->
-        // TODO Implement code that is executed when any artefact that this plugin is
-        // watching is modified and reloaded. The event contains: event.source,
-        // event.application, event.manager, event.ctx, and event.plugin.
     }
 
     def onConfigChange = { event ->

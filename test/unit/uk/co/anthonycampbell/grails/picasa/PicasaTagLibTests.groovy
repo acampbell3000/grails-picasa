@@ -19,15 +19,16 @@ package uk.co.anthonycampbell.grails.picasa
 import grails.test.*
 
 /**
- * Set of unit tests for the Picasa comment service tests.
+ * Set of unit tests for the Picasa tag library.
  *
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
-class PicasaCommentServiceTests extends GrailsUnitTestCase {
+class PicasaTagLibTests extends TagLibUnitTestCase {
 
     /**
-     * Set up the test suite.
+     * Setup of the test suite.
      */
+    @Override
     protected void setUp() {
         super.setUp()
     }
@@ -35,10 +36,10 @@ class PicasaCommentServiceTests extends GrailsUnitTestCase {
     /**
      * Tear down the test suite.
      */
+    @Override
     protected void tearDown() {
         super.tearDown()
     }
-
 
     void testSomething() {
 

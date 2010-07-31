@@ -23,6 +23,9 @@ grails.project.dependency.resolution = {
         grailsPlugins()
         grailsHome()
         mavenCentral()
+
+        // Google's Maven repository
+        mavenRepo "http://google-maven-repository.googlecode.com/svn/repository/"
     }
 
     dependencies {
@@ -32,6 +35,7 @@ grails.project.dependency.resolution = {
 
     plugins {
         runtime 'org.grails.plugins:oauth:0.6'
+        runtime 'org.grails.plugins:richui:0.8'
         test 'org.grails.plugins:code-coverage:latest.integration'
     }
 }

@@ -16,31 +16,16 @@ package uk.co.anthonycampbell.grails.picasa
  * limitations under the License.
  */
 
-import grails.test.*
-
 /**
- * Set of unit tests for the Picasa comment service tests.
+ * Picasa Tag Library.
+ *
+ * Set of tags specifically for the Grails Picasa plug-in.
  *
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
-class PicasaCommentServiceTests extends GrailsUnitTestCase {
+class PicasaTagLib {
+    // Own namespace
+    static namespace = 'picasa'
 
-    /**
-     * Set up the test suite.
-     */
-    protected void setUp() {
-        super.setUp()
-    }
-
-    /**
-     * Tear down the test suite.
-     */
-    protected void tearDown() {
-        super.tearDown()
-    }
-
-
-    void testSomething() {
-
-    }
+    
 }
