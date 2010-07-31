@@ -16,7 +16,7 @@ Potential improvements:
 - Google Map widget introduction.
 - Maybe make use of Google Data Grails plug-in?
 
-Release notes 0.6.2 (TBA)
+Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.
 - Comment Controller unit testing.
 - Comment listing fix.
@@ -25,7 +25,7 @@ Release notes 0.6.2 (TBA)
 - Attempt to make more use of the Grails test framework with mockFor().
 - Removal of PicasaService and PicasaCommentService interfaces.
 
-Release notes 0.6.1 (18th Julu, 2010)
+Release notes 0.6.1 (18th July, 2010)
 - Update to OAuth plug-in 0.6.
 - Introduction of the SessionLifecycleListener to monitor sessions.
 - Introduction of the SessionLifecycle interface.
