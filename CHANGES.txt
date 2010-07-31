@@ -1,4 +1,4 @@
-VERSION: 0.6.2
+VERSION: 0.6.3
 
 Known issues:
 - Poor code coverage of the PicasaService.
@@ -15,6 +15,9 @@ Potential improvements:
 - Potential switch to jQuery for UI.
 - Google Map widget introduction.
 - Maybe make use of Google Data Grails plug-in?
+
+Release notes 0.6.3 (TBA)
+
 
 Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.

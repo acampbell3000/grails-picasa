@@ -10,22 +10,22 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     <resource>BuildConfig</resource>
     <resource>Config</resource>
     <resource>UrlMappings</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.AlbumController</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.CommentController</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.PhotoController</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.TagController</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.Album</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.Comment</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.GeoPoint</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.Person</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.Photo</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.Tag</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.PicasaCommentService</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.PicasaCommentServiceException</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.PicasaService</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.PicasaServiceException</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.AlbumController</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.CommentController</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.PhotoController</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.TagController</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.Album</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.Comment</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.GeoPoint</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.Person</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.Photo</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.Tag</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.PicasaCommentService</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.PicasaCommentServiceException</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.PicasaService</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.PicasaServiceException</resource>
     <resource>uk.co.anthonycampbell.grails.taglib.TextTagLib</resource>
-    <resource>uk.co.anthonycampbell.grails.plugins.picasa.DateUtil</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.DateUtil</resource>
   </resources>
   <dependencies>
     <plugin name='oauth' version='0.6' />
