@@ -37,6 +37,7 @@ class CommentController {
     public static final String RSS_FEED = "rss"
     public static final String XML_FEED = "xml"
     public static final String JSON_FEED = "json"
+    public static final String REVERSE = "asc"
 
     // Placeholder for the album / photo ID separator
     public static final String ID_SEPARATOR = ":"
@@ -193,7 +194,7 @@ class CommentController {
         }
 
         // If required, reverse list
-        if (params.order == "asc") {
+        if (params.order == REVERSE) {
             Collections.reverse(commentList)
         }
 
@@ -344,7 +345,7 @@ class CommentController {
         final int max = Math.min(new Integer(params.int("max") ?:
                 (grailsApplication?.config?.picasa?.maxComments ?: 10)).intValue(), 500)
         final String createView = isAjax ? "_comments" : "comments"
-        final boolean reverse = (params.order == "asc") ? true : false
+        final boolean reverse = (params.order == REVERSE) ? true : false
         flash.message = ""
         flash.oauthError = ""
 
