@@ -9,10 +9,13 @@
         <link rel="stylesheet" href="${resource(dir:'css', file:'grails-picasa.css')}" />
         <link rel="shortcut icon" href="${resource(dir:'images/icon', file:'favicon.ico')}" type="image/x-icon" />
         <g:layoutHead />
-        <g:javascript library="prototype" />
-        <g:javascript library="scriptaculous" />
+
+        <!--
+          <g:javascript library="prototype" />
+          <g:javascript library="scriptaculous" />
+        -->
         <g:javascript library="application" />
-        <resource:map key="ABQIAAAA3yQx29uKg-gW8uSQ7UIUWxQgtWBfj3Ey6DKe-UJBP8jTKOFWThQiC3oWv1J1FLCRGIhhN0mbsjF9SA" zoomLevel="14" />
+        <g:javascript library="jquery" plugin="jquery"/>
     </head>
     <body>
         <div id="header">

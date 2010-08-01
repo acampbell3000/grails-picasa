@@ -29,13 +29,14 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
+        //runtime 'com.google.api.client:google-api-client:1.0.9-alpha'
         runtime 'javax.mail:mail:1.4.3'
         test 'org.mockito:mockito-all:1.8.5'
     }
 
     plugins {
+        runtime 'org.grails.plugins:jquery:1.4.2.5'
         runtime 'org.grails.plugins:oauth:0.6'
-        runtime 'org.grails.plugins:richui:0.8'
         test 'org.grails.plugins:code-coverage:latest.integration'
     }
 }

@@ -1,4 +1,3 @@
-
 <%@ page import="uk.co.anthonycampbell.grails.picasa.Photo" %>
                     <div id="showPhoto">
 					<g:if test="${flash.message}">
@@ -30,6 +29,7 @@
 
 									<td valign="top" class="value">${fieldValue(bean: photoInstance, field: "cameraModel")}</td>
 								</tr>
+                                
 								<tr class="prop">
 									<td valign="top" class="name"><g:message code="uk.co.anthonycampbell.grails.picasa.Photo.geoLocation.label" default="Geo Location" /></td>
 
@@ -100,33 +100,41 @@
                         </g:if>
 
                         <g:if test="${photoInstance?.geoLocation?.latitude && photoInstance?.geoLocation?.longitude}">
-                        <resource:map key="ABQIAAAA3yQx29uKg-gW8uSQ7UIUWxQgtWBfj3Ey6DKe-UJBP8jTKOFWThQiC3oWv1J1FLCRGIhhN0mbsjF9SA" zoomLevel="14" />
-
                         <div id="map">
-                            <!-- <richui:map lat="${photoInstance?.geoLocation?.latitude}" lng="${photoInstance?.geoLocation?.longitude}" zoomLevel="14" /> -->
 
-                            <script type='text/javascript'>//<![CDATA[
-var gi;
-function loadMap() {
-	gi = new GoogleMapIntegration();
-	gi.setDirectionsId("de47ee809fc9f27d3026273598b7280d5");
-	gi.setDraggable(null);
-	gi.setLatitudeId("latitude");
-	gi.setLongitudeId("longitude");
-	gi.setMapId("gimap");
-	gi.setZoomLevel(14);
-	gi.setShowStartMarker(true);
-	gi.load(new GLatLng(41.385586, 2.169923));
-}
-addEvent(window, "load", loadMap(), false);
-window.onunload = function () {
-	GUnload();
-}
-//]]>
-</script> 
-<div class='' style='width: 500px; background: #F1F1F1; border: 1px solid #F1F1F1;"'> 
-  <div id='gimap' style='width: 500px; height: 300px;' class=''></div> 
-</div> 
+<script type="text/javascript">
+    function initialize() {
+        var myLatlng = new google.maps.LatLng("${photoInstance?.geoLocation?.latitude}",
+            "${photoInstance?.geoLocation?.longitude}");
+        var myOptions = {
+            zoom: 14,
+            center: myLatlng,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        var map = new google.maps.Map(document.getElementById("gimap"), myOptions);
+
+        var marker = new google.maps.Marker({
+            position: myLatlng,
+            map: map,
+            title: "${fieldValue(bean: photoInstance, field: "description")}"
+        });
+    }
+
+    function loadScript() {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=initialize";
+        document.body.appendChild(script);
+    }
+
+    window.onload = loadScript;
+</script>
+<div class='' style='width: 250px; background: #F1F1F1; border: 1px solid #F1F1F1;"'>
+    <div id='gimap' style='width: 250px; height: 250px;' class=''>
+        <img src="http://maps.google.com/maps/api/staticmap?center=${photoInstance?.geoLocation?.latitude},${photoInstance?.geoLocation?.longitude}&zoom=14&size=250x250&markers=color:red|${photoInstance?.geoLocation?.latitude},${photoInstance?.geoLocation?.longitude}&sensor=false" onclick="initialize()">
+    </div>
+</div>
+
                         </div>
                         </g:if>
 

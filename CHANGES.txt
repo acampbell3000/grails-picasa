@@ -14,11 +14,10 @@ Potential improvements:
 - Wiki API reference.
 - Potential switch to jQuery for UI.
 - Google Map widget introduction.
-- Maybe make use of Google Data Grails plug-in?
-- Depend on GDATA plug-in.
+- Update to Maven and new GData API client jars.
 
 Release notes 0.6.3 (TBA)
-
+- 
 
 Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.
