@@ -17,7 +17,8 @@ Potential improvements:
 - Update to Maven and new GData API client jars.
 
 Release notes 0.6.3 (TBA)
-- 
+- Introduction of Google Map to display photo location.
+- Introduction of jQuery as prefered JS library.
 
 Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.
