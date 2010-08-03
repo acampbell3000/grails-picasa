@@ -19,6 +19,7 @@ Potential improvements:
 Release notes 0.6.3 (TBA)
 - Introduction of Google Map to display photo location.
 - Introduction of jQuery as prefered JS library.
+- CSS file updates.
 
 Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.

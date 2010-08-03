@@ -25,12 +25,18 @@ import grails.test.*
  */
 class PicasaTagLibTests extends TagLibUnitTestCase {
 
+    // Declare test suite properties
+    def picasaTagLib
+    
     /**
      * Setup of the test suite.
      */
     @Override
     protected void setUp() {
         super.setUp()
+
+        // Initialise tag library
+        picasaTagLib = new PicasaTagLib()
     }
 
     /**
@@ -41,7 +47,14 @@ class PicasaTagLibTests extends TagLibUnitTestCase {
         super.tearDown()
     }
 
-    void testSomething() {
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap() {
+        // Run test
+        final def response = picasaTagLib.map()
 
+        // Check result
+        assertEquals "Unexpected response returned!", "", response
     }
 }

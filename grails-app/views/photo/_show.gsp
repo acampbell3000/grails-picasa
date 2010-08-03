@@ -101,40 +101,7 @@
 
                         <g:if test="${photoInstance?.geoLocation?.latitude && photoInstance?.geoLocation?.longitude}">
                         <div id="map">
-
-<script type="text/javascript">
-    function initialize() {
-        var myLatlng = new google.maps.LatLng("${photoInstance?.geoLocation?.latitude}",
-            "${photoInstance?.geoLocation?.longitude}");
-        var myOptions = {
-            zoom: 14,
-            center: myLatlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        }
-        var map = new google.maps.Map(document.getElementById("gimap"), myOptions);
-
-        var marker = new google.maps.Marker({
-            position: myLatlng,
-            map: map,
-            title: "${fieldValue(bean: photoInstance, field: "description")}"
-        });
-    }
-
-    function loadScript() {
-        var script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=initialize";
-        document.body.appendChild(script);
-    }
-
-    window.onload = loadScript;
-</script>
-<div class='' style='width: 250px; background: #F1F1F1; border: 1px solid #F1F1F1;"'>
-    <div id='gimap' style='width: 250px; height: 250px;' class=''>
-        <img src="http://maps.google.com/maps/api/staticmap?center=${photoInstance?.geoLocation?.latitude},${photoInstance?.geoLocation?.longitude}&zoom=14&size=250x250&markers=color:red|${photoInstance?.geoLocation?.latitude},${photoInstance?.geoLocation?.longitude}&sensor=false" onclick="initialize()">
-    </div>
-</div>
-
+                            <picasa:map />
                         </div>
                         </g:if>
 

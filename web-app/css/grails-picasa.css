@@ -246,3 +246,23 @@ th.desc a {
 .weight7 {
     font-size: 1.7em;
 }
+
+/*
+ * Google Maps
+ */
+#map {
+    margin: 0px 0px 20px 0px;
+}
+#mapBackground {
+    width: 250px;
+    background: #F1F1F1;
+    border: 1px solid #F1F1F1;
+}
+#mapTiles {
+    width: 250px;
+    height: 250px;
+}
+#mapTiles p {
+    margin: 0px;
+    padding: 0px;
+}
