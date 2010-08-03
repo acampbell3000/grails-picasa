@@ -63,10 +63,11 @@ class PicasaTagLib {
 			builder.yield("\tvar myLatlng = new google.maps.LatLng(\"$latitude\",\n", false)
         }
 
+        // Output Google Map tiles
         builder.div(id: "mapBackground") {
             div(id: "mapTiles") {
                 p {
-                    img(src: "$GOOGLE_STATIC_MAP_API?center=${latitude},${longitude}&amp;zoom=${zoom}&amp;size=${width}x${height}&amp;markers=color:red|${latitude},${longitude}&amp;sensor=false"
+                    img(src: "$GOOGLE_STATIC_MAP_API?center=${latitude},${longitude}&amp;zoom=${zoom}&amp;size=${width}x${height}&amp;markers=color:red|${latitude},${longitude}&amp;sensor=false",
                         width: "$width", height: "$height", alt: "$description", onclick: "initialise()")
                 }
             }

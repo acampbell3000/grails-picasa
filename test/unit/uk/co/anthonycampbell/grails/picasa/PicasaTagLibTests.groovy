@@ -52,7 +52,7 @@ class PicasaTagLibTests extends TagLibUnitTestCase {
      */
     void testMap() {
         // Run test
-        final def response = picasaTagLib.map()
+        final def response = picasaTagLib.map([:])
 
         // Check result
         assertEquals "Unexpected response returned!", "", response
