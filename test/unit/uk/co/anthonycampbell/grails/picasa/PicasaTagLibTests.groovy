@@ -27,6 +27,14 @@ class PicasaTagLibTests extends TagLibUnitTestCase {
 
     // Declare test suite properties
     def picasaTagLib
+
+    // Declare test properties
+    public static final def TEST_LONGITUDE = "-0.725"
+    public static final def TEST_LATITUDE = "51.30"
+    public static final def TEST_DESCRIPTION = "Test description"
+    public static final def TEST_ZOOM = "10"
+    public static final def TEST_WIDTH = "250"
+    public static final def TEST_HEIGHT = "250"
     
     /**
      * Setup of the test suite.
@@ -51,6 +59,19 @@ class PicasaTagLibTests extends TagLibUnitTestCase {
      * Unit test for the tag library map method.
      */
     void testMap() {
+        // Run test
+        final def response = picasaTagLib.map([longitude: TEST_LONGITUDE,
+            latitude: TEST_LATITUDE, description: TEST_DESCRIPTION,
+            zoom: TEST_ZOOM, width: TEST_WIDTH, height: TEST_HEIGHT])
+
+        // Check result
+        assertEquals "Unexpected response returned!", "", response
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_NoArguments() {
         // Run test
         final def response = picasaTagLib.map([:])
 

@@ -31,88 +31,91 @@ class PicasaTagLib {
     // Own namespace
     static namespace = 'picasa'
 
+    // Static default values
     public static final def GOOGLE_STATIC_MAP_API = "http://maps.google.com/maps/api/staticmap"
+    public static final def GOOGLE_MAP_ZOOM_DEFAULT = "14"
+    public static final def GOOGLE_MAP_WIDTH_DEFAULT = "250"
+    public static final def GOOGLE_MAP_HEIGHT_DEFAULT = "250"
 
 	/**
-	 * Display a Google map tile for the provided geo locations.
+	 * Display a Google map tile for the provided geo locations. This tag will
+     * display nothing is invalid longitude and latitude parameters are provided.
      *
      * @param latitude Map latitude geo point.
      * @param longitude Map longitude geo point.
      * @param description Location description.
-     * @param zoom Google map tile zoom.
+     * @param width Google map tile width.
+     * @param height Google map tile height.
 	 */
 	def map = { attrs ->
-        // Collect parameters
-		def latitude = attrs.remove("latitude")
+        // Collect supported parameters
 		def longitude = attrs.remove("longitude")
+		def latitude = attrs.remove("latitude")
 		def description = attrs.remove("description")
 		def zoom = attrs.remove("zoom")
 		def width = attrs.remove("width")
 		def height = attrs.remove("height")
 
         // Validate attributes
-        
+        longitude = (longitude && longitude.matches("^[\\d\\-\\.]+\$")) ? zoom : ""
+        latitude = (latitude && longitude.matches("^[\\d\\-\\.]+\$")) ? latitude : ""
+        description = description ?: ""
+        zoom = (zoom && StringUtils.isNumeric(zoom)) ? zoom : GOOGLE_MAP_ZOOM_DEFAULT
+        width = (width && StringUtils.isNumeric(width)) ? width : GOOGLE_MAP_WIDTH_DEFAULT
+        height = (height && StringUtils.isNumeric(height)) ? height : GOOGLE_MAP_HEIGHT_DEFAULT
 
-        // Initialise builder
-        final StringWriter writer = new StringWriter()
-        final def builder = new MarkupBuilder(writer)
+        // Do we have a longitude and latitude we can work with?
+        if (longitude && latitude) {
+            // Initialise builder
+            final StringWriter writer = new StringWriter()
+            final def builder = new MarkupBuilder(writer)
 
-        // Output required JavaScript
-		builder.script(type: "text/javascript") {
-			builder.yield("function initialise() {\n", false)
-			builder.yield("\tvar myLatlng = new google.maps.LatLng(\"$latitude\",\n", false)
-        }
+            // Output required JavaScript
+            builder.script(type: "text/javascript") {
+                builder.yield("function initialise() {\n", false)
+                builder.yield("\tvar myLatlng = new google.maps.LatLng('$latitude', '$longitude');\n", false)
 
-        // Output Google Map tiles
-        builder.div(id: "mapBackground") {
-            div(id: "mapTiles") {
-                p {
-                    img(src: "$GOOGLE_STATIC_MAP_API?center=${latitude},${longitude}&amp;zoom=${zoom}&amp;size=${width}x${height}&amp;markers=color:red|${latitude},${longitude}&amp;sensor=false",
-                        width: "$width", height: "$height", alt: "$description", onclick: "initialise()")
+                builder.yield("\tvar myOptions = {\n", false)
+                builder.yield("\t\tzoom: 14,\n", false)
+                builder.yield("\t\tcenter: myLatlng,\n", false)
+                builder.yield("\t\tmapTypeId: google.maps.MapTypeId.ROADMAP\n", false)
+                builder.yield("\t}\n", false)
+
+                builder.yield("\tvar map = new google.maps.Map(document.getElementById('mapTiles'), myOptions);\n", false)
+                builder.yield("\tvar marker = new google.maps.Marker({\n", false)
+                builder.yield("\t\tposition: myLatlng,\n", false)
+                builder.yield("\t\tmap: map,\n", false)
+                builder.yield("\t\ttitle: '$description'\n", false)
+                builder.yield("\t});\n", false)
+
+                builder.yield("}\n", false)
+
+                builder.yield("function loadScript() {\n", false)
+                builder.yield("\tvar script = document.createElement('script');", false)
+                builder.yield("\tscript.type = 'text/javascript';", false)
+                builder.yield("\tscript.src = 'http://maps.google.com/maps/api/js?callback=initialise&sensor=false';", false)
+                builder.yield("\tdocument.body.appendChild(script);", false)
+                builder.yield("}\n", false)
+            }
+
+            // Output Google Map tiles
+            builder.div(id: "mapBackground") {
+                div(id: "mapTiles") {
+                    p {
+                        img(src: "$GOOGLE_STATIC_MAP_API?center=${latitude},${longitude}&amp;zoom=${zoom}&amp;size=${width}x${height}&amp;markers=color:red|${latitude},${longitude}&amp;sensor=false",
+                            width: "$width", height: "$height", alt: "$description", onclick: "initialise()")
+                    }
                 }
             }
+
+            // Flush buffer
+            writer.flush()
+
+            // Output writer
+            out << writer.toString()
+        } else {
+            // Return nothing
+            out << ""
         }
-
-        // Flush buffer
-		writer.flush()
-
-        // Output writer
-        out << writer.toString()
     }
-/*
-<script type="text/javascript">
-    function initialise() {
-        var myLatlng = new google.maps.LatLng("${photoInstance?.geoLocation?.latitude}",
-            "${photoInstance?.geoLocation?.longitude}");
-        var myOptions = {
-            zoom: 14,
-            center: myLatlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        }
-        var map = new google.maps.Map(document.getElementById("mapTiles"), myOptions);
-
-        var marker = new google.maps.Marker({
-            position: myLatlng,
-            map: map,
-            title: "${fieldValue(bean: photoInstance, field: "description")}"
-        });
-    }
-
-    function loadScript() {
-        var script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src = "http://maps.google.com/maps/api/js?callback=initialise&sensor=false";
-        document.body.appendChild(script);
-    }
-
-    window.onload = loadScript;
-</script>
-
-<div id="mapBackground">
-    <div id="mapTiles">
-                "<p><img src="http://maps.google.com/maps/api/staticmap?center=${photoInstance?.geoLocation?.latitude},${photoInstance?.geoLocation?.longitude}&amp;zoom=14&amp;size=250x250&amp;markers=color:red|${photoInstance?.geoLocation?.latitude},${photoInstance?.geoLocation?.longitude}&amp;sensor=false"
-             width="250" height="250" alt="${fieldValue(bean: photoInstance, field: "description")}" onclick="initialise()" /></p>"
-    </div>
-</div>
-*/
 }

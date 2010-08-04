@@ -101,7 +101,12 @@
 
                         <g:if test="${photoInstance?.geoLocation?.latitude && photoInstance?.geoLocation?.longitude}">
                         <div id="map">
-                            <picasa:map />
+                            <picasa:map latitude="${photoInstance?.geoLocation?.latitude}"
+                                        longitude="${photoInstance?.geoLocation?.longitude}"
+                                        description="${photoInstance?.description}"
+                                        width="300"
+                                        width="300"
+                                        zoom="10" />
                         </div>
                         </g:if>
 
