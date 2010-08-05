@@ -1,4 +1,4 @@
-VERSION: 0.6.3
+VERSION: 0.6.4
 
 Known issues:
 - Poor code coverage of the PicasaService.
@@ -13,6 +13,9 @@ Potential improvements:
 - Potential switch to jQuery for UI.
 - Update to Maven and new GData API client jars.
 - Use background process to pre-load next photos.
+
+Release notes 0.6.4 (TBA)
+- 
 
 Release notes 0.6.3 (5th August, 2010)
 - Introduction of Google Map to display photo location.
