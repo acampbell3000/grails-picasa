@@ -13,13 +13,15 @@ Potential improvements:
 - Wiki details on how to make best use of UI.
 - Wiki API reference.
 - Potential switch to jQuery for UI.
-- Google Map widget introduction.
 - Update to Maven and new GData API client jars.
 
 Release notes 0.6.3 (TBA)
 - Introduction of Google Map to display photo location.
 - Introduction of jQuery as prefered JS library.
 - CSS file updates.
+- Introduction of the PicasaTagLibrary.
+- Introduction of unit testing for the PicasaTagLibrary.
+- Port Google Map tiles to PicasaTagLibrary.
 
 Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.

@@ -141,6 +141,13 @@ example Picasa configuration block:
 
         // Feeds
         rssManagingEditor = "Joe Bloggs"
+
+        // Google Maps
+        maps {
+            width = 250
+            height = 250
+            zoom = 14
+        }
     }
 
     oauth {
@@ -187,6 +194,12 @@ Configuration properties:
     * useGridListing - By default, display albums and photos using a
             grid layout.
     * rssManagingEditor = Name of author managing the RSS feed.
+    * maps.width = Width of the Google Maps tiles used when showing
+            photo / album GEO locations.
+    * maps.height = Height of the Google Maps tiles used when showing
+            photo / album GEO locations.
+    * maps.zoom = Zoom of the Google Maps tiles used when showing
+            photo / album GEO locations.
 
 Note: The properties imgmax and thumbsize are subject to a
 valid set of values detailed by the API's reference guide.

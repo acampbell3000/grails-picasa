@@ -33,9 +33,10 @@ class PicasaTagLib {
 
     // Static default values
     public static final def GOOGLE_STATIC_MAP_API = "http://maps.google.com/maps/api/staticmap"
-    public static final def GOOGLE_MAP_ZOOM_DEFAULT = "14"
     public static final def GOOGLE_MAP_WIDTH_DEFAULT = "250"
     public static final def GOOGLE_MAP_HEIGHT_DEFAULT = "250"
+    public static final def GOOGLE_MAP_ZOOM_DEFAULT = "14"
+    public static final def GOOGLE_MAP_DESCRIPTION_DEFAULT = ""
 
 	/**
 	 * Display a Google map tile for the provided geo locations. This tag will
@@ -49,23 +50,23 @@ class PicasaTagLib {
 	 */
 	def map = { attrs ->
         // Collect supported parameters
-		def longitude = attrs.remove("longitude")
-		def latitude = attrs.remove("latitude")
-		def description = attrs.remove("description")
-		def zoom = attrs.remove("zoom")
-		def width = attrs.remove("width")
-		def height = attrs.remove("height")
+		def longitude = "${attrs.remove("longitude")}"
+		def latitude = "${attrs.remove("latitude")}"
+		def description = "${attrs.remove("description")}"
+		def zoom = "${attrs.remove("zoom")}"
+		def width = "${attrs.remove("width")}"
+		def height = "${attrs.remove("height")}"
 
         // Validate attributes
-        longitude = (longitude && longitude.matches("^[\\d\\-\\.]+\$")) ? zoom : ""
-        latitude = (latitude && longitude.matches("^[\\d\\-\\.]+\$")) ? latitude : ""
-        description = description ?: ""
+        longitude = (longitude && longitude.matches("^[\\-\\d\\.]+\$")) ? longitude : ""
+        latitude = (latitude && latitude.matches("^[\\-\\d\\.]+\$")) ? latitude : ""
+        description = description ?: GOOGLE_MAP_DESCRIPTION_DEFAULT
         zoom = (zoom && StringUtils.isNumeric(zoom)) ? zoom : GOOGLE_MAP_ZOOM_DEFAULT
         width = (width && StringUtils.isNumeric(width)) ? width : GOOGLE_MAP_WIDTH_DEFAULT
         height = (height && StringUtils.isNumeric(height)) ? height : GOOGLE_MAP_HEIGHT_DEFAULT
 
         // Do we have a longitude and latitude we can work with?
-        if (longitude && latitude) {
+        if (StringUtils.isNotEmpty(longitude) && StringUtils.isNotEmpty(latitude)) {
             // Initialise builder
             final StringWriter writer = new StringWriter()
             final def builder = new MarkupBuilder(writer)
@@ -113,6 +114,7 @@ class PicasaTagLib {
 
             // Output writer
             out << writer.toString()
+            
         } else {
             // Return nothing
             out << ""

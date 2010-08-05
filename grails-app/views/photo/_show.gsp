@@ -104,9 +104,9 @@
                             <picasa:map latitude="${photoInstance?.geoLocation?.latitude}"
                                         longitude="${photoInstance?.geoLocation?.longitude}"
                                         description="${photoInstance?.description}"
-                                        width="300"
-                                        width="300"
-                                        zoom="10" />
+                                        width="${grailsApplication?.config?.picasa?.maps?.width ?: ""}"
+                                        height="${grailsApplication?.config?.picasa?.maps?.height ?: ""}"
+                                        zoom="${grailsApplication?.config?.picasa?.maps?.zoom ?: ""}" />
                         </div>
                         </g:if>
 

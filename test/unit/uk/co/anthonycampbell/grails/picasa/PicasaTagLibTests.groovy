@@ -29,12 +29,20 @@ class PicasaTagLibTests extends TagLibUnitTestCase {
     def picasaTagLib
 
     // Declare test properties
-    public static final def TEST_LONGITUDE = "-0.725"
-    public static final def TEST_LATITUDE = "51.30"
+    public static final def TEST_LONGITUDE = "-0.126236"
+    public static final def TEST_LATITUDE = "51.500152"
     public static final def TEST_DESCRIPTION = "Test description"
     public static final def TEST_ZOOM = "10"
     public static final def TEST_WIDTH = "250"
     public static final def TEST_HEIGHT = "250"
+
+    // Declare invalid test properties
+    public static final def INVALID_TEST_LONGITUDE = "abc.def"
+    public static final def INVALID_TEST_LATITUDE = "def.abc"
+    public static final def INVALID_TEST_DESCRIPTION = ""
+    public static final def INVALID_TEST_ZOOM = "abc"
+    public static final def INVALID_TEST_WIDTH = "def"
+    public static final def INVALID_TEST_HEIGHT = "ghi"
     
     /**
      * Setup of the test suite.
@@ -60,9 +68,42 @@ class PicasaTagLibTests extends TagLibUnitTestCase {
      */
     void testMap() {
         // Run test
-        final def response = picasaTagLib.map([longitude: TEST_LONGITUDE,
+        final def response = picasaTagLib?.map([longitude: TEST_LONGITUDE,
             latitude: TEST_LATITUDE, description: TEST_DESCRIPTION,
-            zoom: TEST_ZOOM, width: TEST_WIDTH, height: TEST_HEIGHT])
+            zoom: TEST_ZOOM, width: TEST_WIDTH, height: TEST_HEIGHT])?.toString()
+
+        // Check result
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LONGITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LATITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_DESCRIPTION)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_ZOOM)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_WIDTH)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_HEIGHT)
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_OnlyLongitudeLatitude() {
+        // Run test
+        final def response = picasaTagLib?.map([longitude: TEST_LONGITUDE,
+            latitude: TEST_LATITUDE])?.toString()
+
+        // Check result
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LONGITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LATITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_WIDTH_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_HEIGHT_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_ZOOM_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_DESCRIPTION_DEFAULT)
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_OnlyLongitude() {
+        // Run test
+        final def response = picasaTagLib?.map([longitude: TEST_LONGITUDE])?.toString()
 
         // Check result
         assertEquals "Unexpected response returned!", "", response
@@ -71,9 +112,95 @@ class PicasaTagLibTests extends TagLibUnitTestCase {
     /**
      * Unit test for the tag library map method.
      */
+    void testMap_OnlyLatitude() {
+        // Run test
+        final def response = picasaTagLib?.map([latitude: TEST_LATITUDE])?.toString()
+
+        // Check result
+        assertEquals "Unexpected response returned!", "", response
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_InvalidLongitudeLatitude() {
+        // Run test
+        final def response = picasaTagLib?.map([longitude: INVALID_TEST_LONGITUDE,
+            latitude: INVALID_TEST_LATITUDE, description: TEST_DESCRIPTION,
+            zoom: TEST_ZOOM, width: TEST_WIDTH, height: TEST_HEIGHT])?.toString()
+
+        // Check result
+        assertEquals "Unexpected response returned!", "", response
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_NoLongitudeLatitude() {
+        // Run test
+        final def response = picasaTagLib?.map([description: TEST_DESCRIPTION,
+            zoom: TEST_ZOOM, width: TEST_WIDTH, height: TEST_HEIGHT])?.toString()
+
+        // Check result
+        assertEquals "Unexpected response returned!", "", response
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_EmptyLongitudeLatitude() {
+        // Run test
+        final def response = picasaTagLib?.map([longitude: "", latitude: "",
+            description: TEST_DESCRIPTION, zoom: TEST_ZOOM, width: TEST_WIDTH,
+            height: TEST_HEIGHT])?.toString()
+
+        // Check result
+        assertEquals "Unexpected response returned!", "", response
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_InvalidDescriptionHeightWidthZoom() {
+        // Run test
+        final def response = picasaTagLib?.map([longitude: TEST_LONGITUDE,
+            latitude: TEST_LATITUDE, description: INVALID_TEST_DESCRIPTION,
+            zoom: INVALID_TEST_ZOOM, width: INVALID_TEST_WIDTH,
+            height: INVALID_TEST_HEIGHT])?.toString()
+
+        // Check result
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LONGITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LATITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_WIDTH_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_HEIGHT_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_ZOOM_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_DESCRIPTION_DEFAULT)
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
+    void testMap_EmptyDescriptionHeightWidthZoom() {
+        // Run test
+        final def response = picasaTagLib?.map([longitude: TEST_LONGITUDE,
+            latitude: TEST_LATITUDE, description: "", zoom: "", width: "",
+            height: ""])?.toString()
+
+        // Check result
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LONGITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(TEST_LATITUDE)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_WIDTH_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_HEIGHT_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_ZOOM_DEFAULT)
+        assertTrue "Unexpected response returned!", response?.contains(PicasaTagLib.GOOGLE_MAP_DESCRIPTION_DEFAULT)
+    }
+
+    /**
+     * Unit test for the tag library map method.
+     */
     void testMap_NoArguments() {
         // Run test
-        final def response = picasaTagLib.map([:])
+        final def response = picasaTagLib?.map([:])?.toString()
 
         // Check result
         assertEquals "Unexpected response returned!", "", response
