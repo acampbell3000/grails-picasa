@@ -3,7 +3,6 @@ VERSION: 0.6.3
 Known issues:
 - Poor code coverage of the PicasaService.
 - Poor code coverage of controllers and domain classes.
-- View photo comment RSS / XML / JSON links are broken.
 
 Potential improvements:
 - Tag library split.
@@ -13,6 +12,7 @@ Potential improvements:
 - Wiki API reference.
 - Potential switch to jQuery for UI.
 - Update to Maven and new GData API client jars.
+- Use background process to pre-load next photos.
 
 Release notes 0.6.3 (TBA)
 - Introduction of Google Map to display photo location.
@@ -22,6 +22,7 @@ Release notes 0.6.3 (TBA)
 - Introduction of unit testing for the PicasaTagLibrary.
 - Port Google Map tiles to PicasaTagLibrary.
 - README update to reflect new Google Maps config.
+- View photo comment RSS / XML / JSON links fix.
 
 Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.
