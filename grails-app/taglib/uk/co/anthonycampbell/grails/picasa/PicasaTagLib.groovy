@@ -73,29 +73,30 @@ class PicasaTagLib {
 
             // Output required JavaScript
             builder.script(type: "text/javascript") {
-                builder.yield("function initialise() {\n", false)
-                builder.yield("\tvar myLatlng = new google.maps.LatLng('$latitude', '$longitude');\n", false)
+                builder.yield("\nfunction initialise() {\n", false)
+                builder.yield("\tvar myLatlng = new google.maps.LatLng('$latitude', '$longitude');\n\n", false)
 
                 builder.yield("\tvar myOptions = {\n", false)
-                builder.yield("\t\tzoom: 14,\n", false)
+                builder.yield("\t\tzoom: $zoom,\n", false)
                 builder.yield("\t\tcenter: myLatlng,\n", false)
                 builder.yield("\t\tmapTypeId: google.maps.MapTypeId.ROADMAP\n", false)
-                builder.yield("\t}\n", false)
+                builder.yield("\t}\n\n", false)
 
-                builder.yield("\tvar map = new google.maps.Map(document.getElementById('mapTiles'), myOptions);\n", false)
+                builder.yield("\tvar map = new google.maps.Map(document.getElementById('mapTiles'), myOptions);\n\n", false)
+
                 builder.yield("\tvar marker = new google.maps.Marker({\n", false)
                 builder.yield("\t\tposition: myLatlng,\n", false)
                 builder.yield("\t\tmap: map,\n", false)
                 builder.yield("\t\ttitle: '$description'\n", false)
                 builder.yield("\t});\n", false)
-
-                builder.yield("}\n", false)
+                
+                builder.yield("}\n\n", false)
 
                 builder.yield("function loadScript() {\n", false)
-                builder.yield("\tvar script = document.createElement('script');", false)
-                builder.yield("\tscript.type = 'text/javascript';", false)
-                builder.yield("\tscript.src = 'http://maps.google.com/maps/api/js?callback=initialise&sensor=false';", false)
-                builder.yield("\tdocument.body.appendChild(script);", false)
+                builder.yield("\tvar script = document.createElement('script');\n", false)
+                builder.yield("\tscript.type = 'text/javascript';\n", false)
+                builder.yield("\tscript.src = 'http://maps.google.com/maps/api/js?callback=initialise&sensor=false';\n", false)
+                builder.yield("\tdocument.body.appendChild(script);\n", false)
                 builder.yield("}\n", false)
             }
 
@@ -103,7 +104,7 @@ class PicasaTagLib {
             builder.div(id: "mapBackground") {
                 div(id: "mapTiles") {
                     p {
-                        img(src: "$GOOGLE_STATIC_MAP_API?center=${latitude},${longitude}&amp;zoom=${zoom}&amp;size=${width}x${height}&amp;markers=color:red|${latitude},${longitude}&amp;sensor=false",
+                        img(src: "$GOOGLE_STATIC_MAP_API?center=${latitude},${longitude}&zoom=${zoom}&size=${width}x${height}&markers=color:red|${latitude},${longitude}&sensor=false",
                             width: "$width", height: "$height", alt: "$description", onclick: "initialise()")
                     }
                 }

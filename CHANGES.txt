@@ -6,7 +6,6 @@ Known issues:
 - View photo comment RSS / XML / JSON links are broken.
 
 Potential improvements:
-- Tag library to display UI components.
 - Tag library split.
 - Package rename for controllers, services and domains.
 - Option for Grid Listing.
@@ -22,6 +21,7 @@ Release notes 0.6.3 (TBA)
 - Introduction of the PicasaTagLibrary.
 - Introduction of unit testing for the PicasaTagLibrary.
 - Port Google Map tiles to PicasaTagLibrary.
+- README update to reflect new Google Maps config.
 
 Release notes 0.6.2 (31st July, 2010)
 - Improved error logging and parameter handling.
