@@ -15,7 +15,7 @@ Potential improvements:
 - Use background process to pre-load next photos.
 
 Release notes 0.6.4 (TBA)
-- 
+-  
 
 Release notes 0.6.3 (5th August, 2010)
 - Introduction of Google Map to display photo location.
