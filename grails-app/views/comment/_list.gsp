@@ -11,7 +11,8 @@
                                   <g:else>
                                       <td><a href="mailto:${commentInstance.author?.email}">${commentInstance.author?.name}</a>
                                   </g:else>
-                                  <g:if test="${commentInstance.dateCreated}"> (<g:formatDate date="${commentInstance.dateCreated}" format="MMM, dd yyyy hh:mm aa" />)</g:if><br /><em>${commentInstance.message}</em></td>
+                                  <g:if test="${commentInstance.dateCreated}"> (<g:formatDate date="${commentInstance.dateCreated}" format="MMM, dd yyyy hh:mm aa" />)</g:if>
+                                      <br /><em>${commentInstance.message}</em></td>
                                   </tr>
                               </g:each>
                               </table>

@@ -35,6 +35,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        runtime 'org.grails.plugins:spring-events:1.0'
         runtime 'org.grails.plugins:jquery:1.4.2.5'
         runtime 'org.grails.plugins:oauth:0.6'
         test 'org.grails.plugins:code-coverage:latest.integration'

@@ -17,6 +17,7 @@ package uk.co.anthonycampbell.grails.picasa
  */
 
 import uk.co.anthonycampbell.grails.picasa.cache.*
+import uk.co.anthonycampbell.grails.picasa.event.*
 
 import java.net.URL
 import javax.servlet.http.HttpSession
@@ -328,13 +329,14 @@ class PicasaService implements InitializingBean {
                     final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
                     // Initialise search variables
+                    final List<PhotoEntry> photoEntries = albumFeed?.getPhotoEntries()
                     boolean found = false
                     String previous = ""
                     String current = ""
                     String next = ""
 
                     // Find photo and store previous and subsequent IDs (if available)
-                    for (final PhotoEntry entry : albumFeed?.getPhotoEntries()) {
+                    for (final PhotoEntry entry : photoEntries) {
                         // Prepare ID
                         current = entry?.getId()?.substring(entry?.getId()?.lastIndexOf('/') + 1,
                             entry?.getId()?.length())
@@ -357,6 +359,9 @@ class PicasaService implements InitializingBean {
                     // Update photo with previous and next images
                     photo.previousPhotoId = previous
                     photo.nextPhotoId = next
+
+                    // Asynchronously retrieve next and previous photos in the stream
+                    updatePhotoStream(albumId, photoId, showAll, photoEntries)
                 }
 
                 // Update cache
@@ -1145,4 +1150,19 @@ class PicasaService implements InitializingBean {
 
         CACHE.put(queryName, result)
     }
+
+    /**
+     * Asynchronously retrieve the next set of photos for the provided
+     * photo stream.
+     *
+     * @param albumId the current album ID.
+     * @param photoId the current photo ID.
+     * @param showAll whether to include private photos.
+     * @param photoEntries the photo stream.
+     */
+    private void updatePhotoStream(final String albumId, final String photoId,
+            final boolean showAll, final List<PhotoEntry> photoEntries) {
+        // Publish event throught spring plug-in
+		publishEvent(new PicasaUpdateStreamEvent(this, albumId, photoId, showAll, photoEntries))
+	}
 }
