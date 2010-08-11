@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import uk.co.anthonycampbell.grails.picasa.listener.PicasaUpdateStreamListener
 import uk.co.anthonycampbell.grails.picasa.listener.SessionLifecycleListener
 import uk.co.anthonycampbell.grails.picasa.session.SessionMonitor
 import uk.co.anthonycampbell.grails.picasa.utils.PicasaUtils
@@ -91,14 +90,6 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
                     "(Environment.current.reloadEnabled=${Environment.current.reloadEnabled})"
 			}
 		}
-
-        if (log?.infoEnabled) {
-            log?.info "Registering ${PicasaUpdateStreamListener.class} in application context"
-        }
-        
-        // Register Picasa update stream listener
-        applicationContext?.registerSingleton("picasaUpdateStreamListener",
-            PicasaUpdateStreamListener.class)
     }
 
     def onConfigChange = { event ->

@@ -167,7 +167,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final Album cacheItem = retrieveCache(CACHE_KEY)
+                final Album cacheItem = getCacheEntry(CACHE_KEY)
                 if (cacheItem) {
                     // Found result in cache so return
                     return cacheItem
@@ -274,7 +274,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final Photo cacheItem = retrieveCache(CACHE_KEY)
+                final Photo cacheItem = getCacheEntry(CACHE_KEY)
                 if (cacheItem) {
                     // Found result in cache so return
                     return cacheItem
@@ -409,7 +409,7 @@ class PicasaService implements InitializingBean {
 
                 // Check cache
                 if (this.allowCache) {
-                    final List<Album> cachedListing = retrieveCache(CACHE_KEY)
+                    final List<Album> cachedListing = getCacheEntry(CACHE_KEY)
                     if (cachedListing) {
                         // Found result in cache so return
                         return cachedListing
@@ -481,7 +481,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final List<Tag> cachedListing = retrieveCache(CACHE_KEY)
+                final List<Tag> cachedListing = getCacheEntry(CACHE_KEY)
                 if (cachedListing) {
                     // Found result in cache so return
                     return cachedListing
@@ -580,7 +580,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final List<Comment> cachedListing = retrieveCache(CACHE_KEY)
+                final List<Comment> cachedListing = getCacheEntry(CACHE_KEY)
                 if (cachedListing) {
                     // Found result in cache so return
                     return cachedListing
@@ -664,7 +664,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final List<Photo> cachedListing = retrieveCache(CACHE_KEY)
+                final List<Photo> cachedListing = getCacheEntry(CACHE_KEY)
                 if (cachedListing) {
                     // Found result in cache so return
                     return cachedListing
@@ -750,7 +750,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final List<Photo> cachedListing = retrieveCache(CACHE_KEY)
+                final List<Photo> cachedListing = getCacheEntry(CACHE_KEY)
                 if (cachedListing) {
                     // Found result in cache so return
                     return cachedListing
@@ -838,7 +838,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final List<Tag> cachedListing = retrieveCache(CACHE_KEY)
+                final List<Tag> cachedListing = getCacheEntry(CACHE_KEY)
                 if (cachedListing) {
                     // Found result in cache so return
                     return cachedListing
@@ -952,7 +952,7 @@ class PicasaService implements InitializingBean {
 
             // Check cache
             if (this.allowCache) {
-                final List<Comment> cachedListing = retrieveCache(CACHE_KEY)
+                final List<Comment> cachedListing = getCacheEntry(CACHE_KEY)
                 if (cachedListing) {
                     // Found result in cache so return
                     return cachedListing
@@ -1124,7 +1124,7 @@ class PicasaService implements InitializingBean {
      * @param queryName name of the query to retrieve.
      * @return result the query result.
      */
-    private def retrieveCache(final String queryName) {
+    private def getCacheEntry(final String queryName) {
         log?.debug "Attempting to retrieve ${queryName} from cache"
 
         final def result = CACHE.get(queryName)
@@ -1149,6 +1149,15 @@ class PicasaService implements InitializingBean {
         log?.debug "Updating ${queryName} cache"
 
         CACHE.put(queryName, result)
+    }
+
+    /**
+     * Return the service's cache.
+     *
+     * @return the service's cache.
+     */
+    private def getCache() {
+        return CACHE
     }
 
     /**
