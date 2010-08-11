@@ -1175,6 +1175,6 @@ class PicasaService implements InitializingBean {
             "showAll=$showAll)"
 
         // Publish event throught spring plug-in
-		publishEvent(new PicasaUpdateStreamEvent(this, albumId, photoId, showAll, photoEntries))
+		publishEvent(new PicasaUpdateEvent(this, albumId, photoId, showAll, photoEntries))
 	}
 }
