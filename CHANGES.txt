@@ -2,7 +2,8 @@ VERSION: 0.6.4
 
 Known issues:
 - Poor code coverage of the PicasaService.
-- Poor code coverage of controllers and domain classes.
+- Poor code coverage of controllers and domain classes.i
+- Missing ajax loading icon.
 
 Potential improvements:
 - Tag library split.
@@ -12,12 +13,14 @@ Potential improvements:
 - Wiki API reference.
 - Potential switch to jQuery for UI.
 - Update to Maven and new GData API client jars.
-- Use background process to pre-load next photos.
 
 Release notes 0.6.4 (TBA)
+- Update to Grails 1.3.4.
 - Introduction to the Spring events plug-in.
 - Introduction to the PicasaUpdateService.
-- Introduction to the Picasa update event.
+- Introduction to the PicasaUpdateEvent.
+- Ability to asynchronously update cache with photo details through the Spring events plug-in.
+- Introduction of configuration for the background photo updates.
 
 Release notes 0.6.3 (5th August, 2010)
 - Introduction of Google Map to display photo location.

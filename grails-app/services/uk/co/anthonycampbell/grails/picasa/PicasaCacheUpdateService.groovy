@@ -16,29 +16,126 @@ package uk.co.anthonycampbell.grails.picasa
  * limitations under the License.
  */
 
-import uk.co.anthonycampbell.grails.picasa.cache.*
+import java.util.concurrent.ArrayBlockingQueue
+
 import uk.co.anthonycampbell.grails.picasa.event.*
 
-import org.apache.commons.lang.StringUtils
+import com.google.gdata.data.photos.*
 
-class PicasaCacheUpdateService implements ApplicationListener<PicasaUpdateEvent> {
+import org.springframework.beans.factory.InitializingBean
+import org.springframework.context.ApplicationListener
+
+class PicasaCacheUpdateService implements InitializingBean, ApplicationListener<PicasaUpdateEvent> {
     // Must not be transactional to allow full event detection
     static transactional = false
     
     // Declare service scope
     static scope = "singleton"
 
+    // Declare dependencies
+    def grailsApplication
+
+    // Amount of previous and subsequent photos to retrieve
+    private int backgroundRetrieveLimit = 0
+
     /**
      * Initialise config properties.
      */
     @Override
     void afterPropertiesSet() {
-        log?.info "Initialising the ${this.getClass().getSimpleName()}..."
+        //log?.info "Initialising the ${this.getClass().getSimpleName()}..."
+
+        // Get retrieval amount from config
+        backgroundRetrieveLimit = new Integer(
+            grailsApplication?.config?.picasa?.backgroundRetrieveLimit ?: 10).intValue()
     }
 
     @Override
     void onApplicationEvent(final PicasaUpdateEvent event) {
-        println "onApplicationEvent: ${PicasaUpdateStreamListener}"
-        println this?.getClass()?.getSimpleName()
+        // Get the picasa service which registered the request
+        final PicasaService source = event?.source
+        final List<PhotoEntry> photoEntries = event?.photoEntries
+        final def albumId = event?.albumId
+        final def photoId = event?.photoId
+        final def showAll = event?.showAll
+
+        log?.debug "PicasaUpdateEvent received (source=$source, albumId=$albumId, photoId=$photoId, " +
+            "showAll=$showAll, photoEntriesTotal=${photoEntries?.size()})"
+
+        // Do we have a service and photo entries to work with
+        if (source && photoEntries) {
+            // Initialise search variables
+            def found = false
+            final ArrayBlockingQueue<PhotoEntry> previousPhotos =
+                new ArrayBlockingQueue<PhotoEntry>(backgroundRetrieveLimit)
+            final ArrayBlockingQueue<PhotoEntry> subsequentPhotos =
+                new ArrayBlockingQueue<PhotoEntry>(backgroundRetrieveLimit)
+            PhotoEntry lastPhoto = null
+
+            /*
+             * On the background thread lets retrieve details for photos before
+             * and after the current photo in the entry list.
+             */
+            for (photo in photoEntries) {
+                final def entryAlbumId = photo?.getAlbumId()
+                final def entryPhotoId = photo?.getId()?.substring(photo?.getId()?.lastIndexOf('/') + 1,
+                    photo?.getId()?.length())
+
+                // Update photo ID to allow easier processing
+                photo?.setId(entryPhotoId)
+
+                // Add previous photo to queue
+                if (lastPhoto && !found) {
+                    // If full, remove oldest before attempting to add again
+                    if (!previousPhotos.offer(lastPhoto)) {
+                        previousPhotos.poll()
+                        previousPhotos.offer(lastPhoto)
+                    }
+                }
+
+                // Update previous with current
+                lastPhoto = photo
+
+                // If we've found photo, offer subsequent photos until queue is full then stop
+                if (found) {
+                    if (!subsequentPhotos.offer(photo)) {
+                        break
+                    }
+                }
+                
+                // Have we found the photo in the entries list
+                if (entryPhotoId == photoId) {
+                    found = true
+                }
+            }
+
+            // Begin processing subsequent photo queue
+            while (!subsequentPhotos?.isEmpty()) {
+                final PhotoEntry subsequentPhoto = subsequentPhotos.poll()
+
+                log?.debug "Attempting to update PicasaService cache with subsequent photo details " +
+                    "(source=$source, albumId=${subsequentPhoto?.getAlbumId()}, " +
+                    "photoId=${subsequentPhoto?.getId()}, showAll=$showAll)"
+
+                // Use service to retrieve photo details
+                source?.getPhoto(subsequentPhoto?.getAlbumId(), subsequentPhoto?.getId(), showAll, false)
+            }
+
+            // Begin processing previous photo queue
+            while (!previousPhotos?.isEmpty()) {
+                final PhotoEntry previousPhoto = previousPhotos.poll()
+
+                log?.debug "Attempting to update PicasaService cache with previous photo details " +
+                    "(source=$source, albumId=${previousPhoto?.getAlbumId()}, " +
+                    "photoId=${previousPhoto?.getId()}, showAll=$showAll)"
+
+                // Use service to retrieve photo details
+                source?.getPhoto(previousPhoto?.getAlbumId(), previousPhoto?.getId(), showAll, false)
+            }
+        } else {
+            log?.error "Update to update picasa service with photo details! (source=$source, " +
+                "albumId=$albumId, photoId=$photoId, showAll=$showAll, " +
+                "photoEntriesTotal=${photoEntries?.size()})"
+        }
     }
 }

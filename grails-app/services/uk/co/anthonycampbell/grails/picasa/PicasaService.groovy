@@ -250,12 +250,15 @@ class PicasaService implements InitializingBean {
      * @param albumId the provided album ID.
      * @param photoId the provided photo ID.
      * @param showAll whether to include hidden / private photo.
+     * @param updatePhotoStream whether to use the spring register an update event to start the
+     *      process of updating the cache with details for photo in the same stream as the
+     *      request photo.
      * @return the retrieved photo from the Google Picasa web service.
      * @Exception PicasaServiceException when there's been a problem retrieving
      *      the selected photo.
      */
-    def Photo getPhoto(final String albumId, final String photoId, final boolean showAll = false)
-        throws PicasaServiceException {
+    def Photo getPhoto(final String albumId, final String photoId, final boolean showAll = false,
+            final boolean updatePhotoStream = true) throws PicasaServiceException {
 
         if (serviceInitialised) {
             // Validate IDs
@@ -329,17 +332,19 @@ class PicasaService implements InitializingBean {
                     final AlbumFeed albumFeed = picasaWebService.getFeed(feedUrl, AlbumFeed.class)
 
                     // Initialise search variables
-                    final List<PhotoEntry> photoEntries = albumFeed?.getPhotoEntries()
                     boolean found = false
                     String previous = ""
                     String current = ""
                     String next = ""
 
                     // Find photo and store previous and subsequent IDs (if available)
-                    for (final PhotoEntry entry : photoEntries) {
+                    for (final PhotoEntry entry : albumFeed?.getPhotoEntries()) {
                         // Prepare ID
                         current = entry?.getId()?.substring(entry?.getId()?.lastIndexOf('/') + 1,
                             entry?.getId()?.length())
+                        
+                        // Update for background process
+                        entry?.setId(current)
 
                         // If already found, store next ID and end search
                         if (found == true) {
@@ -361,7 +366,9 @@ class PicasaService implements InitializingBean {
                     photo.nextPhotoId = next
 
                     // Asynchronously retrieve next and previous photos in the stream
-                    updatePhotoStream(albumId, photoId, showAll, photoEntries)
+                    if (updatePhotoStream) {
+                        publishUpdatePhotoEvent(albumId, photoId, showAll, albumFeed?.getPhotoEntries())
+                    }
                 }
 
                 // Update cache
@@ -1169,10 +1176,10 @@ class PicasaService implements InitializingBean {
      * @param showAll whether to include private photos.
      * @param photoEntries the photo stream.
      */
-    private void updatePhotoStream(final String albumId, final String photoId,
+    private void publishUpdatePhotoEvent(final String albumId, final String photoId,
             final boolean showAll, final List<PhotoEntry> photoEntries) {
-        log?.debug "Publishing update photo stream event (albumId=$albumId, photoId=$photoId, " +
-            "showAll=$showAll)"
+        log?.debug "Publishing update photo event (albumId=$albumId, photoId=$photoId, " +
+            "showAll=$showAll, photoEntriesTotal=${photoEntries.size()}})"
 
         // Publish event throught spring plug-in
 		publishEvent(new PicasaUpdateEvent(this, albumId, photoId, showAll, photoEntries))

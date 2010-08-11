@@ -45,7 +45,7 @@ class PicasaUpdateEvent extends ApplicationEvent {
      * Constructor.
      */
     PicasaUpdateEvent(final PicasaService source, final String albumId,
-            final String photoId, final boolean showAll, final List<PhotoEntry> photoEntries) {        
+            final String photoId, final boolean showAll, final List<PhotoEntry> photoEntries) {
         super(source)        
         this.albumId = albumId
         this.photoId = photoId
