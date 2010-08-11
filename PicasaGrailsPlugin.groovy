@@ -15,10 +15,12 @@
  * limitations under the License.
  */
 
-import org.slf4j.LoggerFactory
-
+import uk.co.anthonycampbell.grails.picasa.listener.PicasaUpdateStreamListener
+import uk.co.anthonycampbell.grails.picasa.listener.SessionLifecycleListener
 import uk.co.anthonycampbell.grails.picasa.session.SessionMonitor
 import uk.co.anthonycampbell.grails.picasa.utils.PicasaUtils
+
+import org.slf4j.LoggerFactory
 
 /*
  * Grails Picasa Plug-in
@@ -59,7 +61,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
         // Check environment support hot reloading
 		if (PicasaUtils.isEnvironmentClassReloadable()) {
             if (log?.infoEnabled) {
-                log?.info "Registering ${uk.co.anthonycampbell.grails.picasa.listener.SessionLifecycleListener.class} " +
+                log?.info "Registering ${SessionLifecycleListener.class} " +
                     "in web descriptor for session monitor"
             }
 
@@ -89,6 +91,14 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
                     "(Environment.current.reloadEnabled=${Environment.current.reloadEnabled})"
 			}
 		}
+
+        if (log?.infoEnabled) {
+            log?.info "Registering ${PicasaUpdateStreamListener.class} in application context"
+        }
+        
+        // Register Picasa update stream listener
+        applicationContext?.registerSingleton("picasaUpdateStreamListener",
+            PicasaUpdateStreamListener.class)
     }
 
     def onConfigChange = { event ->
