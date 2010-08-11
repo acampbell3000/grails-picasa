@@ -30,10 +30,10 @@ import org.springframework.context.ApplicationEvent
  *
  * @author Anthony Campbell (anthonycampbell.co.uk)
  */
-class PicasaUpdateStreamEvent extends ApplicationEvent {
+class PicasaUpdateEvent extends ApplicationEvent {
 
     /** LOG */
-	private static final log = LoggerFactory.getLogger(PicasaUpdateStreamEvent.class)
+	private static final log = LoggerFactory.getLogger(PicasaUpdateEvent.class)
 
     // Declare event properties
     private final String albumId
@@ -44,7 +44,7 @@ class PicasaUpdateStreamEvent extends ApplicationEvent {
     /**
      * Constructor.
      */
-    PicasaUpdateStreamEvent(final PicasaService source, final String albumId,
+    PicasaUpdateEvent(final PicasaService source, final String albumId,
             final String photoId, final boolean showAll, final List<PhotoEntry> photoEntries) {        
         super(source)        
         this.albumId = albumId
