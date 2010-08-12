@@ -1,4 +1,4 @@
-VERSION: 0.6.4
+VERSION: 0.6.5
 
 Known issues:
 - Poor code coverage of the PicasaService.
