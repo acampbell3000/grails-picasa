@@ -137,6 +137,7 @@ example Picasa configuration block:
         showPrivatePhotos = false
         useTagCache = false
         allowComments = true
+        backgroundRetrieveLimit = 5
         useGridListing = false
 
         // Feeds

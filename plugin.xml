@@ -1,4 +1,4 @@
-<plugin name='picasa' version='0.6.3' grailsVersion='1.2.1 &gt; *'>
+<plugin name='picasa' version='0.6.4' grailsVersion='1.2.1 &gt; *'>
   <author>Anthony Campbell</author>
   <authorEmail>acampbell3000 [[at] googlemail [dot]] com</authorEmail>
   <title>Grails Picasa Plug-in</title>
@@ -20,6 +20,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
     <resource>uk.co.anthonycampbell.grails.picasa.Person</resource>
     <resource>uk.co.anthonycampbell.grails.picasa.Photo</resource>
     <resource>uk.co.anthonycampbell.grails.picasa.Tag</resource>
+    <resource>uk.co.anthonycampbell.grails.picasa.PicasaCacheUpdateService</resource>
     <resource>uk.co.anthonycampbell.grails.picasa.PicasaCommentService</resource>
     <resource>uk.co.anthonycampbell.grails.picasa.PicasaCommentServiceException</resource>
     <resource>uk.co.anthonycampbell.grails.picasa.PicasaService</resource>
@@ -31,6 +32,7 @@ A simple plug-in which provides a photo gallery driven from your Google Picasa W
   <dependencies>
     <plugin name='oauth' version='0.6' />
     <plugin name='jquery' version='1.4.2.5' />
+    <plugin name='springEvents' version='1.0' />
   </dependencies>
   <behavior />
 </plugin>
