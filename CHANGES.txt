@@ -2,7 +2,7 @@ VERSION: 0.6.5
 
 Known issues:
 - Poor code coverage of the PicasaService.
-- Poor code coverage of controllers and domain classes.i
+- Poor code coverage of controllers and domain classes.
 - Missing ajax loading icon.
 
 Potential improvements:
