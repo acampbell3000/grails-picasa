@@ -191,6 +191,8 @@ Configuration properties:
             Picasa web service. Reduces web service calls to the Google
             GData API and increases performance.
     * cacheTimeout - How long the cache is valid before being purged.
+    * backgroundRetrieveLimit - Used by the background thread to limit the
+            number of previous and subsequent photos retrieved.
     * useGridListing - By default, display albums and photos using a
             grid layout.
     * rssManagingEditor = Name of author managing the RSS feed.

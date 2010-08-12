@@ -342,9 +342,6 @@ class PicasaService implements InitializingBean {
                         // Prepare ID
                         current = entry?.getId()?.substring(entry?.getId()?.lastIndexOf('/') + 1,
                             entry?.getId()?.length())
-                        
-                        // Update for background process
-                        entry?.setId(current)
 
                         // If already found, store next ID and end search
                         if (found == true) {

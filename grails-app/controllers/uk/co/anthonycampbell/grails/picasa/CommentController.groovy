@@ -40,7 +40,7 @@ class CommentController {
     public static final String REVERSE = "asc"
 
     // Placeholder for the album / photo ID separator
-    public static final String ID_SEPARATOR = ":"
+    public static final String ID_SEPARATOR = this.getClass().getSimpleName()
 
     // Declare dependencies
     def grailsApplication
