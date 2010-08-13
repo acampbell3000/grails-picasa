@@ -25,8 +25,6 @@ import grails.converters.XML
 import grails.test.*
 
 import org.junit.*
-import org.mockito.*
-import static org.mockito.Mockito.*
 
 /**
  * Set of unit tests for the comment controller.
