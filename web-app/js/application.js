@@ -1,39 +1,21 @@
-var Ajax;
-if (Ajax && (Ajax != null)) {
-    Ajax.Responders.register({
-        onCreate: function() {
-            if($('loader') && Ajax.activeRequestCount > 0)
-                Effect.Appear('loader',{
-                    duration: 0.3,
-					queue:'first'
-                });
-        },
-
-        onComplete: function() {
-            if($('loader') && Ajax.activeRequestCount == 0)
-                Effect.Fade('loader',{
-                    duration: 0.3,
-					queue:'end'
-                });
-        }
-    });
-}
+/*
+ * Loading icon for all detected Ajax requests
+ */
+$(document).ajaxStart(function() {
+    $("#loading").show(300);
+});
+$(document).ajaxStop(function() {
+    $("#loading").hide(300);
+});
 
 /*
- * Custom ajax loading functions
+ * Custom ajax fading functions
  */
 function displayLoading(div) {
     // Slightly fade selected DIV element
-    new Effect.Opacity(div, {
-        to: 0.5,
-        duration: 0.5
-    });
+    $(div).fadeTo(500, 0.5)
 }
-
 function displayResponse(div) {
     // Restore opactity
-    new Effect.Opacity(div, {
-        to: 1.0,
-        duration: 0.5
-    });
+    $(div).fadeTo(500, 1.5)
 }

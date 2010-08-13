@@ -10,17 +10,13 @@
         <link rel="shortcut icon" href="${resource(dir:'images/icon', file:'favicon.ico')}" type="image/x-icon" />
         <g:layoutHead />
 
-        <!--
-          <g:javascript library="prototype" />
-          <g:javascript library="scriptaculous" />
-        -->
-        <g:javascript library="application" />
         <g:javascript library="jquery" plugin="jquery"/>
+        <g:javascript library="application" />
     </head>
     <body>
         <div id="header">
-            <div id="loader" style="display: none;">
-                <img src="${resource(dir:'images/icon', file:'loader.gif')}" width="32" height="32" alt="${message(code: 'loading.label', default: 'Loading...')}" title="${message(code: 'loading.label', default: 'Loading...')}" />
+            <div id="loading" style="display: none;">
+                <img src="${resource(dir:'images/icon', file:'loading.gif')}" width="32" height="32" alt="${message(code: 'loading.label', default: 'Loading...')}" title="${message(code: 'loading.label', default: 'Loading...')}" />
             </div>
             <div id="logo">
                 <a href="http://www.grails.org/plugin/picasa"><img src="${resource(dir:'images', file:'grails_picasa_plugin_logo.png')}" width="163" height="43" alt="Grails Picasa plug-in" title="Grails Picasa plug-in" /></a>

@@ -30,7 +30,7 @@ body {
     padding: 0px;
 }
 
-#loader {
+#loading {
     position: absolute;
     top: 125px;
     left: 75%;
