@@ -17,5 +17,5 @@ function displayLoading(div) {
 }
 function displayResponse(div) {
     // Restore opactity
-    $(div).fadeTo(500, 1.5)
+    $(div).fadeTo(500, 1.0)
 }
