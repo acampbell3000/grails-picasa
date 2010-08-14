@@ -25,11 +25,23 @@ import grails.test.*
  */
 class PicasaCommentServiceTests extends GrailsUnitTestCase {
 
+    // Declare test properties
+    PicasaCommentService picasaCommentService
+
+    // Declare test values
+    def final TEST_
+
     /**
      * Set up the test suite.
      */
     protected void setUp() {
         super.setUp()
+
+        // Initialise locking
+        mockLogging(PicasaCommentService, true)
+
+        // Initialise service
+        picasaCommentService = PicasaCommentService.newInstance()
     }
 
     /**
@@ -39,8 +51,10 @@ class PicasaCommentServiceTests extends GrailsUnitTestCase {
         super.tearDown()
     }
 
-
-    void testSomething() {
-
+    /**
+     * Unit test for the {@link PicasaCommentService#connect} method.
+     */
+    void testConnect() {
+        //picasaCommentService
     }
 }

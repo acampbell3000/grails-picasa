@@ -1,4 +1,4 @@
-VERSION: 0.6.5
+VERSION: 0.6.6
 
 Known issues:
 - Poor code coverage of the PicasaService.
@@ -11,6 +11,9 @@ Potential improvements:
 - Wiki details on how to make best use of UI.
 - Wiki API reference.
 - Update to Maven and new GData API client jars.
+
+Release notes 0.6.6 (TBA)
+- 
 
 Release notes 0.6.5 (14th August, 2010)
 - Ajax loading fix for use with jQuery.

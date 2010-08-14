@@ -52,7 +52,6 @@ class PicasaCacheUpdateService implements InitializingBean, ApplicationListener<
         backgroundRetrieveLimit = new Integer(
             grailsApplication?.config?.picasa?.backgroundRetrieveLimit ?:
                 DEFAULT_BACKGROUND_RETRIEVAL_LIMIT).intValue()
-        def z = backgroundRetrieveLimit
     }
 
     @Override
