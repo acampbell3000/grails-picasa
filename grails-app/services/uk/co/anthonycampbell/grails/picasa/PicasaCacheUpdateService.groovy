@@ -52,6 +52,7 @@ class PicasaCacheUpdateService implements InitializingBean, ApplicationListener<
         backgroundRetrieveLimit = new Integer(
             grailsApplication?.config?.picasa?.backgroundRetrieveLimit ?:
                 DEFAULT_BACKGROUND_RETRIEVAL_LIMIT).intValue()
+        def z = backgroundRetrieveLimit
     }
 
     @Override
@@ -65,7 +66,7 @@ class PicasaCacheUpdateService implements InitializingBean, ApplicationListener<
 
         log?.debug "PicasaUpdateEvent received (source=$source, albumId=$albumId, photoId=$photoId, " +
             "showAll=$showAll, photoEntriesTotal=${photoEntries?.size()}, " +
-            "backgroundRetrieveLimit=${backgroundRetrieveLimit}})"
+            "backgroundRetrieveLimit=${backgroundRetrieveLimit})"
         
         // Do we have a service and photo entries to work with
         if (source != null && photoEntries != null &&
@@ -122,7 +123,7 @@ class PicasaCacheUpdateService implements InitializingBean, ApplicationListener<
                 log?.debug "Attempting to update PicasaService cache with subsequent photo details " +
                     "(source=$source, albumId=${subsequentPhoto?.getAlbumId()}, " +
                     "photoId=${subsequentPhoto?.getId()}, showAll=$showAll, " +
-                    "backgroundRetrieveLimit=${backgroundRetrieveLimit}})"
+                    "backgroundRetrieveLimit=${backgroundRetrieveLimit})"
 
                 // Use service to retrieve photo details
                 source?.getPhoto(subsequentPhoto?.getAlbumId(), subsequentPhoto?.getId(), showAll, false)
@@ -135,7 +136,7 @@ class PicasaCacheUpdateService implements InitializingBean, ApplicationListener<
                 log?.debug "Attempting to update PicasaService cache with previous photo details " +
                     "(source=$source, albumId=${previousPhoto?.getAlbumId()}, " +
                     "photoId=${previousPhoto?.getId()}, showAll=$showAll, " +
-                    "backgroundRetrieveLimit=${backgroundRetrieveLimit}})"
+                    "backgroundRetrieveLimit=${backgroundRetrieveLimit})"
 
                 // Use service to retrieve photo details
                 source?.getPhoto(previousPhoto?.getAlbumId(), previousPhoto?.getId(), showAll, false)
@@ -144,7 +145,7 @@ class PicasaCacheUpdateService implements InitializingBean, ApplicationListener<
             log?.error "Update to update picasa service with photo details! (source=$source, " +
                 "albumId=$albumId, photoId=$photoId, showAll=$showAll, " +
                 "photoEntriesTotal=${photoEntries?.size()}, " +
-                "backgroundRetrieveLimit=${backgroundRetrieveLimit}})"
+                "backgroundRetrieveLimit=${backgroundRetrieveLimit})"
         }
     }
 }

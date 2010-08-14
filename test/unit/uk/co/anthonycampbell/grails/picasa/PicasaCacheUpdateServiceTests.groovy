@@ -20,6 +20,7 @@ import uk.co.anthonycampbell.grails.picasa.event.*
 
 import groovy.util.ConfigObject
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import grails.test.*
 import org.junit.*
 
@@ -57,6 +58,9 @@ class PicasaCacheUpdateServiceTests extends GrailsUnitTestCase {
     final def TEST_PHOTO_ID_D = "321654"
     final def TEST_PHOTO_ID_E = "216543"
     final def TEST_SHOW_ALL = true
+
+    // Variable to hold test config
+    def config
     
     /**
      * Set up the test suite.
@@ -69,9 +73,8 @@ class PicasaCacheUpdateServiceTests extends GrailsUnitTestCase {
         mockLogging(PicasaService, true)
         
         // Setup config
-        final def mockedConfig = new ConfigObject()
-        mockedConfig.picasa.backgroundRetrieveLimit = 2
-        GrailsApplication.metaClass.getConfig = { -> mockedConfig }
+        config = new ConfigObject()
+        config.picasa.backgroundRetrieveLimit = 2
 
         // Prepare photo entries
         TEST_PHOTO_ENTRY_A = new PhotoEntry()
@@ -100,6 +103,7 @@ class PicasaCacheUpdateServiceTests extends GrailsUnitTestCase {
 
         // Initialise service
         picasaCacheUpdateService = PicasaCacheUpdateService.newInstance()
+        picasaCacheUpdateService.grailsApplication = { -> config }
     }
 
     /**
@@ -209,12 +213,29 @@ class PicasaCacheUpdateServiceTests extends GrailsUnitTestCase {
      * Unit test for the {@link PicasaCacheUpdateService#onApplicationEvent}
      * method.
      */
-    void testOnApplicationEvent_SmallQueues() {
+    void testOnApplicationEvent_SmallPreviousQueue() {
         // Select source
         TEST_SOURCE = picasaService(4)
 
         // Initialise test events
         TEST_EVENT = new PicasaUpdateEvent(TEST_SOURCE, TEST_ALBUM_ID_D, TEST_PHOTO_ID_D, TEST_SHOW_ALL,
+            TEST_PHOTO_ENTRIES)
+
+        // Run test
+        picasaCacheUpdateService.afterPropertiesSet()
+        picasaCacheUpdateService.onApplicationEvent(TEST_EVENT)
+    }
+
+    /**
+     * Unit test for the {@link PicasaCacheUpdateService#onApplicationEvent}
+     * method.
+     */
+    void testOnApplicationEvent_SmallSubsequentQueue() {
+        // Select source
+        TEST_SOURCE = picasaService(4)
+
+        // Initialise test events
+        TEST_EVENT = new PicasaUpdateEvent(TEST_SOURCE, TEST_ALBUM_ID_B, TEST_PHOTO_ID_B, TEST_SHOW_ALL,
             TEST_PHOTO_ENTRIES)
 
         // Run test
