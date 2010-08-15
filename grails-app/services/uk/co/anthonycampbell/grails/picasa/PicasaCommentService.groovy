@@ -75,7 +75,7 @@ class PicasaCommentService implements InitializingBean {
      * @return whether a new connection was successfully made.
      */
     boolean connect(final String picasaApplicationName, final String picasaConsumerKey,
-            final String picasaConsumerSecret, final String allowComments) {
+            final String picasaConsumerSecret, final def allowComments) {
         log?.info "Setting the ${this.getClass().getSimpleName()} configuration..."
 
         this.picasaApplicationName = picasaApplicationName
@@ -363,6 +363,6 @@ class PicasaCommentService implements InitializingBean {
      * @result the current HTTP session.
      */
     private HttpSession getSession() {
-        return RequestContextHolder.currentRequestAttributes().getSession()
+        return RequestContextHolder?.currentRequestAttributes()?.getSession()
     }
 }
