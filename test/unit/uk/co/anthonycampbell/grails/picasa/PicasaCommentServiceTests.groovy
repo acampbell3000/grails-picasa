@@ -75,7 +75,7 @@ class PicasaCommentServiceTests extends GrailsUnitTestCase {
 
         // Prepare a test web request to provide a session
         final MockHttpServletRequest servletRequest = new MockHttpServletRequest()
-        servletRequest.getSession().metaClass.oAuthLoggedIn = { -> null }
+        //servletRequest.getSession().metaClass.oAuthLoggedIn = { -> null }
         //servletRequest.setParameter("oAuthNickname", "")
         //servletRequest.setParameter("oAuthUsername", "")
         //servletRequest.setParameter("oAuthThumbail", "")

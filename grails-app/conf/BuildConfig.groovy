@@ -41,4 +41,3 @@ grails.project.dependency.resolution = {
         test 'org.grails.plugins:code-coverage:latest.integration'
     }
 }
-
