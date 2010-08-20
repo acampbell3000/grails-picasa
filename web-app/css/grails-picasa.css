@@ -222,6 +222,12 @@ th.desc a {
     text-align: right;
 }
 
+#contentFooter {
+    clear: both;
+    padding: 0px;
+    margin: 0px;
+}
+
 /*
  * Tag Weighting
  */
@@ -265,4 +271,39 @@ th.desc a {
 #mapTiles p {
     margin: 0px;
     padding: 0px;
+}
+
+/*
+ * Album / Photo listing
+ */
+#listAlbum {
+    padding: 0px;
+    margin: 0px;
+}
+#listPhoto {
+    padding: 0px;
+    margin: 0px;
+}
+
+.album {
+    width: 104px;
+    float: left;
+    padding: 0px;
+    margin: 0px 14px 28px 14px;
+}
+.album p {
+    padding: 0px;
+    margin: 0px;
+    line-height: 0px;
+}
+.photo {
+    width: 104px;
+    float: left;
+    padding: 0px;
+    margin: 0px 14px 28px 14px;
+}
+.photo p {
+    padding: 0px;
+    margin: 0px;
+    line-height: 0px;
 }
