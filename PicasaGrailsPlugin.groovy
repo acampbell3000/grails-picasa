@@ -39,7 +39,7 @@ class PicasaGrailsPlugin {
     // The version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.1 > *"
     // The other plugins this plugin depends on"
-    def dependsOn = [ oauth: "0.6", jquery: "1.4.2.5", springEvents: "1.0" ]
+    def dependsOn = [ oauth: "0.7", jquery: "1.4.2.5", springEvents: "1.0" ]
     // Resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp"
