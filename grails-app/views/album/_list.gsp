@@ -3,6 +3,19 @@
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>
 					</g:if>
+					<g:if test="${grailsApplication?.config?.picasa?.useGridListing ?: false}">
+					    <g:each in="${albumInstanceList}" status="i" var="albumInstance">
+                            <div class="album">
+                                <p><g:link controller="photo" action="list" id="${albumInstance.albumId}"><img
+                                    src="${fieldValue(bean: albumInstance, field: "image")}"
+                                    width="${fieldValue(bean: albumInstance, field: "width")}"
+                                    height="${fieldValue(bean: albumInstance, field: "height")}"
+                                    alt="${fieldValue(bean: albumInstance, field: "name")}"
+                                    title="${fieldValue(bean: albumInstance, field: "name")}"></g:link></p>
+                            </div>
+					    </g:each>
+					</g:if>
+					<g:else>
 						<table>
 							<thead>
 								<tr>
@@ -43,6 +56,7 @@
 							</g:each>
 							</tbody>
 						</table>
+                    </g:else>
                       
                         <div id="contentFooter">
                             <div id="pagination">

@@ -3,6 +3,19 @@
 					<g:if test="${flash.message}">
 						<div id="flashMessage">${flash.message}</div>
 					</g:if>
+                    <g:if test="${grailsApplication?.config?.picasa?.useGridListing ?: false}">
+					    <g:each in="${photoInstanceList}" status="i" var="photoInstance">
+                            <div class="photo">
+                                <p><a href="${createLink(controller: "photo", action: "show", id: photoInstance.albumId)}/${photoInstance.photoId}"><img
+                                      src="${fieldValue(bean: photoInstance, field: "thumbnailImage")}"
+                                      width="${fieldValue(bean: photoInstance, field: "thumbnailWidth")}"
+                                      height="${fieldValue(bean: photoInstance, field: "thumbnailHeight")}"
+                                      alt="${fieldValue(bean: photoInstance, field: "title")}"
+                                      title="${fieldValue(bean: photoInstance, field: "title")}" /></a></p>
+                            </div>
+					    </g:each>
+					</g:if>
+					<g:else>
 						<table>
 							<thead>
 								<tr>
@@ -42,6 +55,7 @@
 							</g:each>
 							</tbody>
 						</table>
+					</g:else>
                       
                         <div id="contentFooter">
                             <div id="pagination">
