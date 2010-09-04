@@ -13,7 +13,7 @@ Potential improvements:
 - Update to Maven and new GData API client jars.
 
 Release notes 0.6.7 (TBA)
-- Update to OAuth plug-in 0.7.
+- Update to OAuth plug-in 0.9.
 
 Release notes 0.6.6 (20th August, 2010)
 - Unit tests for the PicasaCommentService.
