@@ -47,7 +47,7 @@ class PicasaGrailsPlugin {
 
     // Plug-in details
     def author = "Anthony Campbell"
-    def authorEmail = "acampbell3000 [[at] googlemail [dot]] com"
+    def authorEmail = "acampbell3000 [[at] mail from google"
     def title = "Grails Picasa Plug-in"
     def description = '''\\
 A simple plug-in which provides a photo gallery driven from your Google Picasa Web Albums account.
