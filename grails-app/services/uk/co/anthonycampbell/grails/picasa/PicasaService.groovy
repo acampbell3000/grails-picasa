@@ -158,8 +158,8 @@ class PicasaService implements InitializingBean {
                 final def errorMessage = "Unable to retrieve your Google Picasa Web Album. " +
                     "The provided ID was invalid. (albumId=$albumId, showAll=$showAll)"
 
-                log.error(errorMessage, ex)
-                throw new PicasaServiceException(errorMessage, ex)
+                log.error(errorMessage)
+                throw new PicasaServiceException(errorMessage)
             }
 
             // Generate cache key

@@ -14,6 +14,7 @@ Potential improvements:
 
 Release notes 0.6.7 (TBA)
 - Update to OAuth plug-in 0.10.
+- Small fix to the getAlbum method on the PicasaService.
 
 Release notes 0.6.6 (20th August, 2010)
 - Unit tests for the PicasaCommentService.
